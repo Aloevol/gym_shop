@@ -7,11 +7,11 @@ import { revalidatePath } from "next/cache";
 import connectToDB from "@/server/db";
 import {OrderModel} from "@/server/models/order/order.model";
 import {CartModel} from "@/server/models/cart/cart.model";
-import {IPackage} from "@/server/models/package/package.interface";
-import {IProduct} from "@/server/models/product/product.interface";
+import mongoose from "mongoose";
 
 interface CreateOrderData {
-    userId: string;
+    paymentStatus: string;
+    userId?: string;
     items: Array<{
         product?: string;
         package?: string;
@@ -33,10 +33,12 @@ export async function createOrder(orderData: CreateOrderData) {
     try {
         await connectToDB();
 
-        // Make sure items don't have trainingProgram if you're not using it
+        console.log("Order data received:", orderData);
+
+        // Process items
         const items = orderData.items.map((item: any) => ({
-            product: item.product || undefined,
-            package: item.package || undefined,
+            product: item.product ? new mongoose.Types.ObjectId(item.product) : undefined,
+            package: item.package ? new mongoose.Types.ObjectId(item.package) : undefined,
             quantity: item.quantity,
             price: item.price,
             title: item.title,
@@ -44,21 +46,78 @@ export async function createOrder(orderData: CreateOrderData) {
             type: item.type
         }));
 
-        const order = await OrderModel.create({
-            ...orderData,
-            items,
-            subtotal: orderData.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0),
-            tax: orderData.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) * 0.05,
-            total: orderData.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) * 1.05 // subtotal + 5% tax
-        });
+        console.log("Processed items:", items);
 
-        revalidatePath("/orders");
-        return { success: true, order: JSON.parse(JSON.stringify(order)) };
-    } catch (error) {
+        // Calculate totals
+        const subtotal = orderData.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+        const shippingFee = 60; // Default shipping fee, you can calculate based on district
+        const tax = subtotal * 0.05;
+        const total = subtotal + shippingFee + tax;
+
+        // Generate order number
+        const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+        // Prepare order data
+        const orderDataToSave: any = {
+            orderNumber: orderNumber,
+            items: items,
+            shippingAddress: {
+                fullName: orderData.shippingAddress.fullName,
+                phone: orderData.shippingAddress.phone,
+                email: orderData.shippingAddress.email,
+                address: orderData.shippingAddress.address,
+                city: orderData.shippingAddress.city,
+                postalCode: orderData.shippingAddress.postalCode || "",
+                country: orderData.shippingAddress.country,
+                district: orderData.shippingAddress.district
+            },
+            subtotal: subtotal,
+            shippingFee: shippingFee,
+            tax: tax,
+            total: total,
+            status: "pending",
+            paymentStatus: orderData.paymentStatus || "pending",
+            paymentMethod: orderData.paymentMethod,
+            notes: orderData.notes || ""
+        };
+
+        // Only add user field if userId is provided and not "guest"
+        if (orderData.userId && orderData.userId !== "guest") {
+            try {
+                orderDataToSave.user = new mongoose.Types.ObjectId(orderData.userId);
+            } catch (error) {
+                console.warn("Invalid user ID, creating guest order:", orderData.userId);
+                // Don't add user field for invalid IDs
+            }
+        }
+
+        console.log("Order data to save:", orderDataToSave);
+
+        // Create order
+        const order = await OrderModel.create(orderDataToSave);
+
+        // Convert to plain object for response
+        const plainOrder = order.toObject();
+
+        console.log("Order created successfully:", plainOrder);
+
+        return {
+            success: true,
+            order: plainOrder,
+            message: "Order created successfully"
+        };
+    } catch (error: any) {
         console.error("Error creating order:", error);
-        return { success: false, error: "Failed to create order" };
+        console.error("Error details:", error.errors);
+
+        return {
+            success: false,
+            error: error.message || "Failed to create order",
+            details: error.errors ? JSON.stringify(error.errors) : undefined
+        };
     }
 }
+
 
 export async function updateOrderStatus(orderId: string, status: string) {
     try {

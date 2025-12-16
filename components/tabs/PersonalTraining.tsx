@@ -434,7 +434,7 @@ function VideoManagementTab({
 
             {/* Videos Grid */}
             <div>
-                <h2 className="text-xl font-semibold mb-4">Uploaded Videos</h2>
+                <h2 className="text-xl font-semibold mb-4">Uploaded Video</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {videos.map((video) => (
                         <div
@@ -735,7 +735,7 @@ function TrainingProgramForm({
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label className="block text-sm font-medium mb-1">Price ($) *</label>
+                        <label className="block text-sm font-medium mb-1">Price (৳) *</label>
                         <input
                             type="number"
                             value={formData.price}
@@ -748,7 +748,7 @@ function TrainingProgramForm({
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium mb-1">Original Price ($)</label>
+                        <label className="block text-sm font-medium mb-1">Original Price (৳)</label>
                         <input
                             type="number"
                             value={formData.originalPrice}

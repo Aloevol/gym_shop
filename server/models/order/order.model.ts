@@ -4,7 +4,6 @@ import { IOrder, IOrderModel } from "./order.interface";
 const orderItemSchema = new Schema({
     product: { type: Schema.Types.ObjectId, ref: "Product" },
     package: { type: Schema.Types.ObjectId, ref: "Package" },
-    // Remove trainingProgram reference since you don't have this model
     quantity: { type: Number, required: true, min: 1 },
     price: { type: Number, required: true, min: 0 },
     title: { type: String, required: true },
@@ -12,7 +11,7 @@ const orderItemSchema = new Schema({
     type: {
         type: String,
         required: true,
-        enum: ["product", "package"] // Remove "trainingProgram" from enum
+        enum: ["product", "package"]
     }
 });
 
@@ -36,7 +35,8 @@ const orderSchema = new Schema<IOrder>({
     user: {
         type: Schema.Types.ObjectId,
         ref: "User",
-        required: true
+        required: false,
+        efault: null
     },
     items: [orderItemSchema],
     shippingAddress: shippingAddressSchema,

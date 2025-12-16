@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { X, Package, CreditCard, Truck, CheckCircle, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
-import {createOrder} from "@/server/functions/order.fun";
-import Image from "next/image"; // Add this import
+import { createOrder } from "@/server/functions/order.fun";
+import Image from "next/image";
 
 interface OrderModalProps {
     isOpen: boolean;
@@ -19,7 +19,7 @@ interface OrderModalProps {
         image: string;
         type: "product" | "package";
     }>;
-    userId: string;
+    userId?: string; // Make userId optional
     shippingInfo?: {
         provider: string;
         area: string;
@@ -32,6 +32,13 @@ interface OrderModalProps {
         shipping: number;
         total: number;
     };
+}
+
+interface ShippingArea {
+    id: string;
+    name: string;
+    cost: number;
+    deliveryTime: string;
 }
 
 interface ShippingFormData {
@@ -57,6 +64,13 @@ export default function OrderModal({
     const [loading, setLoading] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<"card" | "cashOnDelivery" | "bankTransfer">("cashOnDelivery");
 
+    const shippingAreas: ShippingArea[] = [
+        { id: "dhaka", name: "Dhaka City", cost: 60, deliveryTime: "1-2 days" },
+        { id: "outside-dhaka", name: "Outside Dhaka", cost: 120, deliveryTime: "3-5 days" },
+        { id: "remote", name: "Remote Areas", cost: 180, deliveryTime: "5-7 days" },
+    ];
+
+    const [selectedArea, setSelectedArea] = useState<string>("dhaka");
     const [formData, setFormData] = useState<ShippingFormData>({
         fullName: "",
         phone: "",
@@ -69,9 +83,12 @@ export default function OrderModal({
 
     if (!isOpen) return null;
 
+    // Calculate shipping fee based on selected area
+    const selectedShippingArea = shippingAreas.find(area => area.id === selectedArea);
+    const shippingFee = selectedShippingArea?.cost || 60;
+
     // Use provided order summary or calculate from items
     const subtotal = orderSummary?.subtotal || items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const shippingFee = orderSummary?.shipping || (subtotal > 2000 ? 0 : (shippingInfo?.cost || 60));
     const tax = subtotal * 0.05;
     const total = orderSummary?.total || (subtotal + shippingFee + tax);
 
@@ -80,6 +97,50 @@ export default function OrderModal({
             ...prev,
             [e.target.name]: e.target.value
         }));
+    };
+
+    const validateForm = (): boolean => {
+        // Check required fields
+        if (!formData.fullName.trim()) {
+            toast.error("Please enter your full name");
+            return false;
+        }
+
+        if (!formData.phone.trim()) {
+            toast.error("Please enter your phone number");
+            return false;
+        }
+
+        // Validate phone number format (Bangladeshi)
+        const phoneRegex = /^(?:\+88|88)?(01[3-9]\d{8})$/;
+        if (!phoneRegex.test(formData.phone.replace(/\s+/g, ''))) {
+            toast.error("Please enter a valid Bangladeshi phone number (e.g., 01712345678)");
+            return false;
+        }
+
+        if (!formData.email.trim()) {
+            toast.error("Please enter your email address");
+            return false;
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            toast.error("Please enter a valid email address");
+            return false;
+        }
+
+        if (!formData.address.trim()) {
+            toast.error("Please enter your address");
+            return false;
+        }
+
+        if (!formData.city.trim()) {
+            toast.error("Please enter your city");
+            return false;
+        }
+
+        return true;
     };
 
     const initiateSSLCommerzPayment = async (orderId: string, amount: number) => {
@@ -98,13 +159,12 @@ export default function OrderModal({
                         phone: formData.phone,
                         address: formData.address,
                         city: formData.city,
-                        postalCode: formData.postalCode || '1200', // Make sure this is included
+                        postalCode: formData.postalCode || '1200',
                     }
                 }),
             });
 
             const result = await response.json();
-            console.log('Payment initiation result:', result);
 
             if (result.success && result.paymentUrl) {
                 // Redirect to SSL Commerz payment page
@@ -120,29 +180,41 @@ export default function OrderModal({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Validate form before submission
+        if (!validateForm()) {
+            return;
+        }
+
         setLoading(true);
 
         try {
+            // Format phone number
+            const formattedPhone = formData.phone.replace(/\s+/g, '');
+
             const orderData = {
-                userId,
+                userId: userId || "guest", // Use "guest" if no user ID
                 items: items,
                 shippingAddress: {
                     ...formData,
-                    district: shippingInfo?.district || formData.city
+                    phone: formattedPhone,
+                    district: selectedShippingArea?.name || formData.city
                 },
                 paymentMethod,
-                paymentStatus: paymentMethod === "card" ? "pending" : "pending", // Set initial status
-                notes: `Order from cart with ${items.length} items - ${shippingInfo?.provider || 'Standard'} Delivery`
+                paymentStatus: paymentMethod === "card" ? "pending" : "pending",
+                notes: `Order from cart with ${items.length} items - Redx Delivery (${selectedShippingArea?.name})`
             };
 
-            // Call your server action to create order
+            // Call server action to create order
             const result = await createOrder(orderData);
 
             if (result.success && result.order) {
                 // If card payment, initiate SSL Commerz
                 if (paymentMethod === "card") {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-expect-error
                     await initiateSSLCommerzPayment(result.order._id, total);
-                    return; // Stop here as we're redirecting to payment page
+                    return;
                 }
 
                 // For cash on delivery, show success
@@ -166,16 +238,6 @@ export default function OrderModal({
 
     const handlePaymentSelection = (method: "card" | "cashOnDelivery" | "bankTransfer") => {
         setPaymentMethod(method);
-
-        // Show appropriate toast message based on payment method
-        if (method === "cashOnDelivery") {
-            toast.info("💰 Cash on Delivery selected. You'll pay when you receive your order.");
-        } else if (method === "card") {
-            toast.info("💳 Online payment selected. You'll be redirected to payment gateway.");
-        }
-        // else if (method === "bankTransfer") {
-        //     toast.info("🏦 Bank transfer selected. Please complete the transfer within 24 hours.");
-        // }
     };
 
     const handleClose = () => {
@@ -189,6 +251,7 @@ export default function OrderModal({
             postalCode: "",
             country: "Bangladesh"
         });
+        setSelectedArea("dhaka");
         onClose();
     };
 
@@ -253,32 +316,29 @@ export default function OrderModal({
                                     </div>
                                 </div>
 
-                                {/* Shipping Info */}
-                                {shippingInfo && (
-                                    <div className="bg-blue-50 p-3 rounded-lg mb-4">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <Truck className="w-4 h-4 inline mr-1 text-blue-600" />
-                                                <span className="font-medium text-blue-800 text-sm">
-                                                    {shippingInfo.provider} - {shippingInfo.area}
-                                                </span>
-                                                <p className="text-blue-600 text-xs mt-1">
-                                                    📍 {shippingInfo.district} • 🕒 {shippingInfo.deliveryTime}
-                                                </p>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="font-semibold text-blue-800">
-                                                    ৳ {shippingInfo.cost.toLocaleString()}
+                                {/* Shipping Area Selection */}
+                                <div className="mb-4">
+                                    <h4 className="font-medium text-gray-700 mb-2">Delivery Area</h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                        {shippingAreas.map((area) => (
+                                            <button
+                                                key={area.id}
+                                                type="button"
+                                                onClick={() => setSelectedArea(area.id)}
+                                                className={`p-3 border rounded-lg text-center transition-all ${
+                                                    selectedArea === area.id
+                                                        ? 'border-[#F27D31] bg-orange-50'
+                                                        : 'border-gray-300 hover:bg-gray-50'
+                                                }`}
+                                            >
+                                                <div className="font-medium text-sm">{area.name}</div>
+                                                <div className="text-xs text-gray-600 mt-1">
+                                                    ৳ {area.cost} • {area.deliveryTime}
                                                 </div>
-                                            </div>
-                                        </div>
-                                        {shippingFee === 0 && (
-                                            <div className="text-green-600 text-xs mt-2 font-medium">
-                                                🎉 Free shipping applied!
-                                            </div>
-                                        )}
+                                            </button>
+                                        ))}
                                     </div>
-                                )}
+                                </div>
 
                                 {/* Price Breakdown */}
                                 <div className="space-y-2 text-sm bg-gray-50 p-4 rounded-lg">
@@ -287,7 +347,7 @@ export default function OrderModal({
                                         <span>৳ {subtotal.toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span>Shipping:</span>
+                                        <span>Shipping ({selectedShippingArea?.name}):</span>
                                         <span>{shippingFee === 0 ? "Free" : `৳ ${shippingFee.toLocaleString()}`}</span>
                                     </div>
                                     <div className="flex justify-between">
@@ -321,7 +381,7 @@ export default function OrderModal({
                                         <input
                                             type="tel"
                                             name="phone"
-                                            placeholder="Phone Number *"
+                                            placeholder="Phone Number (e.g., 01712345678) *"
                                             required
                                             value={formData.phone}
                                             onChange={handleInputChange}
@@ -340,7 +400,7 @@ export default function OrderModal({
                                         />
                                         <textarea
                                             name="address"
-                                            placeholder="Full Address *"
+                                            placeholder="Full Address (House, Road, Area) *"
                                             required
                                             value={formData.address}
                                             onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
@@ -422,39 +482,7 @@ export default function OrderModal({
                                                 <p className="text-sm text-gray-600">Pay securely online</p>
                                             </div>
                                         </label>
-
-                                        {/*<label className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${*/}
-                                        {/*    paymentMethod === "bankTransfer" ? "border-[#F27D31] bg-orange-50" : "border-gray-300 hover:bg-gray-50"*/}
-                                        {/*}`}>*/}
-                                        {/*    <input*/}
-                                        {/*        type="radio"*/}
-                                        {/*        name="paymentMethod"*/}
-                                        {/*        value="bankTransfer"*/}
-                                        {/*        checked={paymentMethod === "bankTransfer"}*/}
-                                        {/*        onChange={() => handlePaymentSelection("bankTransfer")}*/}
-                                        {/*        className="text-[#F27D31] focus:ring-[#F27D31]"*/}
-                                        {/*        disabled={loading}*/}
-                                        {/*    />*/}
-                                        {/*    <CreditCard className="w-5 h-5" />*/}
-                                        {/*    <div className="flex-1">*/}
-                                        {/*        <span className="font-medium">Bank Transfer</span>*/}
-                                        {/*        <p className="text-sm text-gray-600">Transfer to our bank account</p>*/}
-                                        {/*    </div>*/}
-                                        {/*</label>*/}
                                     </div>
-
-                                    {/* Online Payment Button (for card payments) */}
-                                    {/*{paymentsentMethod === "card" && (*/}
-                                    {/*    <div className="mt-4">*/}
-                                    {/*        <button*/}
-                                    {/*            type="button"*/}
-                                    {/*            onClick={handleOnlinePayment}*/}
-                                    {/*            className="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition-all"*/}
-                                    {/*        >*/}
-                                    {/*            💳 Proceed to Online Payment*/}
-                                    {/*        </button>*/}
-                                    {/*    </div>*/}
-                                    {/*)}*/}
                                 </div>
                             </div>
                         </div>
@@ -502,7 +530,7 @@ export default function OrderModal({
                         </p>
 
                         {/* Order Details */}
-                        <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left">
+                        <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left max-w-md mx-auto">
                             <h4 className="font-semibold mb-3 text-center">Order Details</h4>
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
@@ -510,32 +538,47 @@ export default function OrderModal({
                                     <span>{items.length}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span>Payment Method:</span>
-                                    <span className="capitalize">{paymentMethod}</span>
+                                    <span>Delivery Area:</span>
+                                    <span>{selectedShippingArea?.name}</span>
                                 </div>
                                 <div className="flex justify-between">
+                                    <span>Shipping Cost:</span>
+                                    <span>৳ {shippingFee.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span>Payment Method:</span>
+                                    <span className="capitalize">
+                                        {paymentMethod === "cashOnDelivery" ? "Cash on Delivery" : "Online Payment"}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between font-semibold border-t pt-2 mt-2">
                                     <span>Total Amount:</span>
-                                    <span className="font-semibold text-[#F27D31]">৳ {total.toLocaleString()}</span>
+                                    <span className="text-[#F27D31]">৳ {total.toLocaleString()}</span>
                                 </div>
                                 {paymentMethod === "cashOnDelivery" && (
-                                    <div className="text-green-600 text-sm mt-2">
+                                    <div className="text-green-600 text-sm mt-2 text-center">
                                         💰 You&#39;ll pay when you receive your order
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        <div className="bg-blue-50 rounded-xl p-4 mb-6">
+                        <div className="bg-blue-50 rounded-xl p-4 mb-6 max-w-md mx-auto">
                             <h4 className="font-semibold mb-2">What&#39;s Next?</h4>
-                            <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-600">
                                 <div className="flex items-center gap-2">
                                     <Package className="w-4 h-4" />
                                     <span>Order Confirmation</span>
                                 </div>
-                                <Truck className="w-4 h-4" />
+                                <div className="hidden sm:block">→</div>
+                                <div className="flex items-center gap-2">
+                                    <Truck className="w-4 h-4" />
+                                    <span>Processing</span>
+                                </div>
+                                <div className="hidden sm:block">→</div>
                                 <div className="flex items-center gap-2">
                                     <CheckCircle className="w-4 h-4" />
-                                    <span>Delivery</span>
+                                    <span>Delivery ({selectedShippingArea?.deliveryTime})</span>
                                 </div>
                             </div>
                         </div>

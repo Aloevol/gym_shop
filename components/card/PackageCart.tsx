@@ -61,7 +61,7 @@ const PackageCard = React.memo(({
             <div className="mt-3 space-y-1">
                 <p className="text-2xl font-bold text-[#125BAC]">${pkg.price}</p>
                 {pkg.originalPrice && pkg.originalPrice > pkg.price && (
-                    <p className="text-sm text-gray-500 line-through">${pkg.originalPrice}</p>
+                    <p className="text-sm text-gray-500 line-through">৳{pkg.originalPrice}</p>
                 )}
                 <p className="text-xs text-gray-400 capitalize">{pkg.category}</p>
             </div>

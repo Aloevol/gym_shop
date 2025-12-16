@@ -1,4 +1,7 @@
 import { User } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
 
 export default function Navbar () {
 
@@ -7,7 +10,15 @@ export default function Navbar () {
             <div className={"w-full h-full px-6 mx-auto flex justify-between items-center"}>
                 <div className={"w-[248px] h-[64px] flex justify-center items-center"}>
                     {/* <ImageWithSkeleton src={Logo} /> */}
-                    <h1 className="text-3xl font-bold text-[#125BAC] cursor-pointer">Logo</h1>
+                    <Link href="/">
+                        <Image
+                            src="/NavLogo.png"
+                            alt="GymShop Logo"
+                            width={120}       // adjust size
+                            height={40}       // adjust size
+                            className="object-contain"
+                        />
+                    </Link>
                 </div>
                 <div>
                     <div className="p-2 border rounded-full bg-blue-100 cursor-pointer">

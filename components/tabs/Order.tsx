@@ -129,7 +129,7 @@ export default function AdminOrdersPage() {
                     name: order.shippingAddress.fullName,
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
-                    email: order.user.email,
+                    email: order.user? order.user.email : "no-email-given",
                     phone: order.shippingAddress.phone,
                     address: order.shippingAddress.address,
                     city: order.shippingAddress.city,
@@ -197,7 +197,7 @@ export default function AdminOrdersPage() {
             order.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            order.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (order.user? order.user.email : "no-email-given").toLowerCase().includes(searchTerm.toLowerCase()) ||
             order.shippingAddress.phone.includes(searchTerm);
 
         const matchesStatus = statusFilter === "all" || order.status === statusFilter;
@@ -322,7 +322,7 @@ export default function AdminOrdersPage() {
                                     <div className="text-sm text-gray-500">{
                                         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                                         // @ts-ignore
-                                        order.user.email
+                                        order.user? order.user.email : "no-email-given"
                                     }</div>
                                     <div className="text-sm text-gray-500">{order.shippingAddress.phone}</div>
                                 </td>
@@ -527,8 +527,9 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate, onPaymentStatusUpda
                                         <label className="text-sm font-medium text-gray-600">Email</label>
                                         <p className="text-gray-900">{
                                             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-                                            order.user.email}</p>
+                                            // @ts-ignore
+                                            order.user? order.user.email : "no-email-given"
+                                        }</p>
                                     </div>
                                     <div>
                                         <label className="text-sm font-medium text-gray-600">Phone</label>
@@ -536,7 +537,7 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate, onPaymentStatusUpda
                                     </div>
                                     <div>
                                         <label className="text-sm font-medium text-gray-600">User ID</label>
-                                        <p className="text-gray-900">{order.user._id.toString()}</p>
+                                        <p className="text-gray-900">{(order.user? order.user._id : "ID-Not-founded").toString()}</p>
                                     </div>
                                 </div>
                             </div>

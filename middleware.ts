@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
   const protectedRoutes = ["/profile"];
   const adminRoutes = ["/dashboard"];
 
-  if (path.startsWith("/_next") || path.startsWith("/favicon.ico")) {
+  if (path.startsWith("/_next") || path.startsWith("/icon.png")) {
     return NextResponse.next();
   }
 

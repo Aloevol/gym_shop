@@ -10,6 +10,7 @@ import { createAdminServerSide } from "@/server/functions/admin.fun";
 import {countCurrentCartLength} from "@/server/functions/cart.fun";
 import {getCookie} from "@/server/helper/jwt.helper";
 import {IUser} from "@/server/models/user/user.interfce";
+import Image from "next/image";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -69,19 +70,15 @@ const Navbar = () => {
       <TopBar />
       <nav className="py-3 px-6 flex items-center justify-between max-w-[1540px] mx-auto">
         {/* Logo */}
-        <Link href="/" className="text-xl font-bold text-[#F27D31]">
-          GymShop
+        <Link href="/">
+          <Image
+              src="/NavLogo.png"
+              alt="GymShop Logo"
+              width={120}       // adjust size
+              height={40}       // adjust size
+              className="object-contain"
+          />
         </Link>
-
-        {/* Desktop Search Bar */}
-        {/*<div className="hidden md:flex items-center w-[35%] bg-white border rounded-full px-3 py-1">*/}
-        {/*  <Search size={18} className="text-[#F27D31]" />*/}
-        {/*  <input*/}
-        {/*    type="text"*/}
-        {/*    placeholder="Search for products..."*/}
-        {/*    className="ml-2 w-full outline-none text-sm text-gray-700"*/}
-        {/*  />*/}
-        {/*</div>*/}
 
         {/* Desktop Nav Links */}
         <div className="hidden lg:flex items-center gap-6 text-sm font-medium">

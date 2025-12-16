@@ -26,9 +26,9 @@ export async function createAdminServerSide(){
         if(isAdminExist) return SendResponse({ isError: true, status: 409, message: "Admin already exists!" });
 
         await UserModel.create({
-            name: "Admin",
-            email: "admin@admin.com",
-            password: "admin123",
+            name: "Hasan Saud",
+            email: process.env.ADMIN_EMAIL,
+            password: process.env.ADMIN_PASSWORD,
             isVerified: true,
             role: USER_ROLE.ADMIN
         });

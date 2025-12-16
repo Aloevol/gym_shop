@@ -2,6 +2,7 @@
 import Link from "next/link";
 import React from "react";
 import { FaFacebookF, FaLinkedinIn, FaTwitter, FaTiktok } from "react-icons/fa";
+import Image from "next/image";
 // import { FaXTwitter } from "react-icons/fa6";
 
 const Footer = () => {
@@ -18,7 +19,16 @@ const Footer = () => {
       <div className="flex flex-col lg:flex-row gap-10">
         {/* Left side */}
         <div className="lg:w-1/2 flex flex-col gap-4">
-          <h3 className="text-xl font-bold">GymShop</h3>
+          {/* Logo */}
+          <Link href="/">
+            <Image
+                src="/NavLogo.png"
+                alt="GymShop Logo"
+                width={120}       // adjust size
+                height={40}       // adjust size
+                className="object-contain"
+            />
+          </Link>
           <p className="text-gray-300">
             At Jhoori, we’re committed to transforming outdoor spaces across
             Northern Illinois and Southern Wisconsin. From lawn care to
