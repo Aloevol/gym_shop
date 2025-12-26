@@ -31,6 +31,7 @@ export default function RootLayout({
         <main className="bg-[#F27D31]">
           {children}
         </main>
+        {/* Just test */}
         <Toaster
             position="top-right"
             expand={true}
