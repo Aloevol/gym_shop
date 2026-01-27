@@ -21,18 +21,18 @@ interface ProductCartProps {
 }
 
 function ProductCart({
-                         id,
-                         forwardUrl = `/product/${id}`,
-                         name = "Product Name",
-                         category = "Category",
-                         price = 100,
-                         discount = 20,
-                         priceAfterDiscount = price - price * (discount / 100),
-                         image,
-                         rating = 0,
-                         brand,
-                         isActive = true,
-                     }: ProductCartProps) {
+    id,
+    forwardUrl = `/product/${id}`,
+    name = "Product Name",
+    category = "Category",
+    price = 100,
+    discount = 20,
+    priceAfterDiscount = price - price * (discount / 100),
+    image,
+    rating = 0,
+    brand,
+    isActive = true,
+}: ProductCartProps) {
     return (
         <div className="w-full max-w-[280px] sm:max-w-[220px] md:max-w-[250px] lg:max-w-[300px] bg-white border border-gray-200 shadow-md rounded-md overflow-hidden flex flex-col relative transition-transform duration-300 hover:scale-[1.02]">
             {/* Discount Badge */}
@@ -48,14 +48,16 @@ function ProductCart({
             )}
 
             {/* Image Section */}
-            <div className="relative w-full aspect-[1/1.1] z-0">
-                <Image
-                    src={image}
-                    alt={name}
-                    fill
-                    className="object-cover rounded-t-md"
-                />
-            </div>
+            <Link href={forwardUrl}>
+                <div className="relative w-full aspect-[1/1.1] z-0">
+                    <Image
+                        src={image}
+                        alt={name}
+                        fill
+                        className="object-cover rounded-t-md"
+                    />
+                </div>
+            </Link>
 
             {/* Product Info */}
             <div className="flex flex-col items-center text-center p-3 flex-grow">

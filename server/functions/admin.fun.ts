@@ -10,10 +10,11 @@ import { IResponse } from "../interface/response.interface";
 import {IUpdateHeroSectionInput, IUpdatePrivacyPolicySectionInput} from "../interface/auth.interface";
 import { SiteModle } from "../models/site/site.model";
 import { ISite } from "../models/site/site.interface";
-import { IUpdateHeroSectionImageInput } from "../interface/admin.interface";
-import { uploadMultipleToCloudinary } from "../helper/cloudinary.helper";
+import { IHeroSlideInput, IReorderSlidesInput, IUpdateHeroSectionImageInput, IUpdateHeroSlideInput } from "../interface/admin.interface";
+import { uploadImageToCloudinary, uploadMultipleToCloudinary } from "../helper/cloudinary.helper";
 import { ICreateOfferInput, IOfferResponse, IUpdateOfferInput } from "../interface/offer.interface";
 import { OfferModel } from "../models/offer/offer.model";
+import { Types } from "mongoose";
 
 let isAdminCreated = false;
 
@@ -70,68 +71,354 @@ export async function editeHeroSectionServerSide ( body: IUpdateHeroSectionInput
   }
 }
 
-export async function getHeroSectionServerSide(): Promise<IResponse> {
+// Get all hero slides
+export async function getHeroSlidesServerSide(): Promise<IResponse> {
   try {
     await connectToDB();
-    const res = await SiteModle.findOne({}).lean().exec() as ISite;
-    return SendResponse({ 
-        isError: false, 
-        status: 200, 
-        message: "Get Hero section successfully!", 
-        data: res 
-    });
 
+    const site = await SiteModle.findOne({}).lean().exec();
+    
+    const slides = site?.heroSlides || [];
+    const sortedSlides = slides
+      .filter(slide => slide.isActive)
+      .sort((a, b) => a.order - b.order);
+    
+    return SendResponse({
+      isError: false,
+      status: 200,
+      message: "Hero slides fetched successfully!",
+      data: sortedSlides
+    });
   } catch (error: ServerError) {
     return handleServerError(error);
   }
 }
 
-export async function updateHeroSectionImageServerSide(body: IUpdateHeroSectionImageInput): Promise<IResponse> {
+// Get all hero slides for admin
+export async function getAllHeroSlidesAdminServerSide(): Promise<IResponse> {
   try {
     await connectToDB();
-
-    const imageFile = body.get("imageFile") as File;
+    const site = await SiteModle.findOne({}).lean().exec();
     
-    if (!imageFile) {
-      return SendResponse({ 
-        isError: true, 
-        status: 400, 
-        message: "No image file provided" 
-      });
-    }
-
-    // Upload to Cloudinary
-    const cloudinaryResponse = await uploadMultipleToCloudinary([imageFile]);
+    const slides = site?.heroSlides || [];
+    const sortedSlides = slides.sort((a, b) => a.order - b.order);
     
-    if (!cloudinaryResponse || cloudinaryResponse.length === 0) {
-      return SendResponse({ 
-        isError: true, 
-        status: 500, 
-        message: "Failed to upload image to Cloudinary" 
-      });
-    }
-
-    const imageUrl = cloudinaryResponse[0];
-
-    // Update database
-    await SiteModle.findOneAndUpdate(
-      {},
-      { $set: { "hero.imageUrl": imageUrl } },
-      { new: true, upsert: true }
-    ).lean().exec();
-
-    return SendResponse({ 
-      isError: false, 
-      status: 200, 
-      message: "Hero section image updated successfully!",
-      data: { imageUrl }
+    return SendResponse({
+      isError: false,
+      status: 200,
+      message: "All hero slides fetched successfully!",
+      data: sortedSlides
     });
-
-  } catch (error) {
-    console.error("Error in updateHeroSectionImageServerSide:", error);
+  } catch (error: ServerError) {
     return handleServerError(error);
   }
 }
+
+// Add new hero slide
+export async function addHeroSlideServerSide(body: IHeroSlideInput): Promise<IResponse> {
+  try {
+    await connectToDB();
+
+    const title = body.get("title") as string;
+    const description = body.get("description") as string;
+    const buttonText = (body.get("buttonText") as string) || "Shop Now";
+    const buttonLink = (body.get("buttonLink") as string) || "/shop";
+    const imageFile = body.get("imageFile") as File;
+
+    if (!imageFile) {
+      return SendResponse({
+        isError: true,
+        status: 400,
+        message: "Image file is required"
+      });
+    }
+
+    if (!title.trim() || !description.trim()) {
+      return SendResponse({
+        isError: true,
+        status: 400,
+        message: "Title and description are required"
+      });
+    }
+
+    if (!imageFile) {
+      return SendResponse({
+        isError: true,
+        status: 400,
+        message: "Image file is required"
+      });
+    }
+
+    // Upload image to Cloudinary
+    const cloudinaryResponse = await uploadImageToCloudinary(imageFile);
+    
+    if (!cloudinaryResponse ) {
+      return SendResponse({
+        isError: true,
+        status: 500,
+        message: "Failed to upload image"
+      });
+    }
+
+    const imageUrl = cloudinaryResponse.url
+
+    // Find or create site document
+    let site = await SiteModle.findOne({});
+    
+    if (!site) {
+      // Create new site with heroSlides array
+      site = await SiteModle.create({ 
+        heroSlides: [] 
+      });
+    } else {
+      // Ensure heroSlides array exists
+      if (!site.heroSlides) {
+        site.heroSlides = [];
+      }
+    }
+
+    // Calculate order
+    const currentSlides = site.heroSlides || [];
+    const maxOrder = currentSlides.length > 0 
+      ? Math.max(...currentSlides.map(slide => slide.order))
+      : -1;
+
+    const newSlide = {
+      _id: new Types.ObjectId(),
+      title,
+      description,
+      imageUrl,
+      order: maxOrder + 1,
+      isActive: true,
+      buttonText,
+      buttonLink
+    };
+
+    // Add the new slide
+    site.heroSlides.push(newSlide);
+    await site.save();
+
+    return SendResponse({
+      isError: false,
+      status: 200,
+      message: "Hero slide added successfully!",
+      data: {
+        slideId: newSlide._id.toString(),
+        ...newSlide,
+        _id: newSlide._id.toString()
+      }
+    });
+  } catch (error: ServerError) {
+    console.error("Error in addHeroSlideServerSide:", error);
+    return handleServerError(error);
+  }
+}
+
+// Update hero slide
+export async function updateHeroSlideServerSide(body: IUpdateHeroSlideInput): Promise<IResponse> {
+  try {
+    await connectToDB();
+
+    const slideId = body.get("slideId") as string;
+    const title = body.get("title") as string;
+    const description = body.get("description") as string;
+    const buttonText = body.get("buttonText") as string;
+    const buttonLink = body.get("buttonLink") as string;
+    const imageFile = body.get("imageFile") as File;
+
+    if (!slideId) {
+      return SendResponse({
+        isError: true,
+        status: 400,
+        message: "Slide ID is required"
+      });
+    }
+
+    if (!title.trim() || !description.trim()) {
+      return SendResponse({
+        isError: true,
+        status: 400,
+        message: "Title and description are required"
+      });
+    }
+
+    // Find the site
+    const site = await SiteModle.findOne({});
+    
+    if (!site) {
+      return SendResponse({
+        isError: true,
+        status: 404,
+        message: "Site configuration not found"
+      });
+    }
+
+    // Find the slide index
+    const slideIndex = site.heroSlides.findIndex(
+      (slide: any) => slide._id.toString() === slideId
+    );
+
+    if (slideIndex === -1) {
+      return SendResponse({
+        isError: true,
+        status: 404,
+        message: "Slide not found"
+      });
+    }
+
+    // Update slide data
+    site.heroSlides[slideIndex].title = title;
+    site.heroSlides[slideIndex].description = description;
+    
+    if (buttonText !== undefined) {
+      site.heroSlides[slideIndex].buttonText = buttonText;
+    }
+    
+    if (buttonLink !== undefined) {
+      site.heroSlides[slideIndex].buttonLink = buttonLink;
+    }
+
+    // Update image if provided
+    if (imageFile) {
+      const cloudinaryResponse = await uploadMultipleToCloudinary([imageFile]);
+      if (cloudinaryResponse && cloudinaryResponse.length > 0) {
+        site.heroSlides[slideIndex].imageUrl = cloudinaryResponse[0];
+      }
+    }
+
+    await site.save();
+
+    return SendResponse({
+      isError: false,
+      status: 200,
+      message: "Hero slide updated successfully!",
+      data: JSON.parse(JSON.stringify(site.heroSlides[slideIndex]))
+    });
+  } catch (error: ServerError) {
+    console.error("Error in updateHeroSlideServerSide:", error);
+    return handleServerError(error);
+  }
+}
+
+// Delete hero slide
+export async function deleteHeroSlideServerSide(slideId: string): Promise<IResponse> {
+  try {
+    await connectToDB();
+
+    // Using findOneAndUpdate with $pull
+    const updatedSite = await SiteModle.findOneAndUpdate(
+      {},
+      { $pull: { heroSlides: { _id: slideId } } },
+      { new: true }
+    ).lean().exec();
+
+    if (!updatedSite) {
+      return SendResponse({
+        isError: true,
+        status: 404,
+        message: "Site not found"
+      });
+    }
+
+    return SendResponse({
+      isError: false,
+      status: 200,
+      message: "Hero slide deleted successfully!"
+    });
+  } catch (error: ServerError) {
+    console.error("Error in deleteHeroSlideServerSide:", error);
+    return handleServerError(error);
+  }
+}
+
+// Reorder hero slides
+export async function reorderHeroSlidesServerSide(body: IReorderSlidesInput): Promise<IResponse> {
+  try {
+    await connectToDB();
+
+    const slidesData = JSON.parse(body.get("slides") as string);
+
+    // Find the site
+    const site = await SiteModle.findOne({});
+    
+    if (!site) {
+      return SendResponse({
+        isError: true,
+        status: 404,
+        message: "Site configuration not found"
+      });
+    }
+
+    // Update orders
+    slidesData.forEach((slideUpdate: { slideId: string; order: number }) => {
+      const slideIndex = site.heroSlides.findIndex(
+        (slide: any) => slide._id.toString() === slideUpdate.slideId
+      );
+      
+      if (slideIndex !== -1) {
+        site.heroSlides[slideIndex].order = slideUpdate.order;
+      }
+    });
+
+    // Sort by order
+    site.heroSlides.sort((a: any, b: any) => a.order - b.order);
+    
+    await site.save();
+
+    return SendResponse({
+      isError: false,
+      status: 200,
+      message: "Slides reordered successfully!"
+    });
+  } catch (error: ServerError) {
+    console.error("Error in reorderHeroSlidesServerSide:", error);
+    return handleServerError(error);
+  }
+}
+
+// Toggle slide active status
+export async function toggleHeroSlideStatusServerSide(slideId: string): Promise<IResponse> {
+  try {
+    await connectToDB();
+
+    const site = await SiteModle.findOne({});
+    
+    if (!site) {
+      return SendResponse({
+        isError: true,
+        status: 404,
+        message: "Site configuration not found"
+      });
+    }
+
+    const slideIndex = site.heroSlides.findIndex(
+      (slide: any) => slide._id.toString() === slideId
+    );
+    
+    if (slideIndex === -1) {
+      return SendResponse({
+        isError: true,
+        status: 404,
+        message: "Slide not found"
+      });
+    }
+
+    // Toggle isActive
+    site.heroSlides[slideIndex].isActive = !site.heroSlides[slideIndex].isActive;
+    
+    await site.save();
+
+    return SendResponse({
+      isError: false,
+      status: 200,
+      message: `Slide ${site.heroSlides[slideIndex].isActive ? 'activated' : 'deactivated'} successfully!`
+    });
+  } catch (error: ServerError) {
+    console.error("Error in toggleHeroSlideStatusServerSide:", error);
+    return handleServerError(error);
+  }
+}
+
 
 export async function createOfferServerSide(body: ICreateOfferInput): Promise<IResponse> {
   try {

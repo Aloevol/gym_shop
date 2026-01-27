@@ -5,9 +5,9 @@ import Sidebar from "../bar/Sidebar";
 import BannerManagement from "../tabs/BannerMessage";
 import Loader from "../loader/Loader";
 import OrderManagement from "@/components/tabs/Order";
+import HeroSliderAdmin from "../section/HeroSliderAdmin";
 
 const OverviewTab = lazy(() => import("../tabs/Overview"));
-const Hero = lazy(() => import("../tabs/Hero"));
 const Offer = lazy(() => import("../tabs/Offer"));
 const Products = lazy(() => import("../tabs/Products"));
 const PersonalTraining = lazy(() => import("../tabs/PersonalTraining"));
@@ -24,7 +24,7 @@ export default function DashboardLayout() {
     const renderTabContent = () => {
         switch (activeTab) {
             case "Overview": return <OverviewTab />;
-            case "Hero": return <Hero />;
+            case "Hero": return <HeroSliderAdmin />;
             case "Offer": return <Offer />;
             case "Products": return <Products />;
             case "Personal Training": return <PersonalTraining />;

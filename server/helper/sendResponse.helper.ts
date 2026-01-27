@@ -2,11 +2,11 @@ import {IResponse} from "@/server/interface/response.interface";
 import {IUser} from "@/server/models/user/user.interfce";
 
 export const SendResponse = <T = unknown>({
-                                              isError,
-                                              status,
-                                              message,
-                                              data
-                                          }: {
+    isError,
+    status,
+    message,
+    data
+}: {
     isError: boolean;
     status: number;
     message: string;

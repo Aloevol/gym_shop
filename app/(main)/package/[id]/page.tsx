@@ -164,9 +164,9 @@ function PackageViewPage() {
     };
 
     const directBuy = () => {
-        if (!user){
-            return toast.warning("Please login to buy a product");
-        }
+        // if (!user){
+        //     return toast.warning("Please login to buy a product");
+        // }
         setIsOrderModalOpen(true);
     }
 
