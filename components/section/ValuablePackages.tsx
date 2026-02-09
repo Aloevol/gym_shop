@@ -296,37 +296,36 @@ const ValuablePackages = () => {
                 </p>
             </motion.div>
 
-            {/* Cards Grid */}
-            {displayPackages.length > 0 ? (
-                <motion.div
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full gap-6 justify-items-center max-w-[1200px]"
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    variants={{
-                        hidden: {},
-                        visible: {
-                            transition: {
-                                staggerChildren: 0.2
-                            }
-                        }
-                    }}
-                >
-                    {displayPackages.map((pkg, index) => (
+                    {/* Cards Grid */}
+                    {displayPackages.length > 0 ? (
                         <motion.div
-                            key={pkg._id || `package-${index}`}
+                            className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 w-full gap-3 sm:gap-6 justify-items-center max-w-[1200px]"
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
                             variants={{
-                                hidden: { opacity: 0, y: 20 },
-                                visible: { opacity: 1, y: 0 }
+                                hidden: {},
+                                visible: {
+                                    transition: {
+                                        staggerChildren: 0.2
+                                    }
+                                }
                             }}
-                            transition={{ duration: 0.6, delay: index * 0.1 }}
-                            className="w-full max-w-sm"
                         >
-                            <PackageDisplayCard pkg={pkg as unknown as IPackage} />
-                        </motion.div>
-                    ))}
-                </motion.div>
-            ) : (
+                            {displayPackages.map((pkg, index) => (
+                                <motion.div
+                                    key={pkg._id || `package-${index}`}
+                                    variants={{
+                                        hidden: { opacity: 0, y: 20 },
+                                        visible: { opacity: 1, y: 0 }
+                                    }}
+                                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                                    className="w-full"
+                                >
+                                    <PackageDisplayCard pkg={pkg as unknown as IPackage} />
+                                </motion.div>
+                            ))}
+                        </motion.div>            ) : (
                 <motion.div
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}

@@ -11,9 +11,17 @@ const heroSlideSchema = new Schema({
   buttonLink: { type: String, default: "/shop" }
 });
 
+const navLinkSchema = new Schema({
+  name: { type: String, required: true },
+  href: { type: String, required: true },
+  order: { type: Number, default: 0 },
+  isActive: { type: Boolean, default: true }
+});
+
 const siteSchema = new Schema<ISite>({
   heroSlides: [heroSlideSchema],
   privacyAndPolicy: { type: String, default: "" },
+  navLinks: [navLinkSchema],
 }, { timestamps: true });
 
 let SiteModle: ISiteModel;

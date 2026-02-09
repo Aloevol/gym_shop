@@ -3,6 +3,7 @@ import { lazy, useState, Suspense } from "react";
 import Navbar from "../bar/Navbar";
 import Sidebar from "../bar/Sidebar";
 import BannerManagement from "../tabs/BannerMessage";
+import NavbarManagement from "../tabs/NavbarManagement";
 import Loader from "../loader/Loader";
 import OrderManagement from "@/components/tabs/Order";
 import HeroSliderAdmin from "../section/HeroSliderAdmin";
@@ -30,6 +31,7 @@ export default function DashboardLayout() {
             case "Personal Training": return <PersonalTraining />;
             case "Package Management": return <PackageManagement />;
             case "Banner Message": return <BannerManagement />;
+            case "Navbar": return <NavbarManagement />;
             case "AboutMe": return <AboutMe />;
             case "OurTeam": return <OurTeam />;
             case "Contact": return <Contact />;

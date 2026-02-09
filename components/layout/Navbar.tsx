@@ -6,22 +6,29 @@ import { ShoppingCart, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import TopBar from "./TopBar";
-import { createAdminServerSide } from "@/server/functions/admin.fun";
+import { createAdminServerSide, getNavLinksServerSide } from "@/server/functions/admin.fun";
 import {countCurrentCartLength} from "@/server/functions/cart.fun";
 import {getCookie} from "@/server/helper/jwt.helper";
 import {IUser} from "@/server/models/user/user.interfce";
 import Image from "next/image";
+
+interface NavLink {
+  name: string;
+  href: string;
+  isActive?: boolean;
+}
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showNav, setShowNav] = useState(true);
   const [cartCount, setCartCount] = useState<number>(0);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [dynamicNavLinks, setDynamicNavLinks] = useState<NavLink[]>([]);
   const pathname = usePathname();
 
   async function createAdmin() { await createAdminServerSide(); }
 
-  const navLinks = [
+  const fallbackNavLinks = [
     { name: "Home", href: "/" },
     { name: "Shop Now", href: "/shop" },
     { name: "Personal Training", href: "/personal-training" },
@@ -30,9 +37,20 @@ const Navbar = () => {
     { name: "Contact Us", href: "/contact" },
   ];
 
+  const navLinks = dynamicNavLinks.length > 0 ? dynamicNavLinks : fallbackNavLinks;
+
   useEffect(() => {
     ( async () => {
       await createAdmin();
+
+      // Fetch dynamic nav links
+      const navResponse = await getNavLinksServerSide();
+      if (!navResponse.isError && navResponse.data) {
+        const fetchedLinks = (navResponse.data as any[]).filter(link => link.isActive);
+        if (fetchedLinks.length > 0) {
+          setDynamicNavLinks(fetchedLinks);
+        }
+      }
 
       const cookie = await getCookie("user");
       if ( cookie ) {

@@ -10,9 +10,17 @@ export interface IHeroSlide {
   buttonLink?: string;
 }
 
+export interface INavLink {
+  name: string;
+  href: string;
+  order: number;
+  isActive: boolean;
+}
+
 export interface ISite {
   heroSlides: IHeroSlide[];
   privacyAndPolicy: string;
+  navLinks: INavLink[];
   createdAt?: Date;
   updatedAt?: Date;
 }

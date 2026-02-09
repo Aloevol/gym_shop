@@ -1,5 +1,5 @@
 "use client";
-import { Contact2, MessageCircle, Package2, User } from "lucide-react";
+import { Contact2, Menu, MessageCircle, Package2, User } from "lucide-react";
 import { BiSolidOffer } from "react-icons/bi";
 import { FcPrivacy } from "react-icons/fc";
 import { GrDashboard } from "react-icons/gr";
@@ -54,6 +54,10 @@ export default function Sidebar({ activeTab, setActiveTab }: Props) {
         {
             title: "Banner Message",
             icon: () => createIconComponent(MessageCircle)
+        },
+        {
+            title: "Navbar",
+            icon: () => createIconComponent(Menu)
         },
         {
             title: "PrivacyPolicy",

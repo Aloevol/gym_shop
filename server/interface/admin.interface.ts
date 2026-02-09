@@ -21,3 +21,20 @@ export interface IReorderSlidesInput extends FormData {
     order: number;
   }>;
 }
+
+export interface INavLinkInput {
+  name: string;
+  href: string;
+  isActive?: boolean;
+}
+
+export interface IUpdateNavLinkInput extends INavLinkInput {
+  linkId: string;
+}
+
+export interface IReorderNavLinksInput {
+  links: Array<{
+    linkId: string;
+    order: number;
+  }>;
+}

@@ -454,18 +454,6 @@ function ProductViewPage() {
                 onClose={() => setIsOrderModalOpen(false)}
                 items={getOrderModalItems()}
                 userId={user?._id ?? ""}
-                shippingInfo={{
-                    provider: "Redx",
-                    area: "Standard",
-                    district: "To be selected",
-                    cost: 0,
-                    deliveryTime: "3-5 days"
-                }}
-                orderSummary={{
-                    subtotal: productData ? productData.price * quantity : 0,
-                    shipping: 0,
-                    total: productData ? productData.price * quantity : 0
-                }}
             />
         </div>
     );

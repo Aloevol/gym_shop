@@ -15,6 +15,14 @@ const cartSchema = new Schema<ICart>({
         type: Schema.Types.ObjectId,
         ref: 'Package'
     },
+    quantity: {
+        type: Number,
+        default: 1
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
     isRemoved: {
         type: Boolean,
         default: false

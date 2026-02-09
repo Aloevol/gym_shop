@@ -83,13 +83,13 @@ export default function OrderModal({
 
     if (!isOpen) return null;
 
-    // Calculate shipping fee based on selected area
+    // Calculate base values
     const selectedShippingArea = shippingAreas.find(area => area.id === selectedArea);
-    const shippingFee = selectedShippingArea?.cost || 60;
-
+    
     // Use provided order summary or calculate from items
     const subtotal = orderSummary?.subtotal || items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const tax = subtotal * 0.05;
+    const shippingFee = orderSummary ? orderSummary.shipping : (selectedShippingArea?.cost || 60);
+    const tax = orderSummary ? (orderSummary.subtotal * 0.05) : (subtotal * 0.05);
     const total = orderSummary?.total || (subtotal + shippingFee + tax);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -198,7 +198,7 @@ export default function OrderModal({
                 shippingAddress: {
                     ...formData,
                     phone: formattedPhone,
-                    district: selectedShippingArea?.name || formData.city
+                    district: shippingInfo?.district || selectedShippingArea?.name || formData.city
                 },
                 paymentMethod,
                 paymentStatus: paymentMethod === "card" ? "pending" : "pending",
@@ -316,29 +316,31 @@ export default function OrderModal({
                                     </div>
                                 </div>
 
-                                {/* Shipping Area Selection */}
-                                <div className="mb-4">
-                                    <h4 className="font-medium text-gray-700 mb-2">Delivery Area</h4>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                        {shippingAreas.map((area) => (
-                                            <button
-                                                key={area.id}
-                                                type="button"
-                                                onClick={() => setSelectedArea(area.id)}
-                                                className={`p-3 border rounded-lg text-center transition-all ${
-                                                    selectedArea === area.id
-                                                        ? 'border-[#F27D31] bg-orange-50'
-                                                        : 'border-gray-300 hover:bg-gray-50'
-                                                }`}
-                                            >
-                                                <div className="font-medium text-sm">{area.name}</div>
-                                                <div className="text-xs text-gray-600 mt-1">
-                                                    ৳ {area.cost} • {area.deliveryTime}
-                                                </div>
-                                            </button>
-                                        ))}
+                                {/* Shipping Area Selection - Hide if already calculated in cart */}
+                                {!orderSummary && (
+                                    <div className="mb-4">
+                                        <h4 className="font-medium text-gray-700 mb-2">Delivery Area</h4>
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                            {shippingAreas.map((area) => (
+                                                <button
+                                                    key={area.id}
+                                                    type="button"
+                                                    onClick={() => setSelectedArea(area.id)}
+                                                    className={`p-3 border rounded-lg text-center transition-all ${
+                                                        selectedArea === area.id
+                                                            ? 'border-[#F27D31] bg-orange-50'
+                                                            : 'border-gray-300 hover:bg-gray-50'
+                                                    }`}
+                                                >
+                                                    <div className="font-medium text-sm">{area.name}</div>
+                                                    <div className="text-xs text-gray-600 mt-1">
+                                                        ৳ {area.cost} • {area.deliveryTime}
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
                                 {/* Price Breakdown */}
                                 <div className="space-y-2 text-sm bg-gray-50 p-4 rounded-lg">
@@ -347,7 +349,7 @@ export default function OrderModal({
                                         <span>৳ {subtotal.toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span>Shipping ({selectedShippingArea?.name}):</span>
+                                        <span>Shipping ({orderSummary ? (shippingInfo?.area || "Calculated") : selectedShippingArea?.name}):</span>
                                         <span>{shippingFee === 0 ? "Free" : `৳ ${shippingFee.toLocaleString()}`}</span>
                                     </div>
                                     <div className="flex justify-between">

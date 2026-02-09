@@ -180,9 +180,10 @@ function CartPage() {
             cartState.items.forEach(item => {
                 const itemData = getItemData(item);
                 const price = itemData?.data?.price || 0;
+                const quantity = item.quantity || 1;
                 initialQuantities[item._id] = {
-                    quantity: item.quantity,
-                    totalPrice: price * item.quantity
+                    quantity: quantity,
+                    totalPrice: price * quantity
                 };
             });
             setItemQuantities(initialQuantities);
@@ -196,21 +197,27 @@ function CartPage() {
         );
 
         const subtotal = selectedCartItems.reduce((sum, item) => {
-            const itemQuantity = itemQuantities[item._id]?.quantity || item.quantity;
-            const price = item.product?.price || item.package?.price || 0;
+            const itemQuantity = itemQuantities[item._id]?.quantity || item.quantity || 1;
+            const itemData = cartState.items.find(i => i._id === item._id);
+            const price = itemData?.product?.price || itemData?.package?.price || 0;
             return sum + (price * itemQuantity);
         }, 0);
 
-        // Free shipping for orders above 2000 BDT, otherwise use selected delivery area price
-        const shipping = subtotal > 2000 ? 0 : selectedDeliveryArea.price;
-        const total = subtotal + shipping;
+        // Calculate shipping only if district is selected
+        const shipping = selectedDistrict 
+            ? (subtotal > 2000 ? 0 : selectedDeliveryArea.price) 
+            : 0;
+            
+        // Calculate tax (5%)
+        const tax = subtotal * 0.05;
+        const total = subtotal + shipping + tax;
         const selectedCount = selectedCartItems.length;
 
         setCartState(prev => ({
             ...prev,
             summary: { subtotal, shipping, total, selectedCount }
         }));
-    }, [cartState.items, cartState.selectedItems, itemQuantities, selectedDeliveryArea.price]);
+    }, [cartState.items, cartState.selectedItems, itemQuantities, selectedDeliveryArea, selectedDistrict]);
 
     useEffect(() => {
         calculateSummary();
@@ -463,7 +470,7 @@ function CartPage() {
             .filter(item => cartState.selectedItems.includes(item._id))
             .map(item => {
                 const itemData = getItemData(item);
-                const quantity = getItemQuantity(item._id);
+                const quantity = getItemQuantity(item._id) || item.quantity || 1;
 
                 if (!itemData) return null;
 
@@ -767,9 +774,13 @@ function CartPage() {
                                     <div className="flex justify-between">
                                         <p>
                                             Shipping
-                                            {selectedDeliveryArea.price === 0 ? ' (Free)' : ` (${selectedDeliveryArea.deliveryTime})`}
+                                            {selectedDistrict ? (selectedDeliveryArea.price === 0 || cartState.summary.subtotal > 2000 ? ' (Free)' : ` (${selectedDeliveryArea.deliveryTime})`) : ' (Select district)'}
                                         </p>
                                         <p>৳ {cartState.summary.shipping.toLocaleString()}</p>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <p>Tax (5%)</p>
+                                        <p>৳ {(cartState.summary.subtotal * 0.05).toLocaleString()}</p>
                                     </div>
                                     <hr className="my-2" />
                                     <div className="flex justify-between font-semibold text-gray-800 text-lg">

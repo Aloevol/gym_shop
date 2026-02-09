@@ -747,3 +747,163 @@ export async function getPrivacyAndPolicyServerSide( ): Promise<IOfferResponse> 
         return handleServerError(error);
     }
 }
+
+// Get all nav links
+export async function getNavLinksServerSide(): Promise<IResponse> {
+  try {
+    await connectToDB();
+
+    const site = await SiteModle.findOne({}).lean().exec();
+    
+    const links = site?.navLinks || [];
+    const sortedLinks = links.sort((a, b) => a.order - b.order);
+    
+    return SendResponse({
+      isError: false,
+      status: 200,
+      message: "Nav links fetched successfully!",
+      data: sortedLinks
+    });
+  } catch (error: ServerError) {
+    return handleServerError(error);
+  }
+}
+
+// Add new nav link
+export async function addNavLinkServerSide(body: INavLinkInput): Promise<IResponse> {
+  try {
+    await connectToDB();
+
+    const { name, href, isActive = true } = body;
+
+    if (!name || !href) {
+      return SendResponse({
+        isError: true,
+        status: 400,
+        message: "Name and href are required"
+      });
+    }
+
+    // Find or create site document
+    let site = await SiteModle.findOne({});
+    
+    if (!site) {
+      site = await SiteModle.create({ navLinks: [] });
+    }
+
+    // Calculate order
+    const maxOrder = (site.navLinks || []).length > 0 
+      ? Math.max(...site.navLinks.map(link => link.order))
+      : -1;
+
+    const newLink = {
+      _id: new Types.ObjectId(),
+      name,
+      href,
+      order: maxOrder + 1,
+      isActive
+    };
+
+    if (!site.navLinks) site.navLinks = [];
+    site.navLinks.push(newLink as any);
+    await site.save();
+
+    return SendResponse({
+      isError: false,
+      status: 201,
+      message: "Nav link added successfully!",
+      data: newLink
+    });
+  } catch (error: ServerError) {
+    return handleServerError(error);
+  }
+}
+
+// Update nav link
+export async function updateNavLinkServerSide(body: IUpdateNavLinkInput): Promise<IResponse> {
+  try {
+    await connectToDB();
+
+    const { linkId, name, href, isActive } = body;
+
+    const site = await SiteModle.findOne({});
+    if (!site) {
+      return SendResponse({ isError: true, status: 404, message: "Site configuration not found" });
+    }
+
+    const linkIndex = site.navLinks.findIndex((link: any) => link._id.toString() === linkId);
+    if (linkIndex === -1) {
+      return SendResponse({ isError: true, status: 404, message: "Nav link not found" });
+    }
+
+    if (name) site.navLinks[linkIndex].name = name;
+    if (href) site.navLinks[linkIndex].href = href;
+    if (typeof isActive === 'boolean') site.navLinks[linkIndex].isActive = isActive;
+
+    await site.save();
+
+    return SendResponse({
+      isError: false,
+      status: 200,
+      message: "Nav link updated successfully!",
+      data: site.navLinks[linkIndex]
+    });
+  } catch (error: ServerError) {
+    return handleServerError(error);
+  }
+}
+
+// Delete nav link
+export async function deleteNavLinkServerSide(linkId: string): Promise<IResponse> {
+  try {
+    await connectToDB();
+
+    const updatedSite = await SiteModle.findOneAndUpdate(
+      {},
+      { $pull: { navLinks: { _id: linkId } } },
+      { new: true }
+    ).lean().exec();
+
+    if (!updatedSite) {
+      return SendResponse({ isError: true, status: 404, message: "Site configuration not found" });
+    }
+
+    return SendResponse({
+      isError: false,
+      status: 200,
+      message: "Nav link deleted successfully!"
+    });
+  } catch (error: ServerError) {
+    return handleServerError(error);
+  }
+}
+
+// Reorder nav links
+export async function reorderNavLinksServerSide(body: IReorderNavLinksInput): Promise<IResponse> {
+  try {
+    await connectToDB();
+
+    const site = await SiteModle.findOne({});
+    if (!site) {
+      return SendResponse({ isError: true, status: 404, message: "Site configuration not found" });
+    }
+
+    body.links.forEach((update) => {
+      const linkIndex = site.navLinks.findIndex((link: any) => link._id.toString() === update.linkId);
+      if (linkIndex !== -1) {
+        site.navLinks[linkIndex].order = update.order;
+      }
+    });
+
+    site.navLinks.sort((a: any, b: any) => a.order - b.order);
+    await site.save();
+
+    return SendResponse({
+      isError: false,
+      status: 200,
+      message: "Nav links reordered successfully!"
+    });
+  } catch (error: ServerError) {
+    return handleServerError(error);
+  }
+}
