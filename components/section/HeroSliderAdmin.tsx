@@ -387,7 +387,7 @@ function HeroSliderAdmin() {
           
           {slides.length === 0 ? (
             <div className='text-center py-12 border-2 border-dashed border-gray-300 rounded-2xl'>
-              <p className='text-gray-500 text-lg'>No slides added yet. Click "Add New Slide" to get started.</p>
+              <p className='text-gray-500 text-lg'>No slides added yet. Click &quot;Add New Slide&quot; to get started.</p>
             </div>
           ) : (
             <DragDropContext onDragEnd={onDragEnd}>

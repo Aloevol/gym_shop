@@ -20,23 +20,23 @@ interface ObjectIdLike {
 
 type ConvertibleObject = Record<string, unknown> & MongooseDocument & ObjectIdLike;
 
-const convertToPlainObject = (doc: unknown): unknown => {
+const convertToPlainObject = <T>(doc: unknown): T => {
     if (doc && typeof doc === 'object') {
         // Handle Mongoose documents
         const convertibleDoc = doc as ConvertibleObject;
         if (convertibleDoc.toJSON) {
-            return convertibleDoc.toJSON();
+            return convertibleDoc.toJSON() as T;
         }
         // Handle ObjectId
         if (convertibleDoc._id && typeof convertibleDoc._id.toString === 'function') {
             return {
                 ...convertibleDoc,
                 _id: convertibleDoc._id.toString()
-            };
+            } as T;
         }
         // Handle arrays
         if (Array.isArray(doc)) {
-            return doc.map(item => convertToPlainObject(item));
+            return doc.map(item => convertToPlainObject(item)) as unknown as T;
         }
         // Handle nested objects
         const plainObj: Record<string, unknown> = {};
@@ -45,9 +45,9 @@ const convertToPlainObject = (doc: unknown): unknown => {
                 plainObj[key] = convertToPlainObject((doc as Record<string, unknown>)[key]);
             }
         }
-        return plainObj;
+        return plainObj as T;
     }
-    return doc;
+    return doc as T;
 };
 
 export async function createProductServerSide(body: ICreateProductInput): Promise<IProductResponse> {
@@ -98,7 +98,7 @@ export async function createProductServerSide(body: ICreateProductInput): Promis
             specifications
         });
 
-        const plainProduct = convertToPlainObject(newProduct);
+        const plainProduct = convertToPlainObject<IProduct>(newProduct);
 
         return SendResponse<IProductData>({
             isError: false,
@@ -187,7 +187,7 @@ export async function getAllProductsServerSide({filter, page, limit}: { filter?:
         const totalPages = Math.ceil(total / limit);
         const hasNext = page < totalPages;
 
-        const plainProducts = products.map(product => convertToPlainObject(product));
+        const plainProducts = products.map(product => convertToPlainObject<IProduct>(product));
 
         return SendResponse<IProductData>({
             isError: false,
@@ -216,7 +216,7 @@ export async function getActiveProductsServerSide(): Promise<IProductResponse> {
 
         const products = await ProductModel.find({ isActive: true }).sort({ createdAt: -1 }).exec();
 
-        const plainProducts = products.map(product => convertToPlainObject(product));
+        const plainProducts = products.map(product => convertToPlainObject<IProduct>(product));
 
         return SendResponse<IProductData>({
             isError: false,
@@ -236,7 +236,7 @@ export async function getFeaturedProductsServerSide(): Promise<IProductResponse>
 
         const products = await ProductModel.find({ isFeatured: true, isActive: true }).sort({ createdAt: -1 }).exec();
 
-        const plainProducts = products.map(product => convertToPlainObject(product));
+        const plainProducts = products.map(product => convertToPlainObject<IProduct>(product));
 
         return SendResponse<IProductData>({
             isError: false,
@@ -264,7 +264,7 @@ export async function getProductByIdServerSide(productId: string): Promise<IProd
             });
         }
 
-        const plainProduct = convertToPlainObject(productData);
+        const plainProduct = convertToPlainObject<IProduct>(productData);
 
         return SendResponse<IProductData>({
             isError: false,
@@ -335,7 +335,7 @@ export async function updateProductServerSide(productId: string, body: IUpdatePr
             });
         }
 
-        const plainProduct = convertToPlainObject(updatedProduct);
+        const plainProduct = convertToPlainObject<IProduct>(updatedProduct);
 
         return SendResponse<IProductData>({
             isError: false,
@@ -402,7 +402,7 @@ export async function toggleProductStatusServerSide(productId: string): Promise<
             });
         }
 
-        const plainProduct = convertToPlainObject(updatedProduct);
+        const plainProduct = convertToPlainObject<IProduct>(updatedProduct);
 
         return SendResponse<IProductData>({
             isError: false,
@@ -444,7 +444,7 @@ export async function toggleProductFeaturedStatusServerSide(productId: string): 
             });
         }
 
-        const plainProduct = convertToPlainObject(updatedProduct);
+        const plainProduct = convertToPlainObject<IProduct>(updatedProduct);
 
         return SendResponse<IProductData>({
             isError: false,

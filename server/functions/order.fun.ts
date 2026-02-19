@@ -22,9 +22,16 @@ interface CreateOrderData {
         image: string;
         type: "product" | "package" | "trainingProgram";
     }>;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    shippingAddress: any;
+    shippingAddress: {
+        fullName: string;
+        phone: string;
+        email: string;
+        address: string;
+        city: string;
+        postalCode?: string;
+        country: string;
+        district: string;
+    };
     paymentMethod: "card" | "cashOnDelivery" | "bankTransfer";
     notes?: string;
 }
@@ -36,7 +43,7 @@ export async function createOrder(orderData: CreateOrderData) {
         console.log("Order data received:", orderData);
 
         // Process items
-        const items = orderData.items.map((item: any) => ({
+        const items = orderData.items.map((item) => ({
             product: item.product ? new mongoose.Types.ObjectId(item.product) : undefined,
             package: item.package ? new mongoose.Types.ObjectId(item.package) : undefined,
             quantity: item.quantity,
@@ -49,7 +56,7 @@ export async function createOrder(orderData: CreateOrderData) {
         console.log("Processed items:", items);
 
         // Calculate totals
-        const subtotal = orderData.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+        const subtotal = orderData.items.reduce((sum: number, item) => sum + (item.price * item.quantity), 0);
         const shippingFee = 60; // Default shipping fee, you can calculate based on district
         const tax = subtotal * 0.05;
         const total = subtotal + shippingFee + tax;
@@ -58,7 +65,7 @@ export async function createOrder(orderData: CreateOrderData) {
         const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
         // Prepare order data
-        const orderDataToSave: any = {
+        const orderDataToSave: Record<string, unknown> = {
             orderNumber: orderNumber,
             items: items,
             shippingAddress: {
@@ -106,14 +113,15 @@ export async function createOrder(orderData: CreateOrderData) {
             order: plainOrder,
             message: "Order created successfully"
         };
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error creating order:", error);
-        console.error("Error details:", error.errors);
+        const err = error as { message?: string; errors?: unknown };
+        console.error("Error details:", err.errors);
 
         return {
             success: false,
-            error: error.message || "Failed to create order",
-            details: error.errors ? JSON.stringify(error.errors) : undefined
+            error: err.message || "Failed to create order",
+            details: err.errors ? JSON.stringify(err.errors) : undefined
         };
     }
 }

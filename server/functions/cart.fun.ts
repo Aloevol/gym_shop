@@ -3,13 +3,15 @@
 import {connectToDB} from "@/server/db";
 import {handleServerError} from "@/server/helper/ErrorHandler";
 import {CartModel} from "@/server/models/cart/cart.model";
+import { FilterQuery } from "mongoose";
+import { ICart } from "@/server/models/cart/cart.interface";
 
 export async function addToCart({userId, productId, packageId}: {userId: unknown, productId?: unknown, packageId?: unknown}) {
     try {
         await connectToDB();
 
         // Build query dynamically based on what's provided
-        const query: any = { userId: userId };
+        const query: FilterQuery<ICart> = { userId: userId as string };
 
         const orConditions = [];
         if (productId) orConditions.push({ product: productId });

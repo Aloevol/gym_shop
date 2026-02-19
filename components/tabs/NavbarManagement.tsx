@@ -12,6 +12,7 @@ import {
   deleteNavLinkServerSide,
   reorderNavLinksServerSide 
 } from '@/server/functions/admin.fun';
+import { IUpdateNavLinkInput } from '@/server/interface/admin.interface';
 import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided, DroppableProvided } from '@hello-pangea/dnd';
 import { GripVertical, Trash2, Edit, Save, X, ExternalLink } from 'lucide-react';
 
@@ -73,7 +74,7 @@ function NavbarManagement() {
 
   const handleUpdateStatus = async (linkId: string, isActive: boolean) => {
     try {
-      const response = await updateNavLinkServerSide({ linkId, isActive } as any);
+      const response = await updateNavLinkServerSide({ linkId, isActive } as IUpdateNavLinkInput);
       if (response.isError) {
         toast.error(response.message);
       } else {

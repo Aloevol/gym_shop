@@ -170,7 +170,7 @@ export async function getAllUsersServerSide({
   page, 
   limit 
 }: { 
-  filter?: Record<string, any> | null;
+  filter?: Record<string, unknown> | null;
   page: number; 
   limit: number; 
 }) {

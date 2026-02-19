@@ -9,8 +9,8 @@ import { handleServerError } from "../helper/ErrorHandler";
 import { IResponse } from "../interface/response.interface";
 import {IUpdateHeroSectionInput, IUpdatePrivacyPolicySectionInput} from "../interface/auth.interface";
 import { SiteModle } from "../models/site/site.model";
-import { ISite } from "../models/site/site.interface";
-import { IHeroSlideInput, IReorderSlidesInput, IUpdateHeroSectionImageInput, IUpdateHeroSlideInput } from "../interface/admin.interface";
+import { ISite, IHeroSlide, INavLink } from "../models/site/site.interface";
+import { IHeroSlideInput, IReorderSlidesInput, IUpdateHeroSectionImageInput, IUpdateHeroSlideInput, INavLinkInput, IUpdateNavLinkInput, IReorderNavLinksInput } from "../interface/admin.interface";
 import { uploadImageToCloudinary, uploadMultipleToCloudinary } from "../helper/cloudinary.helper";
 import { ICreateOfferInput, IOfferResponse, IUpdateOfferInput } from "../interface/offer.interface";
 import { OfferModel } from "../models/offer/offer.model";
@@ -255,7 +255,7 @@ export async function updateHeroSlideServerSide(body: IUpdateHeroSlideInput): Pr
 
     // Find the slide index
     const slideIndex = site.heroSlides.findIndex(
-      (slide: any) => slide._id.toString() === slideId
+      (slide) => (slide as unknown as { _id: Types.ObjectId })._id.toString() === slideId
     );
 
     if (slideIndex === -1) {
@@ -352,7 +352,7 @@ export async function reorderHeroSlidesServerSide(body: IReorderSlidesInput): Pr
     // Update orders
     slidesData.forEach((slideUpdate: { slideId: string; order: number }) => {
       const slideIndex = site.heroSlides.findIndex(
-        (slide: any) => slide._id.toString() === slideUpdate.slideId
+        (slide) => (slide as unknown as { _id: Types.ObjectId })._id.toString() === slideUpdate.slideId
       );
       
       if (slideIndex !== -1) {
@@ -361,7 +361,7 @@ export async function reorderHeroSlidesServerSide(body: IReorderSlidesInput): Pr
     });
 
     // Sort by order
-    site.heroSlides.sort((a: any, b: any) => a.order - b.order);
+    site.heroSlides.sort((a: IHeroSlide, b: IHeroSlide) => a.order - b.order);
     
     await site.save();
 
@@ -392,7 +392,7 @@ export async function toggleHeroSlideStatusServerSide(slideId: string): Promise<
     }
 
     const slideIndex = site.heroSlides.findIndex(
-      (slide: any) => slide._id.toString() === slideId
+      (slide) => (slide as unknown as { _id: Types.ObjectId })._id.toString() === slideId
     );
     
     if (slideIndex === -1) {
@@ -805,7 +805,7 @@ export async function addNavLinkServerSide(body: INavLinkInput): Promise<IRespon
     };
 
     if (!site.navLinks) site.navLinks = [];
-    site.navLinks.push(newLink as any);
+    site.navLinks.push(newLink as INavLink);
     await site.save();
 
     return SendResponse({
@@ -831,7 +831,7 @@ export async function updateNavLinkServerSide(body: IUpdateNavLinkInput): Promis
       return SendResponse({ isError: true, status: 404, message: "Site configuration not found" });
     }
 
-    const linkIndex = site.navLinks.findIndex((link: any) => link._id.toString() === linkId);
+    const linkIndex = site.navLinks.findIndex((link) => (link as unknown as { _id: Types.ObjectId })._id.toString() === linkId);
     if (linkIndex === -1) {
       return SendResponse({ isError: true, status: 404, message: "Nav link not found" });
     }
@@ -889,13 +889,13 @@ export async function reorderNavLinksServerSide(body: IReorderNavLinksInput): Pr
     }
 
     body.links.forEach((update) => {
-      const linkIndex = site.navLinks.findIndex((link: any) => link._id.toString() === update.linkId);
+      const linkIndex = site.navLinks.findIndex((link) => (link as unknown as { _id: Types.ObjectId })._id.toString() === update.linkId);
       if (linkIndex !== -1) {
         site.navLinks[linkIndex].order = update.order;
       }
     });
 
-    site.navLinks.sort((a: any, b: any) => a.order - b.order);
+    site.navLinks.sort((a: INavLink, b: INavLink) => a.order - b.order);
     await site.save();
 
     return SendResponse({

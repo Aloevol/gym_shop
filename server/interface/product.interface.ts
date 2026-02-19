@@ -1,4 +1,5 @@
 import {IProduct} from "@/server/models/product/product.interface";
+export type { IProductResponse } from "./response.interface";
 
 export interface ICreateProductInput {
     title: string;
@@ -30,21 +31,4 @@ export interface IUpdateProductInput {
     tags?: string[];
     specifications?: Record<string, string>;
     rating?: number;
-}
-
-export interface IProductResponse {
-    isError: boolean;
-    status: number;
-    message: string;
-    data?: {
-        product?: IProduct;
-        products?: IProduct[];
-        pagination?: {
-            page: number;
-            limit: number;
-            total: number;
-            totalPages: number;
-            hasNext: boolean;
-        };
-    };
 }

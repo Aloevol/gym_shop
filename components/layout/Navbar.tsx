@@ -46,7 +46,7 @@ const Navbar = () => {
       // Fetch dynamic nav links
       const navResponse = await getNavLinksServerSide();
       if (!navResponse.isError && navResponse.data) {
-        const fetchedLinks = (navResponse.data as any[]).filter(link => link.isActive);
+        const fetchedLinks = (navResponse.data as NavLink[]).filter(link => link.isActive);
         if (fetchedLinks.length > 0) {
           setDynamicNavLinks(fetchedLinks);
         }
