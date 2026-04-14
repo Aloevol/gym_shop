@@ -23,14 +23,14 @@ const PackageDisplayCard = React.memo(({ pkg }: PackageDisplayCardProps) => {
     const id = pkg._id;
     const forwardUrl = `/package/${id}`;
     const name = pkg.title || "Package Name";
-    const category = pkg.category || "Category";
+    const category = pkg.category || "Package";
     const price = pkg.originalPrice || pkg.price;
     const priceAfterDiscount = pkg.price;
     const discount = pkg.originalPrice && pkg.originalPrice > pkg.price 
         ? Math.round(((pkg.originalPrice - pkg.price) / pkg.originalPrice) * 100) 
         : 0;
-    const image = (Array.isArray(pkg.imageUrl) && pkg.imageUrl.length > 0) ? pkg.imageUrl[0] : "/placeholder-image.jpg";
-    const rating = pkg.rating || 0;
+    const image = (Array.isArray(pkg.imageUrl) && pkg.imageUrl.length > 0) ? pkg.imageUrl[0] : "/placeholder.jpg";
+    const rating = pkg.rating || 5;
     const isActive = pkg.isActive;
 
     const handleQuantity = (type: "inc" | "dec") => {
@@ -50,12 +50,33 @@ const PackageDisplayCard = React.memo(({ pkg }: PackageDisplayCardProps) => {
         setIsAdding(true);
         try {
             const cookie = await getCookie("user");
+
+            // IF GUEST USER
             if (!cookie) {
-                toast.error("Please login to add items to cart");
-                router.push("/auth/signin");
+                const guestCart = JSON.parse(localStorage.getItem("gym-shop-cart") || "[]");
+                const existingItemIndex = guestCart.findIndex((item: any) => item.id === id && item.type === "package");
+
+                if (existingItemIndex > -1) {
+                    guestCart[existingItemIndex].quantity += 1;
+                } else {
+                    guestCart.push({
+                        id,
+                        type: "package",
+                        quantity: 1,
+                        name,
+                        price: priceAfterDiscount,
+                        image,
+                        category
+                    });
+                }
+
+                localStorage.setItem("gym-shop-cart", JSON.stringify(guestCart));
+                toast.success("Added to guest cart!");
+                window.dispatchEvent(new Event("cart-updated"));
                 return;
             }
 
+            // IF LOGGED IN USER
             const user = JSON.parse(cookie);
             const response = await addToCart({
                 userId: user._id,
@@ -66,6 +87,7 @@ const PackageDisplayCard = React.memo(({ pkg }: PackageDisplayCardProps) => {
                 toast.error(response.message);
             } else {
                 toast.success("Added to cart successfully!");
+                window.dispatchEvent(new Event("cart-updated"));
                 router.refresh();
             }
         } catch (error) {
@@ -82,88 +104,70 @@ const PackageDisplayCard = React.memo(({ pkg }: PackageDisplayCardProps) => {
 
         if (!isActive) return;
 
-        try {
-            const cookie = await getCookie("user");
-            if (!cookie) {
-                toast.error("Please login to buy items");
-                router.push("/auth/signin");
-                return;
-            }
-
-            const user = JSON.parse(cookie);
-            await addToCart({
-                userId: user._id,
-                packageId: id,
-            });
-
-            router.push("/cart");
-        } catch (error) {
-            console.error("Error in buy now:", error);
-            router.push("/cart");
-        }
+        router.push(forwardUrl + "?checkout=true");
     };
 
     return (
-        <div className="w-full max-w-[300px] bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden flex flex-col relative transition-all duration-300 hover:shadow-md group">
+        <div className="w-full bg-white/5 border border-white/10 shadow-xl rounded-2xl overflow-hidden flex flex-col relative transition-all duration-500 hover:border-primary/30 group">
             {/* Discount Badge */}
             {discount > 0 && (
-                <div className="absolute top-2 left-2 bg-[#F27D31] text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded-full flex items-center justify-center z-10 shadow-sm">
-                    -{discount}% OFF
+                <div className="absolute top-4 left-4 bg-primary text-black text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-lg uppercase tracking-wider">
+                    -{discount}%
                 </div>
             )}
 
             {/* Inactive Badge */}
             {!isActive && (
-                <div className="absolute top-2 right-2 bg-red-500 text-white text-[10px] sm:text-xs font-semibold px-2 py-1 rounded-full z-10 shadow-sm">
-                    Inactive
+                <div className="absolute top-4 right-4 bg-red-500/80 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 uppercase tracking-wider">
+                    Sold Out
                 </div>
             )}
 
             {/* Featured Badge */}
             {pkg.isFeatured && isActive && (
-                <div className="absolute top-2 right-2 bg-amber-400 text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded-full z-10 shadow-sm">
-                    FEATURED
+                <div className="absolute top-4 right-4 bg-primary/20 backdrop-blur-md text-primary text-[10px] font-bold px-3 py-1 rounded-full z-10 border border-primary/30 uppercase tracking-wider">
+                    Featured
                 </div>
             )}
 
             {/* Image Section */}
-            <Link href={forwardUrl} className="relative w-full aspect-square overflow-hidden bg-gray-50">
+            <Link href={forwardUrl} className="relative w-full aspect-square overflow-hidden bg-white/5 p-6">
                 <Image
                     src={image}
                     alt={name}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
             </Link>
 
             {/* Package Info */}
-            <div className="flex flex-col p-3 flex-grow">
-                <div className="mb-1">
-                    <h3 className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">{category}</h3>
+            <div className="flex flex-col p-5 flex-grow">
+                <div className="mb-2">
+                    <h3 className="text-[10px] uppercase tracking-[0.2em] text-primary font-bold mb-1">{category}</h3>
                     <Link href={forwardUrl}>
-                        <h1 className="text-sm sm:text-base font-bold text-gray-800 line-clamp-2 hover:text-[#F27D31] transition-colors min-h-[40px] leading-tight">
+                        <h1 className="text-base font-bold text-white line-clamp-1 group-hover:text-primary transition-colors uppercase tracking-tight">
                             {name}
                         </h1>
                     </Link>
                 </div>
 
                 {/* Rating */}
-                <div className="flex items-center justify-between mt-1">
-                    <div className="flex items-center gap-0.5">
-                        <Star size={12} className={`${rating > 0 ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`} />
-                        <span className="text-[10px] text-gray-600 font-bold">{rating > 0 ? rating : "N/A"}</span>
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-1">
+                        <Star size={10} className={`${rating > 0 ? "text-primary fill-primary" : "text-white/20"}`} />
+                        <span className="text-[10px] text-white/60 font-bold">{rating > 0 ? rating : "0"}</span>
                     </div>
                 </div>
 
                 {/* Price */}
-                <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-lg font-extrabold text-[#125BAC] flex items-center">
-                        <TbCurrencyTaka size={20} />
+                <div className="mt-auto flex items-center gap-3">
+                    <span className="text-xl font-black text-white flex items-center">
+                        <TbCurrencyTaka size={22} className="text-primary" />
                         {priceAfterDiscount}
                     </span>
                     {discount > 0 && (
-                        <span className="text-xs text-gray-400 line-through flex items-center font-medium">
-                            <TbCurrencyTaka size={14} />
+                        <span className="text-sm text-white/30 line-through flex items-center font-bold">
+                            <TbCurrencyTaka size={16} />
                             {price}
                         </span>
                     )}
@@ -171,66 +175,41 @@ const PackageDisplayCard = React.memo(({ pkg }: PackageDisplayCardProps) => {
 
                 {/* Features (Mini List) */}
                 {pkg.features && pkg.features.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
+                    <div className="mt-4 flex flex-wrap gap-2">
                         {pkg.features.slice(0, 2).map((feature, i) => (
-                            <span key={i} className="text-[9px] bg-blue-50 text-[#125BAC] px-1.5 py-0.5 rounded-md font-medium truncate max-w-full">
+                            <span key={i} className="text-[9px] text-white/40 font-bold uppercase tracking-widest bg-white/5 px-2 py-1 rounded border border-white/5">
                                 • {feature}
                             </span>
                         ))}
                     </div>
                 )}
 
-                {/* Quantity & Actions */}
-                <div className="mt-4 space-y-2">
-                    {/* Quantity Selector */}
-                    <div className="flex items-center justify-between bg-gray-50 rounded-lg p-1 border border-gray-100">
-                        <span className="text-[10px] font-bold text-gray-400 ml-2 uppercase">Qty</span>
-                        <div className="flex items-center gap-3">
-                            <button 
-                                onClick={(e) => { e.preventDefault(); handleQuantity("dec"); }}
-                                className="w-7 h-7 flex items-center justify-center rounded-md bg-white border border-gray-200 text-gray-600 hover:border-[#F27D31] hover:text-[#F27D31] transition-colors"
-                                disabled={!isActive}
-                            >
-                                <Minus size={14} />
-                            </button>
-                            <span className="text-sm font-bold w-4 text-center">{quantity}</span>
-                            <button 
-                                onClick={(e) => { e.preventDefault(); handleQuantity("inc"); }}
-                                className="w-7 h-7 flex items-center justify-center rounded-md bg-white border border-gray-200 text-gray-600 hover:border-[#F27D31] hover:text-[#F27D31] transition-colors"
-                                disabled={!isActive}
-                            >
-                                <Plus size={14} />
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="grid grid-cols-2 gap-2">
-                        <button
-                            onClick={handleAddToCart}
-                            disabled={!isActive || isAdding}
-                            className={`flex items-center justify-center gap-1 py-2 px-1 rounded-lg text-[10px] sm:text-xs font-bold transition-all ${
-                                isActive 
-                                ? "bg-white border-2 border-[#125BAC] text-[#125BAC] hover:bg-[#125BAC] hover:text-white" 
-                                : "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200 border-2"
-                            }`}
-                        >
-                            <ShoppingCart size={14} />
-                            {isAdding ? "..." : "ADD TO CART"}
-                        </button>
-                        <button
-                            onClick={handleBuyNow}
-                            disabled={!isActive}
-                            className={`flex items-center justify-center gap-1 py-2 px-1 rounded-lg text-[10px] sm:text-xs font-bold transition-all ${
-                                isActive 
-                                ? "bg-[#F27D31] text-white hover:bg-[#e56f28] shadow-sm shadow-[#F27D31]/20" 
-                                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                            }`}
-                        >
-                            <Zap size={14} className="fill-current" />
-                            BUY NOW
-                        </button>
-                    </div>
+                {/* Actions */}
+                <div className="mt-6 flex flex-col gap-2">
+                    <button
+                        onClick={handleAddToCart}
+                        disabled={!isActive || isAdding}
+                        className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-[10px] font-bold tracking-[0.1em] transition-all uppercase ${
+                            isActive 
+                            ? "bg-white/5 border border-white/10 text-white hover:bg-white hover:text-black" 
+                            : "bg-white/5 text-white/20 cursor-not-allowed border-white/5"
+                        }`}
+                    >
+                        <ShoppingCart size={14} />
+                        {isAdding ? "Adding..." : "Add to Cart"}
+                    </button>
+                    <button
+                        onClick={handleBuyNow}
+                        disabled={!isActive}
+                        className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-[10px] font-bold tracking-[0.1em] transition-all uppercase ${
+                            isActive 
+                            ? "bg-primary text-black hover:bg-white" 
+                            : "bg-white/5 text-white/20 cursor-not-allowed"
+                        }`}
+                    >
+                        <Zap size={14} className="fill-current" />
+                        Buy It Now
+                    </button>
                 </div>
             </div>
         </div>

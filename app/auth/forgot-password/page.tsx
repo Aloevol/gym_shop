@@ -49,46 +49,53 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen shadow-xl shadow-black">
-        { loading && <Loader size={"lg"} overlay={true} message={"Loading..."} /> }
-      <Card className="w-[350px] h-auto border border-white backdrop-blur-3xl bg-white/20">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-white">
-            Forgot Password
+    <div className="flex items-center justify-center min-h-screen bg-black px-4">
+        { loading && <Loader size={"lg"} overlay={true} message={"SENDING OTP..."} /> }
+      <Card className="w-full max-w-[400px] bg-white/5 border border-white/10 rounded-[2.5rem] p-4 md:p-8">
+        <CardHeader className="text-center pb-8">
+          <CardTitle className="text-3xl font-custom font-bold text-white uppercase tracking-widest">
+            Reset Access
           </CardTitle>
+          <CardDescription className="text-white/40 font-bold uppercase text-[10px] tracking-widest mt-2">
+            Recover your account performance
+          </CardDescription>
         </CardHeader>
 
-        <CardContent className="gap-2 grid">
-          <label htmlFor="email" className="text-white text-sm">
-            Enter your registered email
-          </label>
-          <input
-            type="email"
-            name="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border border-white rounded-md focus:outline-amber-200 focus:outline-1 placeholder:text-white placeholder:font-light text-white"
-          />
-            { error.field == "email" && (<span className={"text-red-500 text-xs font-semibold"}>{error.message}</span>)}
+        <CardContent className="gap-6 grid">
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] ml-2">
+              Email Address
+            </label>
+            <input
+              type="email"
+              name="email"
+              placeholder="YOUR REGISTERED EMAIL"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
+                error.field == "email" ? "border-red-500" : "border-white/10"
+              }`}
+            />
+            { error.field == "email" && (<span className={"text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4"}>{error.message}</span>)}
+          </div>
         </CardContent>
 
-        <CardFooter className="gap-3 grid">
-          <Button
-            variant="outline"
-            className="w-full bg-black text-white border-0 text-xs cursor-pointer"
+        <CardFooter className="gap-6 grid mt-4">
+          <button
+            className="w-full bg-primary text-black font-custom font-bold py-4 rounded-full hover:bg-white transition-all uppercase text-sm shadow-xl shadow-primary/10"
             onClick={handleResetRequest}
           >
             Send Reset OTP
-          </Button>
+          </button>
 
-          <Button
-            variant="outline"
-            className="w-full bg-white text-black border-0 text-xs cursor-pointer"
-            onClick={() => router.push("/auth/signin")}
-          >
-            Back to Login
-          </Button>
+          <p className="text-center text-[10px] font-bold text-white/40 uppercase tracking-widest">
+            <span
+              className="text-primary cursor-pointer hover:text-white transition-colors"
+              onClick={() => router.push("/auth/signin")}
+            >
+              Back to Login
+            </span>
+          </p>
         </CardFooter>
       </Card>
     </div>

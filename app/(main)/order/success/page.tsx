@@ -57,136 +57,132 @@ export default function OrderSuccessPage() {
 
     if (loading) {
         return (
-            <section className="w-full min-h-screen bg-white py-16 px-6 md:px-12 lg:px-20">
-                <div className="max-w-4xl mx-auto text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F27D31] mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading order details...</p>
+            <section className="w-full min-h-screen bg-black flex items-center justify-center pt-20 px-6">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    <p className="text-white/40 font-custom font-bold uppercase tracking-widest text-sm">FETCHING ORDER DATA...</p>
                 </div>
             </section>
         );
     }
 
     return (
-        <section className="w-full min-h-screen bg-white py-16 px-6 md:px-12 lg:px-20">
+        <section className="w-full min-h-screen bg-black pt-24 pb-20 px-6 md:px-12 lg:px-20">
             <div className="max-w-4xl mx-auto">
                 {/* Success Header */}
-                <div className="text-center mb-12">
-                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle className="w-10 h-10 text-green-600" />
+                <div className="text-center mb-16">
+                    <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-primary/20 shadow-2xl shadow-primary/10">
+                        <CheckCircle className="w-12 h-12 text-primary" />
                     </div>
-                    <h1 className="text-3xl font-bold text-gray-800 mb-4">
-                        Order Placed Successfully!
+                    <h1 className="text-3xl md:text-6xl font-custom font-bold text-white uppercase tracking-widest mb-6">
+                        ORDER <span className="text-primary">CONFIRMED</span>
                     </h1>
-                    <p className="text-gray-600 text-lg mb-2">
-                        Thank you for your purchase. We&#39;ve sent a confirmation email with your order details.
+                    <p className="text-white/40 font-bold uppercase tracking-widest text-sm mb-4">
+                        THANK YOU FOR TRUSTING THRYVE. YOUR PERFORMANCE GEAR IS BEING PREPARED.
                     </p>
                     {order && (
-                        <p className="text-gray-500">
-                            Order ID: <span className="font-semibold">{order.orderNumber}</span>
+                        <p className="text-primary font-black uppercase text-xs tracking-[0.2em] bg-primary/5 border border-primary/10 inline-block px-6 py-2 rounded-full">
+                            ID: {order.orderNumber}
                         </p>
                     )}
                 </div>
 
                 {order ? (
-                    <div className="grid md:grid-cols-2 gap-8 mb-12">
+                    <div className="grid md:grid-cols-2 gap-8 mb-16">
                         {/* Order Status */}
-                        <div className="bg-gray-50 rounded-xl p-6">
-                            <h2 className="text-xl font-semibold text-gray-800 mb-4">Order Status</h2>
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className={`p-2 rounded-full ${getStatusColor(order.status)}`}>
+                        <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10">
+                            <h2 className="text-sm font-custom font-bold text-white uppercase tracking-widest mb-8">PROGRESS</h2>
+                            <div className="flex items-center gap-6 p-6 bg-black rounded-[2rem] border border-white/5 mb-8">
+                                <div className={`p-3 rounded-xl ${getStatusColor(order.status).replace('bg-', 'bg-').replace('text-', 'text-')}`}>
                                     {getStatusIcon(order.status)}
                                 </div>
                                 <div>
-                                    <p className="font-medium text-gray-800 capitalize">{order.status}</p>
-                                    <p className="text-sm text-gray-600">
-                                        {order.status === 'pending' && 'Your order is being processed'}
-                                        {order.status === 'confirmed' && 'Order has been confirmed'}
-                                        {order.status === 'processing' && 'Preparing your order for shipment'}
-                                        {order.status === 'shipped' && 'Your order is on the way'}
-                                        {order.status === 'delivered' && 'Order has been delivered'}
+                                    <p className="font-custom font-bold text-white uppercase text-xl tracking-widest mb-1">{order.status}</p>
+                                    <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest leading-relaxed">
+                                        {order.status === 'pending' && 'YOUR GEAR IS BEING PROCESSED'}
+                                        {order.status === 'confirmed' && 'OFFICIALLY CONFIRMED'}
+                                        {order.status === 'processing' && 'PREPARING FOR SHIPMENT'}
+                                        {order.status === 'shipped' && 'CURRENTLY ON THE WAY'}
+                                        {order.status === 'delivered' && 'GEAR SUCCESSFULLY DELIVERED'}
                                     </p>
                                 </div>
                             </div>
 
                             {/* Payment Status */}
-                            <div className="mt-6">
-                                <h3 className="font-medium text-gray-700 mb-2">Payment Status</h3>
-                                <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm ${
+                            <div>
+                                <h3 className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-4">PAYMENT STATUS</h3>
+                                <span className={`inline-flex items-center gap-3 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border ${
                                     order.paymentStatus === 'paid'
-                                        ? 'text-green-600 bg-green-100'
-                                        : 'text-yellow-600 bg-yellow-100'
+                                        ? 'text-green-500 bg-green-500/10 border-green-500/20'
+                                        : 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20'
                                 }`}>
+                                    <div className={`w-2 h-2 rounded-full ${order.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-yellow-500'}`} />
                                     {order.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
                                 </span>
                             </div>
                         </div>
 
                         {/* Order Summary */}
-                        <div className="bg-gray-50 rounded-xl p-6">
-                            <h2 className="text-xl font-semibold text-gray-800 mb-4">Order Summary</h2>
-                            <div className="space-y-3">
-                                <div className="flex justify-between">
-                                    <span>Items Total:</span>
-                                    <span>৳ {order.subtotal?.toLocaleString()}</span>
+                        <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10">
+                            <h2 className="text-sm font-custom font-bold text-white uppercase tracking-widest mb-8">SUMMARY</h2>
+                            <div className="space-y-4">
+                                <div className="flex justify-between pb-4 border-b border-white/5">
+                                    <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">SUBTOTAL</span>
+                                    <span className="text-xs font-black text-white">৳ {order.subtotal?.toLocaleString()}</span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span>Shipping:</span>
-                                    <span>{order.shippingFee === 0 ? 'Free' : `৳ ${order.shippingFee?.toLocaleString()}`}</span>
+                                <div className="flex justify-between pb-4 border-b border-white/5">
+                                    <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">SHIPPING</span>
+                                    <span className="text-xs font-black text-white">{order.shippingFee === 0 ? 'FREE' : `৳ ${order.shippingFee?.toLocaleString()}`}</span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span>Tax:</span>
-                                    <span>৳ {order.tax?.toLocaleString()}</span>
-                                </div>
-                                <hr className="my-2" />
-                                <div className="flex justify-between text-lg font-semibold">
-                                    <span>Total:</span>
-                                    <span className="text-[#F27D31]">৳ {order.total?.toLocaleString()}</span>
+                                <div className="flex justify-between pt-2">
+                                    <span className="text-xs font-black text-white uppercase tracking-[0.2em]">TOTAL AMOUNT</span>
+                                    <span className="text-2xl font-black text-primary tracking-tighter">৳ {order.total?.toLocaleString()}</span>
                                 </div>
                             </div>
 
-                            <div className="mt-6">
-                                <h3 className="font-medium text-gray-700 mb-2">Payment Method</h3>
-                                <p className="text-gray-600 capitalize">
+                            <div className="mt-10 pt-10 border-t border-white/5">
+                                <h3 className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-4">PAYMENT METHOD</h3>
+                                <p className="text-xs font-black text-white uppercase tracking-widest">
                                     {order.paymentMethod?.replace(/([A-Z])/g, ' $1').trim()}
                                 </p>
                             </div>
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center mb-12">
-                        <p className="text-yellow-800">
-                            Order details not found. You can track your order using the form below.
+                    <div className="bg-primary/5 border border-primary/10 rounded-[2rem] p-10 text-center mb-16">
+                        <p className="text-primary font-black uppercase text-xs tracking-widest">
+                            ORDER DATA SYNCING... PLEASE REFRESH IN A MOMENT.
                         </p>
                     </div>
                 )}
 
                 {/* Track Another Order & Continue Shopping */}
-                <div className="text-center space-y-6">
-                    <div className="bg-blue-50 rounded-xl p-6 max-w-2xl mx-auto">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                            Want to track another order?
+                <div className="text-center space-y-10">
+                    <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 max-w-2xl mx-auto group hover:border-primary/30 transition-all duration-500">
+                        <h3 className="text-sm font-custom font-bold text-white uppercase tracking-widest mb-8">
+                            WANT TO TRACK PROGRESS?
                         </h3>
                         <Link
                             href="/track-order"
-                            className="inline-flex items-center gap-2 bg-[#F27D31] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#e66d1f] transition-all"
+                            className="inline-flex items-center gap-4 bg-primary text-black font-custom font-bold px-10 py-4 rounded-full hover:bg-white transition-all shadow-xl shadow-primary/10 uppercase text-xs"
                         >
-                            Track Another Order
+                            GO TO TRACKER
                             <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
 
-                    <div className="space-x-4">
+                    <div className="flex flex-wrap justify-center gap-6">
                         <Link
                             href="/shop"
-                            className="inline-flex items-center gap-2 border border-[#F27D31] text-[#F27D31] font-semibold px-6 py-3 rounded-full hover:bg-[#F27D31] hover:text-white transition-all"
+                            className="inline-flex items-center gap-3 border border-white/20 text-white font-custom font-bold px-10 py-4 rounded-full hover:bg-white hover:text-black transition-all uppercase text-xs tracking-widest"
                         >
-                            Continue Shopping
+                            CONTINUE SHOPPING
                         </Link>
                         <Link
-                            href="/orders"
-                            className="inline-flex items-center gap-2 bg-gray-800 text-white font-semibold px-6 py-3 rounded-full hover:bg-gray-700 transition-all"
+                            href="/profile"
+                            className="inline-flex items-center gap-3 bg-white/5 border border-white/10 text-white font-custom font-bold px-10 py-4 rounded-full hover:bg-white/10 transition-all uppercase text-xs tracking-widest"
                         >
-                            View All Orders
+                            MY ACCOUNT
                         </Link>
                     </div>
                 </div>

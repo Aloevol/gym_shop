@@ -907,3 +907,94 @@ export async function reorderNavLinksServerSide(body: IReorderNavLinksInput): Pr
     return handleServerError(error);
   }
 }
+// --- Features Management ---
+export async function getFeaturesServerSide(): Promise<IResponse> {
+  try {
+    await connectToDB();
+    const site = await SiteModle.findOne({}).lean().exec();
+    return SendResponse({ isError: false, status: 200, message: "Features fetched", data: site?.features || [] });
+  } catch (error: any) { return handleServerError(error); }
+}
+
+export async function updateFeaturesServerSide(features: any[]): Promise<IResponse> {
+  try {
+    await connectToDB();
+    await SiteModle.findOneAndUpdate({}, { $set: { features } }, { upsert: true });
+    return SendResponse({ isError: false, status: 200, message: "Features updated successfully" });
+  } catch (error: any) { return handleServerError(error); }
+}
+
+// --- Testimonials Management ---
+export async function getTestimonialsServerSide(): Promise<IResponse> {
+  try {
+    await connectToDB();
+    const site = await SiteModle.findOne({}).lean().exec();
+    return SendResponse({ isError: false, status: 200, message: "Testimonials fetched", data: site?.testimonials || [] });
+  } catch (error: any) { return handleServerError(error); }
+}
+
+export async function updateTestimonialsServerSide(testimonials: any[]): Promise<IResponse> {
+  try {
+    await connectToDB();
+    await SiteModle.findOneAndUpdate({}, { $set: { testimonials } }, { upsert: true });
+    return SendResponse({ isError: false, status: 200, message: "Testimonials updated successfully" });
+  } catch (error: any) { return handleServerError(error); }
+}
+
+// --- Instagram Gallery Management ---
+export async function getInstagramGalleryServerSide(): Promise<IResponse> {
+  try {
+    await connectToDB();
+    const site = await SiteModle.findOne({}).lean().exec();
+    return SendResponse({ isError: false, status: 200, message: "Instagram gallery fetched", data: site?.instagramGallery || [] });
+  } catch (error: any) { return handleServerError(error); }
+}
+
+export async function addInstagramPostServerSide(body: FormData): Promise<IResponse> {
+  try {
+    await connectToDB();
+    const imageFile = body.get("imageFile") as File;
+    const link = (body.get("link") as string) || "";
+    
+    const cloudinaryResponse = await uploadImageToCloudinary(imageFile);
+    if (!cloudinaryResponse) return SendResponse({ isError: true, status: 500, message: "Upload failed" });
+
+    await SiteModle.findOneAndUpdate({}, { $push: { instagramGallery: { imageUrl: cloudinaryResponse.url, link } } }, { upsert: true });
+    return SendResponse({ isError: false, status: 200, message: "Post added to gallery" });
+  } catch (error: any) { return handleServerError(error); }
+}
+
+export async function deleteInstagramPostServerSide(postId: string): Promise<IResponse> {
+  try {
+    await connectToDB();
+    await SiteModle.findOneAndUpdate({}, { $pull: { instagramGallery: { _id: postId } } });
+    return SendResponse({ isError: false, status: 200, message: "Post deleted" });
+  } catch (error: any) { return handleServerError(error); }
+}
+
+// --- Site Settings Management ---
+export async function getSiteSettingsServerSide(): Promise<IResponse> {
+  try {
+    await connectToDB();
+    let site = await SiteModle.findOne({}).lean().exec();
+    if (!site) {
+      // Initialize if not exists
+      site = await SiteModle.create({
+        siteName: "THRYVE",
+        logoUrl: "/NavLogo.png",
+        contactEmail: "support@thryve.com",
+        contactPhone: "+880 1234 567 890",
+        contactAddress: "Dhaka, Bangladesh"
+      });
+    }
+    return SendResponse({ isError: false, status: 200, message: "Settings fetched", data: JSON.parse(JSON.stringify(site)) });
+  } catch (error: any) { return handleServerError(error); }
+}
+
+export async function updateSiteSettingsServerSide(settings: Partial<ISite>): Promise<IResponse> {
+  try {
+    await connectToDB();
+    await SiteModle.findOneAndUpdate({}, { $set: settings }, { upsert: true });
+    return SendResponse({ isError: false, status: 200, message: "Global settings updated successfully" });
+  } catch (error: any) { return handleServerError(error); }
+}

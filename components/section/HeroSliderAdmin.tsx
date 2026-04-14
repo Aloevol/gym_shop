@@ -248,133 +248,129 @@ function HeroSliderAdmin() {
   };
 
   return (
-    <div className='w-full min-h-[88vh] p-4'>
+    <div className='w-full min-h-full'>
       {loading && <Loader />}
       
-      <div className='w-full rounded-3xl bg-white p-7'>
-        <div className='flex justify-between items-center mb-8'>
-          <h1 className='text-3xl font-semibold'>Hero Slider Management</h1>
-          <Button
+      <div className='w-full rounded-[3rem] bg-white/5 border border-white/10 p-10 shadow-2xl'>
+        <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12'>
+          <div>
+            <h1 className='text-3xl md:text-4xl font-custom font-bold text-white uppercase tracking-widest'>HERO <span className="text-primary">SLIDER</span></h1>
+            <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Manage frontline performance visuals</p>
+          </div>
+          <button
             onClick={() => {
               resetForm();
               setIsAdding(true);
             }}
-            className='bg-blue-600 hover:bg-blue-700'
+            className='bg-primary text-black font-custom font-bold px-8 py-4 rounded-full hover:bg-white transition-all uppercase text-xs shadow-xl shadow-primary/10 flex items-center gap-2'
           >
-            <Plus className="mr-2 h-4 w-4" /> Add New Slide
-          </Button>
+            <Plus size={18} strokeWidth={3} /> ADD NEW SLIDE
+          </button>
         </div>
 
         {/* Add/Edit Form */}
         {(isAdding || editingId) && (
-          <div className='mb-8 p-6 border-2 border-blue-200 rounded-2xl bg-blue-50'>
-            <h2 className='text-2xl font-semibold mb-6'>
-              {editingId ? 'Edit Slide' : 'Add New Slide'}
+          <div className='mb-12 p-10 border border-primary/20 rounded-[2.5rem] bg-primary/5 animate-in slide-in-from-top duration-500'>
+            <h2 className='text-xl font-custom font-bold text-white uppercase tracking-widest mb-10'>
+              {editingId ? 'EDIT PERFORMANCE SLIDE' : 'INITIALIZE NEW SLIDE'}
             </h2>
             
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-12'>
               {/* Left Column - Text Inputs */}
-              <div className='space-y-4'>
-                <div>
-                  <Label className='text-lg font-semibold mb-2 block'>Title *</Label>
+              <div className='space-y-6'>
+                <div className="space-y-2">
+                  <Label className='text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2 block'>Slide Title *</Label>
                   <Input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className='p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500'
-                    placeholder="Enter slide title"
+                    className='bg-black border-white/10 rounded-full px-6 py-6 text-white focus:border-primary transition-all placeholder:text-white/5'
+                    placeholder="ENTER BOLD TITLE"
                   />
                 </div>
 
-                <div>
-                  <Label className='text-lg font-semibold mb-2 block'>Description *</Label>
+                <div className="space-y-2">
+                  <Label className='text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2 block'>Performance Description *</Label>
                   <Textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className='min-h-[120px] p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500'
-                    placeholder="Enter slide description"
+                    className='bg-black border-white/10 rounded-[2rem] px-6 py-4 text-white focus:border-primary transition-all min-h-[120px] placeholder:text-white/5'
+                    placeholder="DESCRIBE THE ACTION"
                     rows={4}
                   />
                 </div>
 
-                <div>
-                  <Label className='text-lg font-semibold mb-2 block'>Button Text</Label>
-                  <Input
-                    value={buttonText}
-                    onChange={(e) => setButtonText(e.target.value)}
-                    className='p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500'
-                    placeholder="Button text (default: Shop Now)"
-                  />
-                </div>
-
-                <div>
-                  <Label className='text-lg font-semibold mb-2 block'>Button Link</Label>
-                  <Input
-                    value={buttonLink}
-                    onChange={(e) => setButtonLink(e.target.value)}
-                    className='p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500'
-                    placeholder="/shop"
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className='text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2 block'>Button Text</Label>
+                    <Input
+                      value={buttonText}
+                      onChange={(e) => setButtonText(e.target.value)}
+                      className='bg-black border-white/10 rounded-full px-6 py-6 text-white focus:border-primary transition-all'
+                      placeholder="SHOP NOW"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className='text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2 block'>Button Link</Label>
+                    <Input
+                      value={buttonLink}
+                      onChange={(e) => setButtonLink(e.target.value)}
+                      className='bg-black border-white/10 rounded-full px-6 py-6 text-white focus:border-primary transition-all'
+                      placeholder="/shop"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Right Column - Image Upload */}
-              <div className='space-y-4'>
-                <div>
-                  <Label className='text-lg font-semibold mb-2 block'>
-                    {editingId && !selectedFile ? 'Current Image' : 'Upload Image *'}
+              <div className='space-y-6'>
+                <div className="space-y-2">
+                  <Label className='text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2 block'>
+                    {editingId && !selectedFile ? 'ACTIVE VISUAL' : 'UPLOAD VISUAL *'}
                   </Label>
                   
-                  {/* Image Preview */}
-                  <div className='h-[250px] w-full bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl overflow-hidden mb-4'>
+                  <div className='h-[250px] w-full bg-black border border-white/10 rounded-[2rem] overflow-hidden mb-4 relative group'>
                     {previewImage ? (
-                      <ImageWithSkeleton
+                      <Image
                         src={previewImage}
                         alt="Slide preview"
+                        fill
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-500">
-                        {editingId ? 'No image' : 'No image selected'}
+                      <div className="w-full h-full flex items-center justify-center text-white/10 uppercase font-black tracking-widest text-xs">
+                        NO VISUAL SELECTED
                       </div>
                     )}
                   </div>
 
-                  {/* File Input */}
-                  <div className='h-[60px] w-full bg-blue-50 border-2 border-dashed border-blue-300 rounded-xl relative flex items-center justify-center'>
-                    <Input
+                  <div className='h-[64px] w-full bg-white/5 border border-dashed border-white/10 rounded-full relative flex items-center justify-center hover:bg-white/10 transition-all'>
+                    <input
                       ref={fileInputRef}
                       type="file"
                       accept="image/*"
                       className='absolute w-full h-full opacity-0 cursor-pointer z-30'
                       onChange={handleFileChange}
                     />
-                    <div className='text-center'>
-                      <p className='text-blue-600 font-medium'>
-                        {previewImage ? 'Change Image' : 'Click to select image'}
-                      </p>
-                      <p className='text-sm text-gray-500'>PNG, JPG, WEBP (Max 10MB)</p>
-                    </div>
+                    <p className='text-xs font-black text-primary uppercase tracking-widest'>
+                      {previewImage ? 'REPLACE VISUAL' : 'SELECT PERFORMANCE IMAGE'}
+                    </p>
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className='flex gap-3 pt-4'>
-                  <Button
+                <div className='flex gap-4 pt-4'>
+                  <button
                     onClick={() => editingId ? handleUpdateSlide(editingId) : handleAddSlide()}
-                    className='bg-green-600 hover:bg-green-700 flex-1'
+                    className='flex-1 bg-primary text-black font-custom font-bold py-4 rounded-full hover:bg-white transition-all uppercase text-xs disabled:opacity-20'
                     disabled={loading || !title.trim() || !description.trim() || (!selectedFile && !editingId)}
                   >
-                    <Save className="mr-2 h-4 w-4" />
-                    {editingId ? 'Update Slide' : 'Add Slide'}
-                  </Button>
-                  <Button
+                    {editingId ? 'COMMIT CHANGES' : 'INITIALIZE SLIDE'}
+                  </button>
+                  <button
                     onClick={resetForm}
-                    variant="outline"
-                    className='border-red-300 text-red-600 hover:bg-red-50'
+                    className='px-10 py-4 border border-white/10 text-white font-custom font-bold uppercase tracking-widest rounded-full hover:bg-white/5 transition-all text-xs'
                   >
-                    <X className="mr-2 h-4 w-4" />
-                    Cancel
-                  </Button>
+                    ABORT
+                  </button>
                 </div>
               </div>
             </div>
@@ -382,12 +378,12 @@ function HeroSliderAdmin() {
         )}
 
         {/* Slides List */}
-        <div className='mt-8'>
-          <h2 className='text-2xl font-semibold mb-4'>Current Slides ({slides.length})</h2>
+        <div>
+          <h2 className='text-sm font-custom font-bold text-white uppercase tracking-widest mb-8'>ACTIVE PERFORMANCE SEQUENCE ({slides.length})</h2>
           
           {slides.length === 0 ? (
-            <div className='text-center py-12 border-2 border-dashed border-gray-300 rounded-2xl'>
-              <p className='text-gray-500 text-lg'>No slides added yet. Click &quot;Add New Slide&quot; to get started.</p>
+            <div className='text-center py-20 bg-black rounded-[3rem] border border-dashed border-white/10'>
+              <p className='text-white/20 font-black uppercase tracking-widest text-sm'>NO SLIDES INITIALIZED</p>
             </div>
           ) : (
             <DragDropContext onDragEnd={onDragEnd}>
@@ -404,71 +400,60 @@ function HeroSliderAdmin() {
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
-                            className={`p-4 border-2 rounded-xl flex items-center gap-4 ${
-                              slide.isActive ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50'
+                            className={`p-6 bg-black border rounded-3xl flex items-center gap-6 group transition-all duration-500 ${
+                              slide.isActive ? 'border-white/10' : 'border-red-500/20 opacity-50'
                             }`}
                           >
-                            {/* Drag Handle */}
-                            <div {...provided.dragHandleProps} className="cursor-move">
-                              <GripVertical className="h-6 w-6 text-gray-400" />
+                            <div {...provided.dragHandleProps} className="cursor-move p-2 hover:bg-white/5 rounded-lg transition-colors">
+                              <GripVertical className="h-6 w-6 text-white/20 group-hover:text-primary" />
                             </div>
 
-                            {/* Order Number */}
-                            <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">
-                              {slide.order + 1}
+                            <div className="w-10 h-10 bg-white/5 text-primary rounded-full flex items-center justify-center font-black text-xs border border-white/10 shrink-0">
+                              {index + 1}
                             </div>
 
-                            {/* Thumbnail */}
-                            <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                              <ImageWithSkeleton
+                            <div className="w-24 h-24 rounded-2xl overflow-hidden bg-white/5 border border-white/10 shrink-0 relative">
+                              <Image
                                 src={slide.imageUrl}
                                 alt={slide.title}
-                                className="w-full h-full object-cover"
+                                fill
+                                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
                               />
                             </div>
 
-                            {/* Slide Info */}
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-3 mb-1">
-                                <h3 className="text-lg font-semibold truncate">{slide.title}</h3>
+                              <div className="flex items-center gap-4 mb-2">
+                                <h3 className="text-lg font-black text-white uppercase tracking-tight truncate">{slide.title}</h3>
                                 {!slide.isActive && (
-                                  <span className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded">
-                                    Inactive
+                                  <span className="px-3 py-1 text-[8px] font-black bg-red-500 text-white rounded-full uppercase tracking-widest">
+                                    INACTIVE
                                   </span>
                                 )}
                               </div>
-                              <p className="text-gray-600 text-sm truncate">{slide.description}</p>
-                              <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                                <span>Button: {slide.buttonText || 'Shop Now'}</span>
-                                <span>•</span>
-                                <span>Link: {slide.buttonLink || '/shop'}</span>
-                              </div>
+                              <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest truncate">{slide.description}</p>
                             </div>
 
-                            {/* Action Buttons */}
-                            <div className="flex items-center gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
+                            <div className="flex items-center gap-3">
+                              <button
                                 onClick={() => handleToggleStatus(slide._id)}
-                                className={slide.isActive ? 'border-yellow-300 text-yellow-600' : 'border-green-300 text-green-600'}
+                                className={`p-3 rounded-full border transition-all ${
+                                  slide.isActive ? 'border-primary/20 text-primary hover:bg-primary hover:text-black' : 'border-white/10 text-white/20 hover:border-primary hover:text-primary'
+                                }`}
                               >
-                                {slide.isActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
+                                {slide.isActive ? <EyeOff size={18} /> : <Eye size={18} />}
+                              </button>
+                              <button
                                 onClick={() => handleEditClick(slide)}
+                                className="p-3 rounded-full border border-white/10 text-white/40 hover:border-white hover:text-white transition-all"
                               >
-                                <Edit2 className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
+                                <Edit2 size={18} />
+                              </button>
+                              <button
                                 onClick={() => handleDeleteSlide(slide._id)}
+                                className="p-3 rounded-full border border-red-500/20 text-red-500/40 hover:bg-red-500 hover:text-white transition-all"
                               >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                                <Trash2 size={18} />
+                              </button>
                             </div>
                           </div>
                         )}

@@ -60,6 +60,18 @@ export default function Sidebar({ activeTab, setActiveTab }: Props) {
             icon: () => createIconComponent(Menu)
         },
         {
+            title: "Features",
+            icon: () => createIconComponent(MdProductionQuantityLimits)
+        },
+        {
+            title: "Testimonials",
+            icon: () => createIconComponent(MessageCircle)
+        },
+        {
+            title: "Instagram",
+            icon: () => createIconComponent(BiSolidOffer)
+        },
+        {
             title: "PrivacyPolicy",
             icon: () => createIconComponent(FcPrivacy)
         },
@@ -78,32 +90,38 @@ export default function Sidebar({ activeTab, setActiveTab }: Props) {
         {
             title: "Order Management",
             icon: () => createIconComponent(FaJediOrder)
+        },
+        {
+            title: "Settings",
+            icon: () => createIconComponent(AiFillProfile)
         }
     ], []);
 
     return (
-        <div className="w-[400px] h-full flex justify-center items-center relative">
-            <div className="w-[230px] md:w-[260px] xl:w-[300px] h-[95%] bg-white rounded-3xl relative flex flex-col items-end pt-[16px]">
-                {tabs.map((Item) => (
-                    <button
-                        key={Item.title}
-                        onClick={() => setActiveTab(Item.title)}
-                        className={`h-[50px] w-[95%] rounded-bl-full rounded-tl-full flex justify-start items-center gap-2 pl-4 cursor-pointer duration-200 ease-in-out ${
-                            Item.title === activeTab 
-                                ? 'text-white bg-[#125BAC]' 
-                                : 'text-[#125BAC] hover:bg-blue-50'
-                        }`}
-                    >
-                        <Item.icon />
-                        <span className="font-bold text-sm">{Item.title}</span>
-                    </button>
-                ))}
+        <div className="w-[350px] h-full flex justify-center items-center relative bg-black border-r border-white/5">
+            <div className="w-[280px] h-[95%] bg-white/5 border border-white/10 rounded-[2.5rem] relative flex flex-col items-end pt-[32px] overflow-hidden">
+                <div className="w-full px-8 mb-8">
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Console</p>
+                </div>
+                <div className="w-full overflow-y-auto custom-scrollbar pr-1">
+                    {tabs.map((Item) => (
+                        <button
+                            key={Item.title}
+                            onClick={() => setActiveTab(Item.title)}
+                            className={`h-[50px] w-[92%] rounded-l-full flex justify-start items-center gap-4 pl-8 cursor-pointer duration-300 ease-in-out mb-1 ${
+                                Item.title === activeTab 
+                                    ? 'text-black bg-primary font-black shadow-lg shadow-primary/20' 
+                                    : 'text-white/60 hover:text-white hover:bg-white/5'
+                            }`}
+                        >
+                            <span className={Item.title === activeTab ? 'text-black' : 'text-primary'}>
+                                <Item.icon />
+                            </span>
+                            <span className="text-[11px] font-bold uppercase tracking-widest">{Item.title}</span>
+                        </button>
+                    ))}
+                </div>
             </div>
-            {/* Logout button */}
-            {/*<button className="absolute cursor-pointer bottom-9 left-9 text-[#125BAC] flex gap-2 items-center hover:text-blue-700 duration-200">*/}
-            {/*    <LogOut size={18} />*/}
-            {/*    <span className="font-medium">Logout</span>*/}
-            {/*</button>*/}
         </div>
     );
 }

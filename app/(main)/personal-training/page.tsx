@@ -89,16 +89,19 @@ function PersonalTrainingPage() {
 
     if (loading) {
         return (
-            <div className="w-full min-h-screen bg-white flex items-center justify-center">
-                <div className="text-[#F27D31] text-xl">Loading training programs...</div>
+            <div className="w-full min-h-screen bg-black flex items-center justify-center pt-20">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    <p className="text-white/40 font-custom font-bold uppercase tracking-widest text-sm">Loading programs...</p>
+                </div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="w-full min-h-screen bg-white flex items-center justify-center">
-                <div className="text-red-500 text-xl">{error}</div>
+            <div className="w-full min-h-screen bg-black flex items-center justify-center pt-20">
+                <div className="text-red-500 font-custom font-bold uppercase tracking-widest">{error}</div>
             </div>
         );
     }
@@ -106,114 +109,131 @@ function PersonalTrainingPage() {
     const featuredVideo = getFeaturedVideo();
 
     return (
-        <div className="w-full min-h-screen bg-white text-[#242222]">
+        <div className="w-full min-h-screen bg-black text-white pt-20">
             {/* Hero / Live Training Section */}
-            <section className="w-full flex flex-col items-center justify-center text-center py-12 px-4">
+            <section className="max-w-7xl mx-auto flex flex-col items-center justify-center text-center py-16 px-6">
                 <motion.h1
                     initial={{ opacity: 0, y: -40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="text-3xl md:text-4xl font-bold text-[#F27D31] mb-6"
+                    className="text-3xl md:text-6xl font-custom font-bold text-white uppercase tracking-widest mb-12 leading-tight"
                 >
-                    Our Daily Training <span className="text-[#000000]">on Live</span>
+                    DAILY LIVE <span className="text-primary">TRAINING</span>
                 </motion.h1>
 
                 {featuredVideo ? (
-                    <video src={featuredVideo.url} autoPlay loop controls className={"rounded-sm w-full max-w-[1400px] md:h-[500px] shadow-md border border-gray-200"}/>
+                    <div className="w-full aspect-video md:h-[600px] rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl shadow-primary/5 bg-white/5 relative group">
+                        <video 
+                            src={featuredVideo.url} 
+                            autoPlay 
+                            loop 
+                            muted
+                            controls 
+                            className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                    </div>
                 ) : (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
-                        className="rounded-sm w-full max-w-[1400px] md:h-[500px] shadow-md border border-gray-200 bg-gray-100 flex items-center justify-center"
+                        className="w-full max-w-5xl aspect-video rounded-[3rem] border border-white/10 bg-white/5 flex flex-col items-center justify-center gap-4"
                     >
-                        <p className="text-gray-500 text-lg">No featured video available</p>
+                        <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+                            <div className="w-0 h-0 border-t-[15px] border-t-transparent border-l-[25px] border-l-primary border-b-[15px] border-b-transparent ml-2" />
+                        </div>
+                        <p className="text-white/20 font-custom font-bold uppercase tracking-widest text-sm">Live stream currently offline</p>
                     </motion.div>
                 )}
             </section>
 
             {/* Personal Training Programs */}
-            <section className="py-16 px-6 md:px-12 lg:px-20">
-                <motion.h1
+            <section className="max-w-7xl mx-auto py-24 px-6">
+                <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5 }}
-                    className="text-3xl md:text-4xl font-bold text-center text-[#F27D31] mb-12"
+                    className="text-center mb-20"
                 >
-                    <span className="text-[#000000]">Our Personal </span>
-                    Training Programs
-                </motion.h1>
+                    <h2 className="text-3xl md:text-5xl font-custom font-bold text-white uppercase tracking-widest mb-4">
+                        ELITE <span className="text-primary">PROGRAMS</span>
+                    </h2>
+                    <p className="text-white/40 font-bold uppercase tracking-widest text-sm">Elevate your performance with our certified specialists</p>
+                </motion.div>
 
                 {trainingPrograms.length === 0 ? (
-                    <div className="text-center text-gray-500 text-lg py-12">
-                        No training programs available yet.
+                    <div className="text-center py-24 bg-white/5 border border-white/10 rounded-[3rem]">
+                        <p className="text-white/20 font-custom font-bold uppercase tracking-widest">No programs available yet.</p>
                     </div>
                 ) : (
-                    <div className="flex flex-wrap justify-center items-center gap-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                         {trainingPrograms.map((program, i) => (
                             <motion.div
                                 key={program._id}
-                                initial={{ opacity: 0, y: 50 }}
+                                initial={{ opacity: 0, y: 40 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                transition={{
-                                    duration: 0.1,
-                                    delay: i * 0.1,
-                                    ease: "easeOut",
-                                }}
-                                className="bg-white border border-gray-200 rounded-sm shadow-sm hover:shadow-lg transition w-full max-w-[420px] h-[420px] flex flex-col items-center relative overflow-hidden"
+                                transition={{ duration: 0.6, delay: i * 0.1 }}
+                                className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden group hover:border-primary/50 transition-all duration-500 flex flex-col"
                             >
-                                <div className="relative w-full h-full">
+                                <div className="relative aspect-[4/5] overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700">
                                     {program.imageUrl.length > 0 ? (
                                         <Image
                                             src={program.imageUrl[0]}
                                             alt={program.title}
                                             fill
-                                            className="rounded-sm object-cover"
+                                            className="object-cover transition-transform duration-700 group-hover:scale-110"
                                         />
                                     ) : (
-                                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                                            <span className="text-gray-500">No Image</span>
+                                        <div className="w-full h-full bg-black flex items-center justify-center">
+                                            <span className="text-white/10 uppercase font-black tracking-widest">NO IMAGE</span>
                                         </div>
                                     )}
 
-                                    {/* Discount Badge */}
-                                    {program.originalPrice && program.originalPrice > program.price && (
-                                        <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                                            Save {Math.round(((program.originalPrice - program.price) / program.originalPrice) * 100)}%
-                                        </div>
-                                    )}
-
-                                    {/* Featured Badge */}
-                                    {program.isFeatured && (
-                                        <div className="absolute top-4 right-4 bg-[#F27D31] text-white px-3 py-1 rounded-full text-sm font-semibold">
-                                            Featured
-                                        </div>
-                                    )}
+                                    {/* Badges */}
+                                    <div className="absolute top-6 left-6 flex flex-col gap-2">
+                                        {program.originalPrice && program.originalPrice > program.price && (
+                                            <div className="bg-red-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
+                                                -{Math.round(((program.originalPrice - program.price) / program.originalPrice) * 100)}% OFF
+                                            </div>
+                                        )}
+                                        {program.isFeatured && (
+                                            <div className="bg-primary text-black px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
+                                                FEATURED
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
-                                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                                    <div className="flex justify-between items-center text-white">
-                                        <div className="flex-1">
-                                            <h3 className="text-lg font-semibold mb-1 line-clamp-2">
-                                                {program.title}
-                                            </h3>
-                                            <div className="flex items-center gap-2 text-sm">
-                                                <span className="font-bold text-[#F27D31]">
-                                                    {formatPrice(program.price)}
+                                <div className="p-8 flex flex-col flex-1">
+                                    <div className="mb-6 flex-1">
+                                        <h3 className="text-2xl font-custom font-bold text-white uppercase tracking-widest mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+                                            {program.title}
+                                        </h3>
+                                        <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] mb-4">{program.duration} INTENSIVE</p>
+                                        <p className="text-white/60 text-sm font-bold uppercase tracking-tight line-clamp-3 leading-relaxed">
+                                            {program.description}
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                                        <div className="flex flex-col">
+                                            <span className="text-primary font-black text-2xl tracking-tighter">
+                                                ৳ {program.price.toLocaleString()}
+                                            </span>
+                                            {program.originalPrice && program.originalPrice > program.price && (
+                                                <span className="text-white/20 line-through text-xs font-bold uppercase tracking-widest">
+                                                    ৳ {program.originalPrice.toLocaleString()}
                                                 </span>
-                                                {program.originalPrice && program.originalPrice > program.price && (
-                                                    <span className="line-through text-gray-300">
-                                                        {formatPrice(program.originalPrice)}
-                                                    </span>
-                                                )}
-                                                <span className="text-gray-300">•</span>
-                                                <span className="text-gray-300">{program.duration}</span>
-                                            </div>
+                                            )}
                                         </div>
-                                        <button onClick={ () => contactHandaler()} className="bg-[#F27D31] text-white font-semibold py-2 px-4 text-sm rounded-full hover:bg-[#e36e20] transition cursor-pointer whitespace-nowrap ml-4">
-                                            Contact Us
+                                        <button 
+                                            onClick={() => contactHandaler()} 
+                                            className="bg-white/5 border border-white/10 text-white font-custom font-bold px-8 py-3 rounded-full text-[10px] uppercase tracking-widest hover:bg-primary hover:text-black transition-all"
+                                        >
+                                            ENROLL NOW
                                         </button>
                                     </div>
                                 </div>

@@ -61,59 +61,70 @@ const SetPassword = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen shadow-xl shadow-black">
-        { loading && <Loader size={"lg"} overlay={true} message={"Loading..."} /> }
-      <Card className="w-[350px] h-auto border border-white backdrop-blur-3xl bg-white/20">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-white">
-            Set New Password
+    <div className="flex items-center justify-center min-h-screen bg-black px-4">
+        { loading && <Loader size={"lg"} overlay={true} message={"UPDATING PASSWORD..."} /> }
+      <Card className="w-full max-w-[400px] bg-white/5 border border-white/10 rounded-[2.5rem] p-4 md:p-8">
+        <CardHeader className="text-center pb-8">
+          <CardTitle className="text-3xl font-custom font-bold text-white uppercase tracking-widest">
+            New Password
           </CardTitle>
+          <CardDescription className="text-white/40 font-bold uppercase text-[10px] tracking-widest mt-2">
+            Secure your account performance
+          </CardDescription>
         </CardHeader>
 
-        <CardContent className="gap-2 grid">
-          <label htmlFor="password" className="text-white text-sm">
-            New Password
-          </label>
-          <input
-            type="password"
-            name="password"
-            placeholder="Enter new password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border border-white rounded-md focus:outline-amber-200 focus:outline-1 placeholder:text-white placeholder:font-light text-white"
-          />
-            { error.field == "password" && (<span className={"text-red-500 text-xs font-semibold"}>{error.message}</span>)}
+        <CardContent className="gap-6 grid">
+          <div className="space-y-2">
+            <label htmlFor="password" className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] ml-2">
+              New Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              placeholder="ENTER NEW PASSWORD"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
+                error.field == "password" ? "border-red-500" : "border-white/10"
+              }`}
+            />
+            { error.field == "password" && (<span className={"text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4"}>{error.message}</span>)}
+          </div>
 
-            <label htmlFor="confirm" className="text-white text-sm">
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            name="confirm"
-            placeholder="Re-enter password"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            className="w-full p-2 border border-white rounded-md focus:outline-amber-200 focus:outline-1 placeholder:text-white placeholder:font-light text-white"
-          />
-            { error.field == "confirm-password" && (<span className={"text-red-500 text-xs font-semibold"}>{error.message}</span>)}
+          <div className="space-y-2">
+            <label htmlFor="confirm" className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] ml-2">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              name="confirm"
+              placeholder="RE-ENTER PASSWORD"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
+                error.field == "confirm-password" ? "border-red-500" : "border-white/10"
+              }`}
+            />
+            { error.field == "confirm-password" && (<span className={"text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4"}>{error.message}</span>)}
+          </div>
         </CardContent>
 
-        <CardFooter className="gap-3 grid">
-          <Button
-            variant="outline"
-            className="w-full bg-black text-white border-0 text-xs"
+        <CardFooter className="gap-6 grid mt-4">
+          <button
+            className="w-full bg-primary text-black font-custom font-bold py-4 rounded-full hover:bg-white transition-all uppercase text-sm shadow-xl shadow-primary/10"
             onClick={handleSetPassword}
           >
             Set Password
-          </Button>
+          </button>
 
-          <Button
-            variant="outline"
-            className="w-full bg-white text-black border-0 text-xs"
-            onClick={() => router.push("/auth/signin")}
-          >
-            Back to Login
-          </Button>
+          <p className="text-center text-[10px] font-bold text-white/40 uppercase tracking-widest">
+            <span
+              className="text-primary cursor-pointer hover:text-white transition-colors"
+              onClick={() => router.push("/auth/signin")}
+            >
+              Back to Login
+            </span>
+          </p>
         </CardFooter>
       </Card>
     </div>

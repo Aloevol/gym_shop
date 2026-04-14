@@ -35,87 +35,95 @@ export default function SignUpPresenter ( props: Props ) {
     } = props;
 
     return (
-        <div className="flex items-center justify-center h-screen shadow-xl shadow-black">
+        <div className="flex items-center justify-center min-h-screen bg-black px-4">
 
             {/* Loading added */}
-            { loading && <Loader size={"lg"} overlay={true} message={"Loading..."} /> }
+            { loading && <Loader size={"lg"} overlay={true} message={"CREATING ACCOUNT..."} /> }
 
-            <Card className="w-[350px] h-auto border border-white backdrop-blur-3xl bg-white/20">
-                <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold text-white">
+            <Card className="w-full max-w-[450px] bg-white/5 border border-white/10 rounded-[2.5rem] p-4 md:p-8">
+                <CardHeader className="text-center pb-8">
+                    <CardTitle className="text-3xl font-custom font-bold text-white uppercase tracking-widest">
                         Sign Up
                     </CardTitle>
+                    <CardDescription className="text-white/40 font-bold uppercase text-[10px] tracking-widest mt-2">
+                        Start your performance journey
+                    </CardDescription>
                 </CardHeader>
 
-                <CardContent className="gap-2 grid">
-                    <label htmlFor="name" className="text-white text-sm">
-                        Full Name
-                    </label>
-                    <input
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        type="text"
-                        name="name"
-                        placeholder="Enter your name"
-                        className="w-full p-2 border border-white rounded-md focus:outline-amber-200 focus:outline-1 placeholder:text-white placeholder:font-light text-white"
-                    />
-                    { error.field == "name" && (<span className={"text-red-500 text-xs font-semibold"}>{error.message}</span>)}
+                <CardContent className="gap-6 grid">
+                    <div className="space-y-2">
+                        <label htmlFor="name" className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] ml-2">
+                            Full Name
+                        </label>
+                        <input
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            type="text"
+                            name="name"
+                            placeholder="YOUR FULL NAME"
+                            className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
+                                error.field == "name" ? "border-red-500" : "border-white/10"
+                            }`}
+                        />
+                        { error.field == "name" && (<span className={"text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4"}>{error.message}</span>)}
+                    </div>
 
-                    <label htmlFor="email" className="text-white text-sm">
-                        Email Address
-                    </label>
-                    <input
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        type="text"
-                        name="email"
-                        placeholder="Enter your email"
-                        className="w-full p-2 border border-white rounded-md focus:outline-amber-200 focus:outline-1 placeholder:text-white placeholder:font-light text-white"
-                    />
-                    { error.field == "email" && (<span className={"text-red-600 text-xs font-semibold"}>{error.message}</span>)}
+                    <div className="space-y-2">
+                        <label htmlFor="email" className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] ml-2">
+                            Email Address
+                        </label>
+                        <input
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            type="text"
+                            name="email"
+                            placeholder="YOUR EMAIL"
+                            className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
+                                error.field == "email" ? "border-red-600" : "border-white/10"
+                            }`}
+                        />
+                        { error.field == "email" && (<span className={"text-red-600 text-[10px] font-bold uppercase tracking-widest ml-4"}>{error.message}</span>)}
+                    </div>
 
-                    <label htmlFor="password" className="text-white text-sm">
-                        Password
-                    </label>
-                    <input
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        type="password"
-                        name="password"
-                        placeholder="Enter your password"
-                        className="w-full p-2 border border-white rounded-md focus:outline-amber-200 focus:outline-1 placeholder:text-white placeholder:font-light text-white"
-                    />
-                    { error.field == "password" && (<span className={"text-red-600 text-xs font-semibold"}>{error.message}</span>)}
+                    <div className="space-y-2">
+                        <label htmlFor="password" className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] ml-2">
+                            Password
+                        </label>
+                        <input
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            type="password"
+                            name="password"
+                            placeholder="YOUR PASSWORD"
+                            className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
+                                error.field == "password" ? "border-red-600" : "border-white/10"
+                            }`}
+                        />
+                        { error.field == "password" && (<span className={"text-red-600 text-[10px] font-bold uppercase tracking-widest ml-4"}>{error.message}</span>)}
+                    </div>
 
                 </CardContent>
 
-                <CardFooter className="gap-3 grid">
-                    <Button
-                        variant="outline"
-                        className="w-full bg-black text-white border-0 text-xs placeholder:text-white placeholder:font-light"
+                <CardFooter className="gap-6 grid mt-4">
+                    <button
+                        className="w-full bg-primary text-black font-custom font-bold py-4 rounded-full hover:bg-white transition-all uppercase text-sm shadow-xl shadow-primary/10"
                         onClick={() => signUp()}
                     >
                         Create Account
-                    </Button>
+                    </button>
 
-                    {/*<Button*/}
-                    {/*    variant="outline"*/}
-                    {/*    className="w-full bg-white text-black border-0 text-xs"*/}
-                    {/*>*/}
-                    {/*    Continue With Google*/}
-                    {/*</Button>*/}
-
-                    <CardDescription className="text-center text-xs text-white">
+                    <p className="text-center text-[10px] font-bold text-white/40 uppercase tracking-widest">
                         Already have an account?{" "}
                         <span
-                            className="text-xs font-bold cursor-pointer underline active:scale-105"
+                            className="text-primary cursor-pointer hover:text-white transition-colors ml-1"
                             onClick={() => router.push("/auth/signin")}
                         >
                           Log In
                         </span>
-                    </CardDescription>
+                    </p>
                 </CardFooter>
             </Card>
         </div>
     )
+
 }

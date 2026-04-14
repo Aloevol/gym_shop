@@ -145,46 +145,46 @@ function DynamicAboutPage({ sections, teamMembers }: DynamicAboutPageProps) {
     };
 
     return (
-        <div className="w-full bg-white">
+        <div className="w-full bg-black min-h-screen pt-20">
             {/* Section 1 - Hero */}
-            <section className="max-w-[1500px] mx-auto px-6 py-12 md:py-20">
+            <section className="max-w-7xl mx-auto px-6 py-16 md:py-24">
                 <h1
-                    className="text-2xl md:text-4xl font-bold text-[#F27D31] text-center mb-6"
+                    className="text-3xl md:text-6xl font-custom font-bold text-white text-center mb-12 uppercase tracking-widest leading-tight"
                     dangerouslySetInnerHTML={renderHTML(
-                        heroSection.title || 'IMPROVE YOUR <span class="text-[#222]">FITNESS LEVEL</span> FOR THE BETTER'
+                        heroSection.title || 'IMPROVE YOUR <span class="text-primary">FITNESS LEVEL</span> FOR THE BETTER'
                     )}
                 />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-10">
+                <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-16">
                     {/* Image */}
-                    <div className="relative w-full h-[250px] md:h-[400px]">
+                    <div className="relative w-full aspect-video md:aspect-square bg-white/5 rounded-3xl overflow-hidden border border-white/10">
                         <Image
                             src={heroSection.image_url || imageUrl.about[1]}
                             alt="about"
                             fill
-                            className="object-cover rounded-xl"
+                            className="object-cover"
                             priority
                         />
                     </div>
 
                     {/* Content */}
-                    <div className="flex flex-col gap-5">
-                        <p className="text-gray-700 leading-relaxed">
+                    <div className="flex flex-col gap-8">
+                        <p className="text-white/60 text-lg leading-relaxed uppercase font-bold tracking-tight">
                             {heroSection.content || 'We provide standard & express delivery services through our logistics partners, ensuring your fitness gear and essentials reach you quickly and safely. Join our growing community today!'}
                         </p>
 
-                        <div className="flex flex-wrap gap-6 mt-4">
-                            <div className="flex items-center gap-2">
-                                <h2 className="text-2xl font-bold text-[#222]">
+                        <div className="grid grid-cols-2 gap-8">
+                            <div className="bg-white/5 border border-white/10 p-6 rounded-2xl text-center">
+                                <h2 className="text-4xl font-black text-primary mb-1">
                                     {(heroSection.stats?.happyMembers || 500)}+
                                 </h2>
-                                <p className="text-gray-600">Happy Members</p>
+                                <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Happy Members</p>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <h2 className="text-2xl font-bold text-[#222]">
+                            <div className="bg-white/5 border border-white/10 p-6 rounded-2xl text-center">
+                                <h2 className="text-4xl font-black text-primary mb-1">
                                     {(heroSection.stats?.satisfiedCustomers || 900)}+
                                 </h2>
-                                <p className="text-gray-600">Satisfied Customers</p>
+                                <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Satisfied Customers</p>
                             </div>
                         </div>
                     </div>
@@ -192,51 +192,27 @@ function DynamicAboutPage({ sections, teamMembers }: DynamicAboutPageProps) {
             </section>
 
             {/* Section 2 - Our Story */}
-            <section className="max-w-[1500px] mx-auto px-6 py-16">
-                <h3 className="text-[#F27D31] font-semibold text-lg text-center">
-                    {storySection.subtitle || 'OUR STORY'}
-                </h3>
-                <h1 className="text-2xl md:text-4xl font-bold text-center mt-2 mb-6">
-                    {storySection.title || 'We Create and Glory for the Fitness Landscape'}
-                </h1>
-                <p className="text-gray-700 text-center max-w-2xl mx-auto leading-relaxed">
-                    {storySection.content || 'We are dedicated to providing high-quality solutions that make your fitness journey smoother and more effective. Innovation, dedication, and community are our core values.'}
-                </p>
-
-                <div className="flex flex-col gap-3 mt-8 max-w-xl mx-auto">
-                    {getStoryFeatures().map((feature: StoryFeature, i: number) => (
-                        <div key={i} className="flex items-center gap-3">
-                            <MdOutlineFlaky className="text-[#F27D31] text-xl" />
-                            <p className="text-gray-700">
-                                {feature.text}
-                            </p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Section 3 - Why Choose Us */}
-            <section className="max-w-[1500px] mx-auto px-6 py-20">
-                <div className="text-center mb-10">
-                    <h1 className="text-2xl md:text-3xl font-bold text-[#F27D31] mb-4">
-                        {whyChooseSection.title || 'WHY CHOOSE US'}
+            <section className="max-w-7xl mx-auto px-6 py-20 border-t border-white/5">
+                <div className="text-center mb-16">
+                    <h3 className="text-primary font-custom font-bold text-sm tracking-[0.3em] uppercase mb-4">
+                        {storySection.subtitle || 'OUR STORY'}
+                    </h3>
+                    <h1 className="text-3xl md:text-5xl font-custom font-bold text-white uppercase tracking-widest max-w-4xl mx-auto leading-tight">
+                        {storySection.title || 'We Create and Glory for the Fitness Landscape'}
                     </h1>
-                    <p className="text-gray-700 max-w-2xl mx-auto">
-                        {whyChooseSection.content || 'We offer a unique combination of personalized fitness training, expert guidance, and 24/7 support designed to help you achieve your goals faster.'}
-                    </p>
                 </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                    <p className="text-white/60 text-lg leading-relaxed italic border-l-4 border-primary pl-8">
+                        {storySection.content || 'We are dedicated to providing high-quality solutions that make your fitness journey smoother and more effective. Innovation, dedication, and community are our core values.'}
+                    </p>
 
-                <div className="grid grid-cols-1 gap-10">
-                    {/* Right Text */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        {getWhyChooseFeatures().map((feature: WhyChooseFeature, i: number) => (
-                            <div key={i} className="flex flex-col gap-3 bg-[#FEF2EA] p-4 rounded-xl">
-                                {getIconComponent(feature.icon)}
-                                <h2 className="font-semibold text-lg text-[#222]">
-                                    {feature.title}
-                                </h2>
-                                <p className="text-gray-600 text-sm">
-                                    {feature.content}
+                    <div className="grid gap-4">
+                        {getStoryFeatures().map((feature: StoryFeature, i: number) => (
+                            <div key={i} className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                                <MdOutlineFlaky className="text-primary text-2xl shrink-0" />
+                                <p className="text-white font-bold uppercase tracking-tight text-sm">
+                                    {feature.text}
                                 </p>
                             </div>
                         ))}
@@ -244,90 +220,104 @@ function DynamicAboutPage({ sections, teamMembers }: DynamicAboutPageProps) {
                 </div>
             </section>
 
+            {/* Section 3 - Why Choose Us */}
+            <section className="bg-white/5 py-24">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="text-center mb-16">
+                        <h1 className="text-3xl md:text-5xl font-custom font-bold text-white mb-6 uppercase tracking-widest">
+                            {whyChooseSection.title || 'WHY <span class="text-primary">CHOOSE</span> US'}
+                        </h1>
+                        <p className="text-white/40 max-w-2xl mx-auto font-bold uppercase tracking-widest text-sm">
+                            {whyChooseSection.content || 'We offer a unique combination of personalized fitness training, expert guidance, and 24/7 support designed to help you achieve your goals faster.'}
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {getWhyChooseFeatures().map((feature: WhyChooseFeature, i: number) => (
+                            <div key={i} className="flex flex-col gap-6 bg-black border border-white/10 p-8 rounded-3xl hover:border-primary/50 transition-all group">
+                                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary transition-colors">
+                                    {React.cloneElement(getIconComponent(feature.icon) as React.ReactElement, { 
+                                        className: "text-primary text-3xl group-hover:text-black transition-colors" 
+                                    })}
+                                </div>
+                                <div>
+                                    <h2 className="font-custom font-bold text-xl text-white mb-3 uppercase tracking-widest">
+                                        {feature.title}
+                                    </h2>
+                                    <p className="text-white/40 text-xs font-bold uppercase leading-relaxed tracking-wider">
+                                        {feature.content}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             {/* Section 4 - Our Team */}
-            <section className="max-w-[1500px] mx-auto px-6 py-20 bg-[#FEF2EA] rounded-3xl">
-                <div className="text-center mb-10">
-                    <h1 className="text-2xl md:text-3xl font-bold text-[#F27D31]">
-                        {teamSection.title || 'OUR TEAM'}
+            <section className="max-w-7xl mx-auto px-6 py-24">
+                <div className="text-center mb-16">
+                    <h1 className="text-3xl md:text-5xl font-custom font-bold text-white uppercase tracking-widest mb-4">
+                        OUR <span className="text-primary">TEAM</span>
                     </h1>
-                    <p className="text-gray-700 max-w-2xl mx-auto">
-                        {teamSection.content || 'Meet our passionate trainers and mentors who bring years of experience to help you stay fit and strong every day.'}
+                    <p className="text-white/40 max-w-2xl mx-auto font-bold uppercase tracking-widest text-sm">
+                        Meet our passionate trainers and mentors who bring years of experience to help you stay fit and strong every day.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-                    {/* Left Cards */}
-                    <div className="flex flex-col gap-6">
-                        {teamMembers.slice(0, 3).map((member, i) => (
-                            <div key={member.id || i} className="flex items-start gap-3 bg-white p-4 rounded-xl shadow">
-                                <BsPeople className="text-[#F27D31] text-3xl" />
-                                <div>
-                                    <h2 className="font-bold text-[#222]">{member.name || `Team Member ${i + 1}`}</h2>
-                                    <p className="text-sm text-gray-600">
-                                        {member.role || member.bio || 'Certified fitness trainer helping clients achieve their personal goals.'}
-                                    </p>
-                                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {teamMembers.map((member, i) => (
+                        <div key={member.id || i} className="bg-white/5 border border-white/10 p-8 rounded-3xl group hover:bg-white/10 transition-all">
+                            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-primary transition-colors">
+                                <BsPeople className="text-primary text-3xl group-hover:text-black" />
                             </div>
-                        ))}
-                    </div>
-
-                    {/* Right Cards */}
-                    <div className="flex flex-col gap-6">
-                        {teamMembers.slice(3, 6).map((member, i) => (
-                            <div key={member.id || i} className="flex items-start gap-3 bg-white p-4 rounded-xl shadow">
-                                <BsPeople className="text-[#F27D31] text-3xl" />
-                                <div>
-                                    <h2 className="font-bold text-[#222]">{member.name || `Team Member ${i + 3}`}</h2>
-                                    <p className="text-sm text-gray-600">
-                                        {member.bio || member.role || 'Expert in nutrition and wellness strategies for long-term results.'}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Section 5 - Vision */}
-            <section className="max-w-[1500px] mx-auto px-6 py-20">
-                <h1 className="text-2xl md:text-3xl font-bold text-[#F27D31] text-center mb-6">
-                    {visionSection.title || 'OUR GYM VISION'}
-                </h1>
-                <p className="text-center max-w-2xl mx-auto text-gray-700 mb-10">
-                    {visionSection.content || 'Our mission is to create a global community of empowered individuals committed to health, fitness, and mental strength.'}
-                </p>
-            </section>
-
-            {/* Section 6 - Expert Team */}
-            <section className="max-w-[1500px] mx-auto px-6 py-20 bg-[#FEF2EA]">
-                <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">
-                    Meet Our <span className="text-[#F27D31]">Expert Team</span>
-                </h1>
-                <p className="text-gray-700 text-center max-w-2xl mx-auto mb-10">
-                    {expertTeamSection.content || 'Dedicated professionals ready to support your fitness journey every step of the way.'}
-                </p>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    {teamMembers.slice(0, 4).map((member, i) => (
-                        <div key={member.id || i} className="relative w-full h-[250px] rounded-xl overflow-hidden shadow-md group">
-                            <Image
-                                src={member.image_url! || ""}
-                                alt={member.name || `team-${i}`}
-                                fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                            <div className="absolute inset-0 bg-opacity-40 bg-black/20 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                                <div className="text-white">
-                                    <h3 className="font-bold text-lg">{member.name || `Team Member ${i + 1}`}</h3>
-                                    <p className="text-sm">{member.role || 'Fitness Expert'}</p>
-                                </div>
-                            </div>
+                            <h2 className="font-custom font-bold text-2xl text-white uppercase tracking-widest mb-2">{member.name}</h2>
+                            <p className="text-primary text-[10px] font-black uppercase tracking-[0.3em] mb-4">
+                                {member.role || 'Fitness Specialist'}
+                            </p>
+                            <p className="text-white/40 text-sm font-bold uppercase leading-relaxed tracking-widest line-clamp-3">
+                                {member.bio || 'Certified fitness professional dedicated to transforming lives through expert guidance and personalized training strategies.'}
+                            </p>
                         </div>
                     ))}
                 </div>
             </section>
+
+            {/* Section 5 - Vision Section & Expert Grid Combined */}
+            <section className="bg-primary py-24">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex flex-col lg:flex-row items-center gap-16">
+                        <div className="flex-1">
+                            <h1 className="text-4xl md:text-6xl font-custom font-bold text-black uppercase tracking-tighter leading-none mb-8">
+                                OUR VISION<br/>FOR THE FUTURE
+                            </h1>
+                            <p className="text-black/80 text-xl font-bold uppercase leading-tight tracking-tight max-w-lg mb-12">
+                                {visionSection.content || 'Our mission is to create a global community of empowered individuals committed to health, fitness, and mental strength.'}
+                            </p>
+                            <div className="w-32 h-2 bg-black"></div>
+                        </div>
+                        
+                        <div className="flex-1 grid grid-cols-2 gap-4">
+                            {teamMembers.slice(0, 4).map((member, i) => (
+                                <div key={i} className="aspect-[3/4] relative rounded-2xl overflow-hidden grayscale hover:grayscale-0 transition-all duration-500 border-2 border-black/10">
+                                    <Image
+                                        src={member.image_url! || imageUrl.about[1]}
+                                        alt={member.name}
+                                        fill
+                                        className="object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
+                                        <p className="text-white font-custom text-[10px] uppercase tracking-widest">{member.name}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     );
+
 }
 
 export default DynamicAboutPage;

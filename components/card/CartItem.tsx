@@ -116,89 +116,76 @@ function CartItem({
 
     return (
         <div
-            className={`relative border rounded-2xl p-6 flex flex-col md:flex-row gap-6 items-center shadow-sm transition-all ${
-                selected ? "border-[#F27D31] bg-orange-50" : "border-gray-200"
-            } ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`relative border rounded-3xl p-6 flex flex-col md:flex-row gap-8 items-center transition-all duration-500 ${
+                selected ? "border-primary bg-primary/5 shadow-xl shadow-primary/5" : "border-white/10 bg-white/5 hover:border-white/20"
+            } ${isDisabled ? "opacity-20 cursor-not-allowed" : ""}`}
         >
             {/* Selection Checkbox */}
             <div
-                className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center cursor-pointer transition-all ${
+                className={`absolute top-6 right-6 w-6 h-6 rounded-full border-2 flex items-center justify-center cursor-pointer transition-all ${
                     selected
-                        ? "bg-[#F27D31] border-[#F27D31]"
-                        : "border-gray-300 bg-white"
+                        ? "bg-primary border-primary"
+                        : "border-white/20 bg-black"
                 } ${isDisabled ? "cursor-not-allowed" : "cursor-pointer"}`}
                 onClick={() => !isDisabled && toggleSelection(item._id)}
             >
-                {selected && <Check className="text-white w-4 h-4" />}
+                {selected && <Check className="text-black w-4 h-4" strokeWidth={4} />}
             </div>
 
             {/* Item Image */}
-            <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
+            <div className="relative w-32 h-32 rounded-2xl overflow-hidden bg-black/40 border border-white/5 flex-shrink-0 group">
                 <Image
                     src={itemData.image}
                     alt={itemData.data.title || "Product image"}
                     fill
-                    className="object-cover"
-                    onError={(e) => {
-                        // Fallback image handling
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/images/placeholder.jpg";
-                    }}
+                    className="object-contain p-4 transition-transform duration-700 group-hover:scale-110"
                 />
             </div>
 
             {/* Item Info */}
             <div className="flex-1 text-center md:text-left">
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div className="flex flex-col gap-4">
                     <div className="flex-1">
-                        <h2 className="font-semibold text-gray-800 text-lg mb-1">
+                        <h2 className="font-custom font-bold text-white text-xl uppercase tracking-widest mb-2">
                             {itemData.data.title || "Untitled Product"}
                         </h2>
-                        <p className="text-gray-500 text-sm mb-2 line-clamp-2">
-                            {itemData.data.description || "No description available"}
+                        <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-4">
+                            {itemData.type === "product" ? "Product" : "Performance Package"}
                         </p>
 
                         {/* Price Information */}
-                        <div className="space-y-1">
-                            <p className="text-gray-900 font-semibold text-lg">
+                        <div className="flex items-center justify-center md:justify-start gap-4">
+                            <p className="text-2xl font-black text-white">
                                 ৳ {totalPrice.toLocaleString()}
                             </p>
-                            <p className="text-gray-600 text-sm">
-                                ৳ {unitPrice.toLocaleString()} × {quantity}
+                            <p className="text-white/30 text-xs font-bold uppercase tracking-widest">
+                                (৳ {unitPrice.toLocaleString()} × {quantity})
                             </p>
-                            {itemData.type === "product" && (
-                                <p className="text-gray-500 text-xs">
-                                    Stock: {maxQuantity} | Unit Price: ৳ {unitPrice.toLocaleString()}
-                                </p>
-                            )}
-                            {itemData.type === "package" && (
-                                <p className="text-gray-500 text-xs">
-                                    Package | Unit Price: ৳ {unitPrice.toLocaleString()}
-                                </p>
-                            )}
                         </div>
                     </div>
 
-                    {/* Quantity Controls */}
-                    <div className="flex flex-col items-center gap-3 absolute bottom-6 right-6">
-                        <div className="flex items-center gap-3">
+                    {/* Controls Row */}
+                    <div className="flex flex-col sm:flex-row items-center gap-6 mt-2">
+                        {/* Quantity Controls */}
+                        <div className="flex items-center bg-black/40 border border-white/10 rounded-full px-2 py-1">
                             <button
                                 onClick={handleDecrement}
                                 disabled={isDisabled || !canDecrement}
-                                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                title={canDecrement ? "Decrease quantity" : "Minimum quantity reached"}
+                                className="p-2 text-white hover:text-primary transition disabled:opacity-20"
                             >
-                                <Minus className="w-4 h-4" />
+                                <Minus size={18} />
                             </button>
-
-                            {/* Quantity Display */}
+                            
                             <div className="relative">
-                                <div className="w-16 text-center border border-gray-300 rounded py-1 px-2 bg-white">
-                                    {quantity}
-                                </div>
+                                <input
+                                    type="number"
+                                    value={quantity}
+                                    readOnly
+                                    className="w-12 bg-transparent text-center font-bold text-white focus:outline-none"
+                                />
                                 {isUpdating && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
-                                        <div className="w-4 h-4 border-2 border-[#F27D31] border-t-transparent rounded-full animate-spin"></div>
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded">
+                                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                                     </div>
                                 )}
                             </div>
@@ -206,53 +193,27 @@ function CartItem({
                             <button
                                 onClick={handleIncrement}
                                 disabled={isDisabled || !canIncrement}
-                                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                title={canIncrement ? "Increase quantity" : "Maximum quantity reached"}
+                                className="p-2 text-white hover:text-primary transition disabled:opacity-20"
                             >
-                                <Plus className="w-4 h-4" />
+                                <Plus size={18} />
                             </button>
                         </div>
 
-                        {/* Stock Indicator */}
-                        {itemData.type === "product" && (
-                            <div className="text-xs text-gray-500">
-                                {quantity >= maxQuantity ? (
-                                    <span className="text-red-500">Max stock reached</span>
-                                ) : (
-                                    <span>{maxQuantity - quantity} left in stock</span>
-                                )}
-                            </div>
-                        )}
+                        {/* Remove Action */}
+                        <button
+                            onClick={handleRemove}
+                            disabled={isDisabled}
+                            className="text-[10px] font-black text-red-500/60 hover:text-red-500 uppercase tracking-[0.2em] transition-all flex items-center gap-2"
+                        >
+                            <Trash2 size={14} />
+                            Remove
+                        </button>
                     </div>
                 </div>
-
-                {/* Action Buttons */}
-                <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center md:justify-start items-center">
-                    <button
-                        onClick={handleRemove}
-                        disabled={isDisabled}
-                        className="flex items-center gap-2 text-red-600 hover:text-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                        Remove from Cart
-                    </button>
-
-                    {/* Price Summary */}
-                    <div className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                        Total: ৳ {totalPrice.toLocaleString()}
-                    </div>
-                </div>
-
-                {/* Loading Indicator */}
-                {isUpdating && (
-                    <div className="mt-2 text-xs text-[#F27D31] flex items-center gap-1 justify-center md:justify-start">
-                        <div className="w-3 h-3 border-2 border-[#F27D31] border-t-transparent rounded-full animate-spin"></div>
-                        Updating...
-                    </div>
-                )}
             </div>
         </div>
     );
+
 }
 
 export default CartItem;

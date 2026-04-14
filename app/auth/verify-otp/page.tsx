@@ -45,39 +45,46 @@ const VerifyOtp = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen shadow-xl shadow-black">
-        { loading && <Loader size={"lg"} overlay={true} message={"Loading..."} /> }
-      <Card className="w-[350px] h-auto border border-white backdrop-blur-3xl bg-white/20">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-white">
-            Enter The OTP
+    <div className="flex items-center justify-center min-h-screen bg-black px-4">
+        { loading && <Loader size={"lg"} overlay={true} message={"VERIFYING..."} /> }
+      <Card className="w-full max-w-[400px] bg-white/5 border border-white/10 rounded-[2.5rem] p-4 md:p-8">
+        <CardHeader className="text-center pb-8">
+          <CardTitle className="text-3xl font-custom font-bold text-white uppercase tracking-widest">
+            Secure Verify
           </CardTitle>
+          <CardDescription className="text-white/40 font-bold uppercase text-[10px] tracking-widest mt-2">
+            Enter the code sent to your email
+          </CardDescription>
         </CardHeader>
 
-        <CardContent className="gap-2 grid">
-          <label htmlFor="otp" className="text-white text-sm">
-            Enter The OTP
-          </label>
-          <input
-            type="text"
-            name="otp"
-            placeholder="Enter 6-digit code"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            maxLength={6}
-            className="w-full p-2 border border-white rounded-md focus:outline-amber-200 focus:outline-1 placeholder:text-white placeholder:font-light text-white text-center tracking-[0.3em]"
-          />
+        <CardContent className="gap-6 grid">
+          <div className="space-y-2">
+            <label htmlFor="otp" className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] ml-2">
+              6-Digit OTP Code
+            </label>
+            <input
+              type="text"
+              name="otp"
+              placeholder="000000"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              maxLength={6}
+              className="w-full bg-black border border-white/10 px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none text-center tracking-[0.5em] font-black text-xl transition-all"
+            />
+          </div>
         </CardContent>
 
-        <CardFooter className="gap-3 grid">
-          <Button
-            variant="outline"
-            className="w-full bg-black text-white border-0 text-xs"
+        <CardFooter className="gap-6 grid mt-4">
+          <button
+            className="w-full bg-primary text-black font-custom font-bold py-4 rounded-full hover:bg-white transition-all uppercase text-sm shadow-xl shadow-primary/10"
             onClick={handleVerify}
           >
-            Verify
-          </Button>
-
+            Verify Now
+          </button>
+          
+          <p className='text-center text-[10px] font-bold text-white/40 uppercase tracking-widest cursor-pointer hover:text-white transition-colors'>
+            Didn't receive the code? Resend
+          </p>
         </CardFooter>
       </Card>
     </div>

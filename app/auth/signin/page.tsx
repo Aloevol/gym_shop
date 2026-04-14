@@ -64,40 +64,63 @@ const SignIn = () => {
   }
 
   return (
-    <div className='flex items-center justify-center h-screen shadow-xl shadow-black'>
-        { loading && <Loader size={"lg"} overlay={true} message={"Loading..."} /> }
-        <Card className='w-[350px] h-auto border border-white backdrop-blur-3xl bg-white/20'>
-        <CardHeader className='text-center'>
-          <CardTitle className='text-2xl font-bold text-white'>Log In</CardTitle>
+    <div className='flex items-center justify-center min-h-screen bg-black px-4'>
+        { loading && <Loader size={"lg"} overlay={true} message={"LOGGING IN..."} /> }
+        <Card className='w-full max-w-[400px] bg-white/5 border border-white/10 rounded-[2.5rem] p-4 md:p-8'>
+        <CardHeader className='text-center pb-8'>
+          <CardTitle className='text-3xl font-custom font-bold text-white uppercase tracking-widest'>Log In</CardTitle>
+          <CardDescription className='text-white/40 font-bold uppercase text-[10px] tracking-widest mt-2'>Welcome back to Thryve</CardDescription>
         </CardHeader>
-        <CardContent className='gap-2 grid'>
-          <label htmlFor="email" className='text-white text-sm'>Email Address</label>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="text" 
-            name="email"
-            placeholder='email'
-            className='w-full p-2 border border-white rounded-md focus:outline-amber-200 focus:outline-1 placeholder:text-white placeholder:font-light text-white'
-          />
-            { error.field == "email" && (<span className={"text-red-500 text-xs font-semibold"}>{error.message}</span>)}
-          <label htmlFor="password" className='text-white text-sm'>Password</label>
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password" 
-            name="password"
-            placeholder='password'
-            className='w-full p-2 border border-white rounded-md focus:outline-amber-200 focus:outline-1 placeholder:text-white placeholder:font-light text-white'
-          />
-            { error.field == "password" && (<span className={"text-red-500 text-xs font-semibold"}>{error.message}</span>)}
-          <Link href="/auth/forgot-password" className='text-right text-white text-xs'>Forgot Password?</Link>
+        <CardContent className='gap-6 grid'>
+          <div className="space-y-2">
+            <label htmlFor="email" className='text-white/40 text-[10px] font-black uppercase tracking-[0.2em] ml-2'>Email Address</label>
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="text" 
+              name="email"
+              placeholder='YOUR EMAIL'
+              className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
+                error.field == "email" ? "border-red-500" : "border-white/10"
+              }`}
+            />
+            { error.field == "email" && (<span className={"text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4"}>{error.message}</span>)}
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="password" className='text-white/40 text-[10px] font-black uppercase tracking-[0.2em] ml-2'>Password</label>
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              type="password" 
+              name="password"
+              placeholder='YOUR PASSWORD'
+              className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
+                error.field == "password" ? "border-red-500" : "border-white/10"
+              }`}
+            />
+            { error.field == "password" && (<span className={"text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4"}>{error.message}</span>)}
+          </div>
+          
+          <Link href="/auth/forgot-password" size="sm" className='text-right text-primary text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors'>Forgot Password?</Link>
         </CardContent>
-        <CardFooter className='gap-3 grid'>
-          <Button variant="outline" className='w-full bg-black text-white border-0 text-xs active:scale-95 duration-100 cursor-pointer' onClick={handleSignIn}>Log In</Button>
-          {/*<Button variant="outline" className='w-full bg-white text-black border-0 text-xs'>Continue With Google</Button>*/}
-          <CardDescription className='text-center text-xs text-white'>
-          {"Don't have an account? "} <span className='text-xs font-bold cursor-pointer' onClick={() => router.push('/auth/signup')}>Sign Up</span></CardDescription>
+        <CardFooter className='gap-6 grid mt-4'>
+          <button 
+            className='w-full bg-primary text-black font-custom font-bold py-4 rounded-full hover:bg-white transition-all uppercase text-sm shadow-xl shadow-primary/10'
+            onClick={handleSignIn}
+          >
+            Log In
+          </button>
+          
+          <p className='text-center text-[10px] font-bold text-white/40 uppercase tracking-widest'>
+            {"Don't have an account? "} 
+            <span 
+              className='text-primary cursor-pointer hover:text-white transition-colors ml-1' 
+              onClick={() => router.push('/auth/signup')}
+            >
+              Sign Up
+            </span>
+          </p>
         </CardFooter>
       </Card>
     </div>

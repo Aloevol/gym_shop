@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { getBannerMessagesServerSide } from "@/server/functions/banner.fun";
+import { getAllBannerMessagesServerSide } from "@/server/functions/banner.fun";
 
 interface BannerMessage {
   _id: string;
@@ -11,65 +10,66 @@ interface BannerMessage {
   isActive: boolean;
 }
 
-const AutoScrollBanner = () => {
+const AutoSlider = () => {
   const [messages, setMessages] = useState<BannerMessage[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchBannerMessages();
+    fetchMessages();
   }, []);
 
-  const fetchBannerMessages = async () => {
+  const fetchMessages = async () => {
     try {
-      const response = await getBannerMessagesServerSide();
+      const response = await getAllBannerMessagesServerSide();
       if (!response.isError && response.data) {
-        // Use type assertion
-        const bannerData = response.data as { messages: BannerMessage[] };
-        setMessages(bannerData.messages || []);
+        const { messages: fetchedMessages } = response.data as { messages: BannerMessage[] };
+        setMessages(fetchedMessages.filter(m => m.isActive) || []);
       }
     } catch (error) {
-      console.error("Failed to fetch banner messages:", error);
+      console.error("Failed to fetch ticker messages:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="w-full bg-[#ffffff] py-3">
-        <div className="flex justify-center">
-          <div className="animate-pulse text-gray-400">Loading messages...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (messages.length === 0) {
+  if (loading || messages.length === 0) {
+    // Return a placeholder or null during loading
+    if (loading) return <div className="bg-black py-3 border-y border-white/5 h-12 animate-pulse"></div>;
     return null;
   }
 
-  const displayMessages = [...messages, ...messages];
+  // Duplicate items for seamless loop
+  const displayItems = [...messages, ...messages, ...messages, ...messages];
 
   return (
-    <div className="w-full overflow-hidden bg-[#ffffff] border-b border-gray-100 py-3">
-      <motion.div
-        className="flex gap-8 whitespace-nowrap text-gray-800 font-semibold text-sm md:text-base"
-        animate={{ x: ["0%", "-100%"] }}
-        transition={{
-          ease: "linear",
-          duration: messages.length * 5,
-          repeat: Infinity,
-        }}
-      >
-        {displayMessages.map((msg, i) => (
-          <span key={`${msg._id}-${i}`} className="flex items-center gap-2 flex-shrink-0 px-4">
-            <span className="text-orange-500">{msg.icon}</span>
-            {msg.text}
-          </span>
-        ))}
-      </motion.div>
+    <div className="bg-black text-white py-3 border-y border-white/5 overflow-hidden">
+      <div className="flex whitespace-nowrap animate-ticker-scroll">
+        <div className="flex gap-12 px-6">
+          {displayItems.map((item, i) => (
+            <span
+              key={i}
+              className="flex items-center gap-3 font-custom text-sm md:text-lg tracking-widest uppercase shrink-0 font-bold"
+            >
+              <span className="text-primary">{item.icon}</span>
+              {item.text}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes ticker-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-ticker-scroll {
+          display: flex;
+          width: max-content;
+          animation: ticker-scroll 40s linear infinite;
+        }
+      `}</style>
     </div>
   );
 };
 
-export default AutoScrollBanner;
+export default AutoSlider;

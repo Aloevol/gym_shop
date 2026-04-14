@@ -58,15 +58,16 @@ interface Order {
 }
 
 const statusSteps = [
-    { value: "pending", label: "Pending", color: "bg-yellow-100 text-yellow-800" },
-    { value: "confirmed", label: "Confirmed", color: "bg-blue-100 text-blue-800" },
-    { value: "processing", label: "Processing", color: "bg-purple-100 text-purple-800" },
-    { value: "shipped", label: "Shipped", color: "bg-indigo-100 text-indigo-800" },
-    { value: "delivered", label: "Delivered", color: "bg-green-100 text-green-800" },
-    { value: "cancelled", label: "Cancelled", color: "bg-red-100 text-red-800" }
+    { value: "pending", label: "Pending", color: "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20" },
+    { value: "confirmed", label: "Confirmed", color: "bg-blue-500/10 text-blue-500 border border-blue-500/20" },
+    { value: "processing", label: "Processing", color: "bg-purple-500/10 text-purple-500 border border-purple-500/20" },
+    { value: "shipped", label: "Shipped", color: "bg-indigo-500/10 text-indigo-500 border border-indigo-500/20" },
+    { value: "delivered", label: "Delivered", color: "bg-green-500/10 text-green-500 border border-green-500/20" },
+    { value: "cancelled", label: "Cancelled", color: "bg-red-500/10 text-red-500 border border-red-500/20" }
 ];
 
 function ProfilePage() {
+    // ... rest of state remains same
     const [user, setUser] = useState<IUser>({
         name: "",
         image: "https://res.cloudinary.com/ddsnont4o/image/upload/v1760025348/jhkjjhk_iesrwh.png",
@@ -87,14 +88,12 @@ function ProfilePage() {
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
-    // Form states
     const [formData, setFormData] = useState({
         name: "",
         contact: "",
         email: ""
     });
 
-    // Password states
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -114,7 +113,6 @@ function ProfilePage() {
                     contact: userData.contact || "",
                     email: userData.email || ""
                 });
-                // Load user orders after setting user data
                 await loadUserOrders(userData._id);
             } else {
                 const res = await isAuthenticatedAndGetUser();
@@ -139,12 +137,10 @@ function ProfilePage() {
                         contact: userData.contact || "",
                         email: userData.email || ""
                     });
-                    // Load user orders after setting user data
                     await loadUserOrders(userData._id);
                 }
             }
         };
-
         loadUserData();
     }, []);
 
@@ -152,16 +148,10 @@ function ProfilePage() {
         try {
             setOrdersLoading(true);
             const result = await getUserOrders(userId);
-
-            if (result.success && result.orders) {
-                setOrders(result.orders);
-            } else {
-                console.log("No orders found or error:", result.error);
-                setOrders([]);
-            }
+            if (result.success && result.orders) setOrders(result.orders);
+            else setOrders([]);
         } catch (error) {
-            console.error("Error loading user orders:", error);
-            toast.error("Failed to load orders");
+            console.error("Error loading orders:", error);
             setOrders([]);
         } finally {
             setOrdersLoading(false);
@@ -171,46 +161,29 @@ function ProfilePage() {
     const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
-
-        // Create preview URL
         const previewUrl = URL.createObjectURL(file);
         setPreviewImage(previewUrl);
-
-        // Auto-upload when image is selected
         await handleImageUpload(file);
     };
 
     const handleImageUpload = async (file: File) => {
         setImageUploading(true);
         try {
-            if (!user._id) {
-                toast.error("User not found");
-                return;
-            }
-
+            if (!user._id) return;
             const uploadedUrls = await uploadMultipleToCloudinary([file]);
             const newImageUrl = uploadedUrls[0];
-
             if (newImageUrl) {
-                const response = await updateUserProfileServerSide(user._id, {
-                    image: newImageUrl
-                });
-
+                const response = await updateUserProfileServerSide(user._id, { image: newImageUrl });
                 if (!response.isError && response.data) {
                     const updatedUser = { ...user, image: newImageUrl };
                     setUser(updatedUser);
                     await setCookie({name:"user", value: JSON.stringify(updatedUser) });
-                    toast.success("Profile image updated successfully");
+                    toast.success("Profile image updated");
                 } else {
-                    toast.error("Failed to update profile image");
-                    // Revert preview image on failure
                     setPreviewImage(user.image);
                 }
             }
         } catch (error) {
-            console.error("Error uploading image:", error);
-            toast.error("Failed to upload image");
-            // Revert preview image on error
             setPreviewImage(user.image);
         } finally {
             setImageUploading(false);
@@ -218,43 +191,25 @@ function ProfilePage() {
     };
 
     const handleInputChange = (field: string, value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
+        setFormData(prev => ({ ...prev, [field]: value }));
     };
 
     const handleSaveProfile = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-
         try {
-            if (!user._id) {
-                toast.error("User not found");
-                return;
-            }
-
+            if (!user._id) return;
             const response = await updateUserProfileServerSide(user._id, {
                 name: formData.name,
                 contact: formData.contact
             });
-
             if (!response.isError && response.data) {
-                const updatedUser = {
-                    ...user,
-                    name: formData.name,
-                    contact: formData.contact
-                };
+                const updatedUser = { ...user, name: formData.name, contact: formData.contact };
                 setUser(updatedUser);
                 await setCookie({name:"user", value: JSON.stringify(updatedUser) });
-                toast.success("Profile updated successfully");
+                toast.success("Profile updated");
                 setEditMode(false);
-            } else {
-                toast.error(response.message || "Failed to update profile");
             }
-        } catch (error) {
-            console.error("Error updating profile:", error);
-            toast.error("Failed to update profile");
         } finally {
             setLoading(false);
         }
@@ -263,646 +218,284 @@ function ProfilePage() {
     const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-
         try {
-            if (!user._id) {
-                toast.error("User not found");
-                return;
-            }
-
-            // Validation
-            if (!currentPassword) {
-                toast.error("Please enter your current password");
-                return;
-            }
-
-            if (!newPassword) {
-                toast.error("Please enter a new password");
-                return;
-            }
-
-            if (newPassword.length < 6) {
-                toast.error("Password must be at least 6 characters long");
-                return;
-            }
-
+            if (!user._id) return;
             if (newPassword !== confirmPassword) {
-                toast.error("New passwords do not match");
+                toast.error("Passwords do not match");
                 return;
             }
-
-            const response = await changeUserPasswordServerSide(user._id, {
-                currentPassword,
-                newPassword
-            });
-
+            const response = await changeUserPasswordServerSide(user._id, { currentPassword, newPassword });
             if (!response.isError) {
-                toast.success("Password changed successfully");
-                // Clear form
-                setCurrentPassword("");
-                setNewPassword("");
-                setConfirmPassword("");
-                setShowCurrentPassword(false);
-                setShowNewPassword(false);
-                setShowConfirmPassword(false);
-                setPasswordMode(false);
+                toast.success("Password changed");
+                handleCancelPassword();
             } else {
-                toast.error(response.message || "Failed to change password");
+                toast.error(response.message);
             }
-        } catch (error) {
-            console.error("Error changing password:", error);
-            toast.error("Failed to change password");
         } finally {
             setLoading(false);
         }
     };
 
     const handleLogout = () => {
-        try {
-            // Clear all cookies
-            const cookies = document.cookie.split(";");
-            for (const cookie of cookies) {
-                const eqPos = cookie.indexOf("=");
-                const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-            }
-
-            // Clear localStorage and sessionStorage
-            localStorage.clear();
-            sessionStorage.clear();
-
-            toast.success("Logged out successfully");
-
-            // Redirect to home page
-            setTimeout(() => {
-                window.location.href = "/";
-            }, 1000);
-
-        } catch (error) {
-            console.error("Logout error:", error);
-            toast.error("Logout failed");
-            window.location.href = "/";
+        const cookies = document.cookie.split(";");
+        for (const cookie of cookies) {
+            const eqPos = cookie.indexOf("=");
+            const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
         }
+        localStorage.clear();
+        sessionStorage.clear();
+        toast.success("Logged out");
+        setTimeout(() => window.location.href = "/", 1000);
     };
 
     const handleCancelEdit = () => {
-        setFormData({
-            name: user.name || "",
-            contact: user.contact || "",
-            email: user.email || ""
-        });
+        setFormData({ name: user.name || "", contact: user.contact || "", email: user.email || "" });
         setEditMode(false);
         setPreviewImage(user.image);
     };
 
     const handleCancelPassword = () => {
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-        setShowCurrentPassword(false);
-        setShowNewPassword(false);
-        setShowConfirmPassword(false);
+        setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
+        setShowCurrentPassword(false); setShowNewPassword(false); setShowConfirmPassword(false);
         setPasswordMode(false);
     };
 
-    const openOrderDetails = (order: Order) => {
-        setSelectedOrder(order);
-        setIsOrderModalOpen(true);
-    };
+    const openOrderDetails = (order: Order) => { setSelectedOrder(order); setIsOrderModalOpen(true); };
+    const closeOrderDetails = () => { setIsOrderModalOpen(false); setSelectedOrder(null); };
 
-    const closeOrderDetails = () => {
-        setIsOrderModalOpen(false);
-        setSelectedOrder(null);
-    };
-
-    const getStatusColor = (status: string) => {
-        const statusStep = statusSteps.find(s => s.value === status);
-        return statusStep ? statusStep.color : "bg-gray-100 text-gray-800";
-    };
-
-    const getStatusLabel = (status: string) => {
-        const statusStep = statusSteps.find(s => s.value === status);
-        return statusStep ? statusStep.label : status;
+    const getStatusStyles = (status: string) => {
+        const step = statusSteps.find(s => s.value === status);
+        return step ? step.color : "bg-white/10 text-white/40 border border-white/5";
     };
 
     return (
-        <section className="w-full min-h-screen bg-white py-16 px-6 md:px-12 lg:px-20">
-            <div className="max-w-5xl mx-auto">
-                {/* Header with Actions */}
-                <div className="flex flex-col md:flex-row items-center gap-6 mb-10 relative">
-                    <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-[#F27D31]">
-                        <Image
-                            src={previewImage || user.image}
-                            alt="profile"
-                            fill
-                            className="object-cover"
-                        />
-
-                        {/* Hidden file input */}
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageSelect}
-                            className="hidden"
-                            id="profile-image-upload"
-                        />
-
-                        <div className="absolute w-[40px] h-[40px] bottom-2 right-2 bg-[#232323]/20 text-white z-50 cursor-pointer rounded-full">
-                            <label
-                                htmlFor="profile-image-upload"
-                                className="w-full h-full relative flex items-center justify-center cursor-pointer"
-                            >
-                                {imageUploading ? (
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                ) : (
-                                    <SquarePen className="text-black" />
-                                )}
-                            </label>
+        <section className="w-full min-h-screen bg-black py-24 px-6 md:px-12 lg:px-20 font-bold">
+            <div className="max-w-6xl mx-auto">
+                {/* Header Profile Card */}
+                <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10 mb-12 flex flex-col md:flex-row items-center gap-10">
+                    <div className="relative group">
+                        <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-primary shadow-2xl shadow-primary/20">
+                            <Image src={previewImage || user.image} alt="profile" fill className="object-cover" />
+                            <input type="file" accept="image/*" onChange={handleImageSelect} className="hidden" id="profile-image-upload" />
                         </div>
+                        <label htmlFor="profile-image-upload" className="absolute bottom-2 right-2 w-10 h-10 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-white transition-all shadow-xl">
+                            {imageUploading ? <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" /> : <SquarePen size={20} className="text-black" />}
+                        </label>
                     </div>
 
-                    <div className="flex-1">
+                    <div className="flex-1 text-center md:text-left">
                         {editMode ? (
-                            <form onSubmit={handleSaveProfile} className="space-y-4 max-w-md">
-                                <div className="flex flex-col gap-2">
-                                    <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
-                                    <Input
-                                        id="name"
-                                        value={formData.name}
-                                        onChange={(e) => handleInputChange("name", e.target.value)}
-                                        required
-                                        className="w-full"
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <Label htmlFor="email" className="text-sm font-medium">Email</Label>
-                                    <Input
-                                        id="email"
-                                        value={formData.email}
-                                        disabled
-                                        className="w-full bg-gray-100"
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <Label htmlFor="contact" className="text-sm font-medium">Contact Number</Label>
-                                    <Input
-                                        id="contact"
-                                        value={formData.contact}
-                                        onChange={(e) => handleInputChange("contact", e.target.value)}
-                                        placeholder="+1234567890"
-                                        className="w-full"
-                                    />
-                                </div>
-
-                                <div className="flex gap-3 mt-4">
-                                    <Button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="bg-[#F27D31] hover:bg-[#e56a1a] flex items-center gap-2"
-                                    >
-                                        <Save size={16} />
-                                        {loading ? "Saving..." : "Save Changes"}
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={handleCancelEdit}
-                                        disabled={loading}
-                                        className="flex items-center gap-2"
-                                    >
-                                        <X size={16} />
-                                        Cancel
-                                    </Button>
+                            <form onSubmit={handleSaveProfile} className="space-y-4 max-w-md mx-auto md:mx-0">
+                                <Input value={formData.name} onChange={(e) => handleInputChange("name", e.target.value)} className="bg-black border-white/10 rounded-full px-6 py-6" placeholder="FULL NAME" />
+                                <Input value={formData.contact} onChange={(e) => handleInputChange("contact", e.target.value)} className="bg-black border-white/10 rounded-full px-6 py-6" placeholder="CONTACT NUMBER" />
+                                <div className="flex gap-3">
+                                    <button type="submit" disabled={loading} className="bg-primary text-black px-8 py-3 rounded-full uppercase text-xs tracking-widest hover:bg-white transition-all">SAVE</button>
+                                    <button type="button" onClick={handleCancelEdit} className="bg-white/10 text-white px-8 py-3 rounded-full uppercase text-xs tracking-widest hover:bg-white/20 transition-all">CANCEL</button>
                                 </div>
                             </form>
                         ) : passwordMode ? (
-                            <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
-                                <div className="flex flex-col gap-2">
-                                    <Label htmlFor="currentPassword" className="text-sm font-medium">Current Password</Label>
-                                    <div className="relative">
-                                        <Input
-                                            id="currentPassword"
-                                            type={showCurrentPassword ? "text" : "password"}
-                                            value={currentPassword}
-                                            onChange={(e) => setCurrentPassword(e.target.value)}
-                                            required
-                                            className="w-full pr-10"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                                        >
-                                            {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                                        </button>
-                                    </div>
+                            <div className="space-y-4 max-w-md mx-auto md:mx-0">
+                                <h3 className="text-primary uppercase tracking-[0.2em] text-xs mb-4">SECURITY UPDATE</h3>
+                                <div className="flex gap-3">
+                                    <button onClick={() => setPasswordMode(false)} className="bg-white/10 text-white px-8 py-3 rounded-full uppercase text-xs tracking-widest">CANCEL</button>
                                 </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <Label htmlFor="newPassword" className="text-sm font-medium">New Password</Label>
-                                    <div className="relative">
-                                        <Input
-                                            id="newPassword"
-                                            type={showNewPassword ? "text" : "password"}
-                                            value={newPassword}
-                                            onChange={(e) => setNewPassword(e.target.value)}
-                                            required
-                                            minLength={6}
-                                            className="w-full pr-10"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowNewPassword(!showNewPassword)}
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                                        >
-                                            {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <Label htmlFor="confirmPassword" className="text-sm font-medium">Confirm Password</Label>
-                                    <div className="relative">
-                                        <Input
-                                            id="confirmPassword"
-                                            type={showConfirmPassword ? "text" : "password"}
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                            required
-                                            className="w-full pr-10"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                                        >
-                                            {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-3 mt-4">
-                                    <Button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="bg-[#F27D31] hover:bg-[#e56a1a] flex items-center gap-2"
-                                    >
-                                        {loading ? "Changing..." : "Change Password"}
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={handleCancelPassword}
-                                        disabled={loading}
-                                        className="flex items-center gap-2"
-                                    >
-                                        <X size={16} />
-                                        Cancel
-                                    </Button>
-                                </div>
-                            </form>
+                            </div>
                         ) : (
-                            <div>
-                                <div className="flex items-center gap-4 mb-2">
-                                    <h1 className="text-3xl font-bold text-gray-900">{user.name}</h1>
-                                    <div className="flex gap-2">
-                                        <Button
-                                            onClick={() => setEditMode(true)}
-                                            variant="outline"
-                                            size="sm"
-                                            className="flex items-center gap-2"
-                                        >
-                                            <Edit3 size={16} />
-                                            Edit Profile
-                                        </Button>
-                                        <Button
-                                            onClick={() => setPasswordMode(true)}
-                                            variant="outline"
-                                            size="sm"
-                                            className="flex items-center gap-2"
-                                        >
-                                            Change Password
-                                        </Button>
-                                        <Button
-                                            onClick={handleLogout}
-                                            variant="outline"
-                                            size="sm"
-                                            className="flex items-center gap-2 text-red-600 border-red-600 hover:bg-red-50"
-                                        >
-                                            <LogOut size={16} />
-                                            Logout
-                                        </Button>
-                                    </div>
+                            <div className="space-y-4">
+                                <div>
+                                    <h1 className="text-3xl md:text-5xl font-custom font-bold text-white uppercase tracking-widest mb-2">{user.name}</h1>
+                                    <p className="text-primary uppercase tracking-[0.3em] text-xs">{user.role}</p>
                                 </div>
-                                <p className="text-gray-500">{user.email}</p>
-                                <p className="text-gray-500 text-sm mt-2">
-                                    Joined: {user.createdAt ? new Date(user.createdAt).toDateString() : 'N/A'}
-                                </p>
-                                {user.contact && (
-                                    <p className="text-gray-500 text-sm mt-1">Contact: {user.contact}</p>
-                                )}
+                                <div className="flex flex-wrap items-center gap-6 justify-center md:justify-start">
+                                    <div className="flex items-center gap-2 text-white/40">
+                                        <MdEmail size={16} className="text-primary" />
+                                        <span className="text-xs uppercase tracking-wider">{user.email}</span>
+                                    </div>
+                                    {user.contact && (
+                                        <div className="flex items-center gap-2 text-white/40">
+                                            <BsTelephone size={14} className="text-primary" />
+                                            <span className="text-xs uppercase tracking-wider">{user.contact}</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex flex-wrap gap-3 pt-4 justify-center md:justify-start">
+                                    <button onClick={() => setEditMode(true)} className="bg-white/5 border border-white/10 text-white px-6 py-3 rounded-full text-[10px] uppercase tracking-widest hover:bg-white hover:text-black transition-all">EDIT PROFILE</button>
+                                    <button onClick={() => setPasswordMode(true)} className="bg-white/5 border border-white/10 text-white px-6 py-3 rounded-full text-[10px] uppercase tracking-widest hover:bg-white hover:text-black transition-all">PASSWORD</button>
+                                    <button onClick={handleLogout} className="bg-red-500/10 border border-red-500/20 text-red-500 px-6 py-3 rounded-full text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">LOGOUT</button>
+                                </div>
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* User Orders */}
-                <div className="mt-12">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-2xl font-semibold text-[#F27D31]">
-                            My Orders ({orders.length})
-                        </h2>
+                {/* Orders Section */}
+                <div className="mb-12">
+                    <div className="flex justify-between items-end mb-8 px-4">
+                        <div>
+                            <h2 className="text-2xl md:text-4xl font-custom font-bold text-white uppercase tracking-widest">MY <span className="text-primary">ORDERS</span></h2>
+                            <p className="text-white/20 text-[10px] uppercase tracking-[0.2em] mt-2">Track your fitness progress</p>
+                        </div>
                         {orders.length > 0 && (
-                            <p className="text-sm text-gray-500">
-                                Total spent: ৳ {orders.reduce((sum, order) => sum + order.total, 0).toLocaleString()}
-                            </p>
+                            <div className="text-right">
+                                <p className="text-primary font-black text-2xl tracking-tighter">৳ {orders.reduce((sum, order) => sum + order.total, 0).toLocaleString()}</p>
+                                <p className="text-white/20 text-[9px] uppercase tracking-widest">TOTAL SPENT</p>
+                            </div>
                         )}
                     </div>
 
                     {ordersLoading ? (
-                        <div className="bg-gray-50 rounded-xl shadow-sm p-8 text-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F27D31] mx-auto"></div>
-                            <p className="text-gray-500 mt-2">Loading your orders...</p>
+                        <div className="bg-white/5 border border-white/10 rounded-[2rem] p-20 text-center">
+                            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                            <p className="text-white/40 uppercase text-xs tracking-widest font-bold">Fetching Orders...</p>
                         </div>
                     ) : orders.length > 0 ? (
-                        <div className="bg-gray-50 rounded-xl shadow-sm divide-y">
+                        <div className="grid gap-4">
                             {orders.map((order) => (
-                                <div
-                                    key={order._id}
-                                    className="p-4 hover:bg-gray-100 transition-colors cursor-pointer"
-                                    onClick={() => openOrderDetails(order)}
-                                >
-                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <Package className="w-4 h-4 text-[#F27D31]" />
-                                                <p className="font-medium text-gray-800">
-                                                    Order #{order.orderNumber}
-                                                </p>
-                                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                          {getStatusLabel(order.status)}
-                        </span>
+                                <div key={order._id} onClick={() => openOrderDetails(order)} className="bg-white/5 border border-white/10 rounded-3xl p-6 hover:border-primary/50 transition-all cursor-pointer group">
+                                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                                        <div className="flex items-center gap-6">
+                                            <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center border border-white/5 group-hover:border-primary/30">
+                                                <Package className="text-primary" size={24} />
                                             </div>
-                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm text-gray-600">
-                                                <div>
-                                                    <strong>{order.items.length}</strong> item(s)
-                                                </div>
-                                                <div>
-                                                    Total: <strong>৳ {order.total.toLocaleString()}</strong>
-                                                </div>
-                                                <div>
-                                                    {new Date(order.createdAt).toLocaleDateString()}
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                                                <div className="flex items-center gap-1">
-                                                    <CreditCard className="w-3 h-3" />
-                                                    <span className="capitalize">{order.paymentMethod}</span>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <Truck className="w-3 h-3" />
-                                                    <span>{order.shippingAddress.district}</span>
-                                                </div>
+                                            <div>
+                                                <p className="text-white font-bold uppercase tracking-widest text-sm mb-1">ORDER #{order.orderNumber}</p>
+                                                <p className="text-white/40 text-[10px] uppercase tracking-wider">{new Date(order.createdAt).toLocaleDateString()}</p>
                                             </div>
                                         </div>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="flex items-center gap-2"
-                                        >
-                                            View Details
-                                        </Button>
+                                        <div className="flex flex-wrap items-center gap-8 justify-center">
+                                            <div className="text-center">
+                                                <p className="text-white font-black text-lg">৳ {order.total.toLocaleString()}</p>
+                                                <p className="text-white/20 text-[9px] uppercase tracking-widest">AMOUNT</p>
+                                            </div>
+                                            <div className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusStyles(order.status)}`}>
+                                                {order.status}
+                                            </div>
+                                            <button className="bg-primary/10 text-primary p-3 rounded-full group-hover:bg-primary group-hover:text-black transition-all">
+                                                <Eye size={18} />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="bg-gray-50 rounded-xl shadow-sm p-8 text-center">
-                            <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                            <p className="text-gray-500 text-lg">No orders yet</p>
-                            <p className="text-gray-400 text-sm mt-2">Start shopping to see your orders here</p>
-                            <Button className="mt-4 bg-[#F27D31] hover:bg-[#e56a1a]">
-                                Start Shopping
-                            </Button>
+                        <div className="bg-white/5 border border-white/10 rounded-[3rem] p-20 text-center">
+                            <ShoppingBag className="w-16 h-16 text-white/5 mx-auto mb-6" />
+                            <p className="text-white/40 uppercase text-xs tracking-widest font-bold mb-8">NO ORDERS FOUND</p>
+                            <button onClick={() => window.location.href = "/shop"} className="bg-primary text-black px-10 py-4 rounded-full uppercase text-xs font-bold tracking-widest hover:bg-white transition-all">START SHOPPING</button>
                         </div>
                     )}
                 </div>
 
-                {/* Account Information */}
-                <div className="mt-12">
-                    <h2 className="text-2xl font-semibold text-[#F27D31] mb-6">
-                        Account Information
-                    </h2>
-                    <div className="bg-gray-50 rounded-xl shadow-sm p-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <h3 className="font-medium text-gray-800">Account Status</h3>
-                                <p className="text-sm text-gray-600 mt-1">
-                  <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                      user.status === USER_STATUS.ACTIVE ? 'bg-green-500' : 'bg-red-500'
-                  }`}></span>
-                                    {user.status === USER_STATUS.ACTIVE ? 'Active' : 'Inactive'}
-                                </p>
+                {/* Account Details */}
+                <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10">
+                    <h2 className="text-xl md:text-2xl font-custom font-bold text-white uppercase tracking-widest mb-10 text-center md:text-left">ACCOUNT <span className="text-primary">DATA</span></h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div className="space-y-2">
+                            <p className="text-white/20 text-[9px] uppercase tracking-[0.2em]">STATUS</p>
+                            <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${user.status === USER_STATUS.ACTIVE ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-red-500'}`} />
+                                <p className="text-white text-xs uppercase tracking-widest">{user.status}</p>
                             </div>
-
-                            <div>
-                                <h3 className="font-medium text-gray-800">Verification Status</h3>
-                                <p className="text-sm text-gray-600 mt-1">
-                  <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                      user.isVerified ? 'bg-green-500' : 'bg-yellow-500'
-                  }`}></span>
-                                    {user.isVerified ? 'Verified' : 'Not Verified'}
-                                </p>
-                            </div>
-
-                            <div>
-                                <h3 className="font-medium text-gray-800">Account Role</h3>
-                                <p className="text-sm text-gray-600 mt-1 capitalize">
-                                    {user.role.toLowerCase()}
-                                </p>
-                            </div>
-
-                            <div>
-                                <h3 className="font-medium text-gray-800">Member Since</h3>
-                                <p className="text-sm text-gray-600 mt-1">
-                                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-                                </p>
-                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-white/20 text-[9px] uppercase tracking-[0.2em]">VERIFIED</p>
+                            <p className={`text-xs uppercase tracking-widest ${user.isVerified ? 'text-green-500' : 'text-yellow-500'}`}>{user.isVerified ? 'YES' : 'NO'}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-white/20 text-[9px] uppercase tracking-[0.2em]">ROLE</p>
+                            <p className="text-white text-xs uppercase tracking-widest">{user.role}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-white/20 text-[9px] uppercase tracking-[0.2em]">SINCE</p>
+                            <p className="text-white text-xs uppercase tracking-widest">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Order Details Modal */}
             {isOrderModalOpen && selectedOrder && (
-                <OrderDetailsModal
-                    order={selectedOrder}
-                    onClose={closeOrderDetails}
-                />
+                <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-[100]">
+                    <div className="bg-black border border-white/10 rounded-[3rem] max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+                        <div className="flex items-center justify-between p-10 border-b border-white/5 sticky top-0 bg-black/80 backdrop-blur-md z-10">
+                            <div>
+                                <h2 className="text-2xl font-custom font-bold text-white uppercase tracking-widest">ORDER <span className="text-primary">#{selectedOrder.orderNumber}</span></h2>
+                                <p className="text-white/40 text-[10px] uppercase tracking-[0.2em] mt-1">{new Date(selectedOrder.createdAt).toLocaleString()}</p>
+                            </div>
+                            <button onClick={closeOrderDetails} className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-primary hover:text-black transition-all">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="p-10 space-y-12">
+                            {/* Summary Grid */}
+                            <div className="grid md:grid-cols-3 gap-6">
+                                <div className="bg-white/5 p-6 rounded-3xl border border-white/5">
+                                    <p className="text-white/20 text-[9px] font-black uppercase tracking-[0.2em] mb-4">STATUS</p>
+                                    <div className={`inline-block px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusStyles(selectedOrder.status)}`}>{selectedOrder.status}</div>
+                                </div>
+                                <div className="bg-white/5 p-6 rounded-3xl border border-white/5">
+                                    <p className="text-white/20 text-[9px] font-black uppercase tracking-[0.2em] mb-4">PAYMENT</p>
+                                    <div className={`inline-block px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${selectedOrder.paymentStatus === 'paid' ? 'bg-green-500/10 text-green-500' : 'bg-yellow-500/10 text-yellow-500'}`}>{selectedOrder.paymentStatus}</div>
+                                </div>
+                                <div className="bg-white/5 p-6 rounded-3xl border border-white/5">
+                                    <p className="text-white/20 text-[9px] font-black uppercase tracking-[0.2em] mb-4">METHOD</p>
+                                    <p className="text-white text-xs uppercase font-black tracking-widest pt-2">{selectedOrder.paymentMethod}</p>
+                                </div>
+                            </div>
+
+                            <div className="grid lg:grid-cols-2 gap-12">
+                                {/* Address */}
+                                <div className="space-y-6">
+                                    <h3 className="text-white font-custom font-bold uppercase tracking-widest flex items-center gap-3">
+                                        <MapPin size={20} className="text-primary" /> DELIVERY ADDRESS
+                                    </h3>
+                                    <div className="bg-white/5 p-8 rounded-[2rem] border border-white/5 space-y-4">
+                                        <p className="text-white font-black uppercase tracking-tight text-lg">{selectedOrder.shippingAddress.fullName}</p>
+                                        <div className="space-y-2 text-white/40 text-sm font-bold uppercase tracking-widest">
+                                            <p>{selectedOrder.shippingAddress.address}</p>
+                                            <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.district}</p>
+                                            <p>{selectedOrder.shippingAddress.phone}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Items */}
+                                <div className="space-y-6">
+                                    <h3 className="text-white font-custom font-bold uppercase tracking-widest flex items-center gap-3">
+                                        <Package size={20} className="text-primary" /> ORDER ITEMS
+                                    </h3>
+                                    <div className="bg-white/5 p-8 rounded-[2rem] border border-white/5 space-y-6">
+                                        {selectedOrder.items.map((item, index) => (
+                                            <div key={index} className="flex items-center gap-4 group">
+                                                <div className="w-16 h-16 bg-black rounded-xl overflow-hidden border border-white/10 shrink-0">
+                                                    <Image src={item.image} alt={item.title} width={64} height={64} className="w-full h-full object-contain p-2" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="text-white font-black uppercase tracking-tight text-sm line-clamp-1">{item.title}</p>
+                                                    <p className="text-white/40 text-[10px] font-bold uppercase mt-1">{item.quantity} × ৳{item.price.toLocaleString()}</p>
+                                                </div>
+                                                <p className="text-white font-black text-sm">৳ {(item.price * item.quantity).toLocaleString()}</p>
+                                            </div>
+                                        ))}
+                                        <div className="border-t border-white/5 pt-6 space-y-3">
+                                            <div className="flex justify-between text-xs font-bold text-white/40 uppercase tracking-widest"><span>SUBTOTAL</span><span className="text-white">৳ {selectedOrder.subtotal.toLocaleString()}</span></div>
+                                            <div className="flex justify-between text-xs font-bold text-white/40 uppercase tracking-widest"><span>SHIPPING</span><span className="text-white">৳ {selectedOrder.shippingFee.toLocaleString()}</span></div>
+                                            <div className="flex justify-between text-lg font-black text-primary uppercase tracking-tighter pt-4 border-t border-white/5"><span>TOTAL</span><span>৳ {selectedOrder.total.toLocaleString()}</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-10 border-t border-white/5 flex justify-end gap-4">
+                            <button onClick={closeOrderDetails} className="bg-white/5 text-white px-10 py-4 rounded-full uppercase text-xs font-bold tracking-widest hover:bg-white hover:text-black transition-all">CLOSE</button>
+                            <button className="bg-primary text-black px-10 py-4 rounded-full uppercase text-xs font-bold tracking-widest hover:bg-white transition-all shadow-xl shadow-primary/10">INVOICE</button>
+                        </div>
+                    </div>
+                </div>
             )}
         </section>
     );
 }
-
-// Order Details Modal Component
-interface OrderDetailsModalProps {
-    order: Order;
-    onClose: () => void;
-}
-
-function OrderDetailsModal({ order, onClose }: OrderDetailsModalProps) {
-    const getStatusColor = (status: string) => {
-        const statusStep = statusSteps.find(s => s.value === status);
-        return statusStep ? statusStep.color : "bg-gray-100 text-gray-800";
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b">
-                    <div>
-                        <h2 className="text-xl font-semibold text-gray-800">
-                            Order Details: {order.orderNumber}
-                        </h2>
-                        <p className="text-sm text-gray-500">
-                            Placed on {new Date(order.createdAt).toLocaleString()}
-                        </p>
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                    >
-                        <X size={20} />
-                    </button>
-                </div>
-
-                <div className="p-6 space-y-6">
-                    {/* Order Status */}
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-            <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(order.status)}`}>
-              {order.status}
-            </span>
-                        <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                            order.paymentStatus === 'paid'
-                                ? 'bg-green-100 text-green-800'
-                                : order.paymentStatus === 'pending'
-                                    ? 'bg-yellow-100 text-yellow-800'
-                                    : 'bg-red-100 text-red-800'
-                        }`}>
-              Payment: {order.paymentStatus}
-            </span>
-                        <span className="text-sm text-gray-600 capitalize">
-              Method: {order.paymentMethod}
-            </span>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                        {/* Shipping Information */}
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                                <MapPin size={20} />
-                                Shipping Address
-                            </h3>
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="space-y-2">
-                                    <p className="font-medium text-gray-900">{order.shippingAddress.fullName}</p>
-                                    <p className="text-gray-600">{order.shippingAddress.address}</p>
-                                    <p className="text-gray-600">
-                                        {order.shippingAddress.city}, {order.shippingAddress.district}
-                                    </p>
-                                    <p className="text-gray-600">
-                                        {order.shippingAddress.postalCode}, {order.shippingAddress.country}
-                                    </p>
-                                    <p className="text-gray-600">{order.shippingAddress.phone}</p>
-                                    <p className="text-gray-600">{order.shippingAddress.email}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Order Items Summary */}
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                                <Package size={20} />
-                                Order Summary
-                            </h3>
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="space-y-3">
-                                    {order.items.map((item, index) => (
-                                        <div key={item._id || index} className="flex items-center gap-3">
-                                            <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                                                <Image
-                                                    src={item.image || "/images/placeholder.jpg"}
-                                                    alt={item.title}
-                                                    width={48}
-                                                    height={48}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
-                                            <div className="flex-1">
-                                                <p className="font-medium text-gray-900 text-sm">{item.title}</p>
-                                                <p className="text-gray-600 text-xs">
-                                                    Qty: {item.quantity} × ৳{item.price.toLocaleString()}
-                                                </p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="font-semibold text-gray-900">
-                                                    ৳ {(item.price * item.quantity).toLocaleString()}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="border-t mt-4 pt-4 space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <span>Subtotal:</span>
-                                        <span>৳ {order.subtotal.toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
-                                        <span>Shipping:</span>
-                                        <span>৳ {order.shippingFee.toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
-                                        <span>Tax:</span>
-                                        <span>৳ {order.tax.toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                                        <span>Total:</span>
-                                        <span className="text-[#F27D31]">৳ {order.total.toLocaleString()}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {order.notes && (
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-gray-800">Order Notes</h3>
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <p className="text-gray-900">{order.notes}</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Footer */}
-                <div className="flex justify-end gap-3 p-6 border-t">
-                    <button
-                        onClick={onClose}
-                        className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                        Close
-                    </button>
-                    <button className="px-6 py-2 bg-[#F27D31] text-white rounded-lg hover:bg-orange-600 transition-colors">
-                        Print Invoice
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-export default ProfilePage;

@@ -155,7 +155,7 @@ const convertPackageToPlainObject = (pkg: unknown): ClientPackage => {
 
 // Loading section component
 const LoadingSection = () => (
-    <section className="w-full bg-white py-20 px-6 md:px-12 lg:px-20 flex flex-col items-center gap-12">
+    <section className="w-full bg-black py-20 px-6 md:px-12 lg:px-20 flex flex-col items-center gap-12">
         {/* Header */}
         <motion.div
             initial={{ opacity: 0, y: -40 }}
@@ -164,13 +164,10 @@ const LoadingSection = () => (
             viewport={{ once: true }}
             className="text-center max-w-2xl"
         >
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#F27D31] leading-tight drop-shadow-lg">
-                Our Valuable <span className="text-black">Packages</span>
+            <h2 className="text-3xl md:text-5xl font-custom font-bold text-white tracking-widest uppercase mb-4">
+                VALUABLE <span className="text-primary">PACKAGES</span>
             </h2>
-            <p className="text-gray-600 mt-4 text-sm md:text-base">
-                Experience year-round comfort with our Comfort Zone packages — designed
-                to keep your home warm in winter, cool in summer, and stylish every day.
-            </p>
+            <div className="w-24 h-1 bg-primary mx-auto"></div>
         </motion.div>
 
         {/* Loading Skeleton */}
@@ -183,28 +180,8 @@ const LoadingSection = () => (
             {[1, 2, 3].map((item) => (
                 <div
                     key={item}
-                    className="w-full max-w-sm border-2 rounded-2xl p-4 relative shadow-lg bg-white animate-pulse"
-                >
-                    <div className="w-full h-32 mb-4 rounded-xl bg-gray-200"></div>
-                    <div className="text-center">
-                        <div className="h-6 bg-gray-200 rounded mb-3 mx-auto w-3/4"></div>
-                        <div className="h-4 bg-gray-200 rounded mb-3 mx-auto w-full"></div>
-                        <div className="flex justify-center space-x-1 mb-3">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                                <div key={star} className="h-5 w-5 bg-gray-200 rounded-full"></div>
-                            ))}
-                        </div>
-                        <div className="mt-4 space-y-2">
-                            <div className="h-8 bg-gray-200 rounded w-1/2 mx-auto"></div>
-                            <div className="h-4 bg-gray-200 rounded w-1/3 mx-auto"></div>
-                        </div>
-                        <div className="mt-4 space-y-2">
-                            <div className="h-3 bg-gray-200 rounded w-full"></div>
-                            <div className="h-3 bg-gray-200 rounded w-4/5 mx-auto"></div>
-                            <div className="h-3 bg-gray-200 rounded w-3/4 mx-auto"></div>
-                        </div>
-                    </div>
-                </div>
+                    className="w-full aspect-[4/5] bg-white/5 rounded-2xl animate-pulse"
+                ></div>
             ))}
         </motion.div>
     </section>
@@ -212,10 +189,10 @@ const LoadingSection = () => (
 
 // Error section component
 const ErrorSection = ({ error }: { error: string }) => (
-    <section className="w-full bg-white py-20 px-6 md:px-12 lg:px-20 flex flex-col items-center gap-12">
+    <section className="w-full bg-black py-20 px-6 md:px-12 lg:px-20 flex flex-col items-center gap-12">
         <div className="text-center">
-            <h2 className="text-2xl font-bold text-red-600">Error Loading Packages</h2>
-            <p className="text-gray-600 mt-2">{error}</p>
+            <h2 className="text-2xl font-bold text-red-500 uppercase tracking-widest">Error Loading Packages</h2>
+            <p className="text-white/40 mt-2 uppercase text-xs tracking-widest">{error}</p>
         </div>
     </section>
 );
@@ -278,7 +255,7 @@ const ValuablePackages = () => {
     }
 
     return (
-        <section className="w-full bg-white py-20 px-6 md:px-12 lg:px-20 flex flex-col items-center gap-12">
+        <section className="w-full bg-black py-20 px-6 md:px-12 lg:px-20 flex flex-col items-center gap-12">
             {/* Header */}
             <motion.div
                 initial={{ opacity: 0, y: -40 }}
@@ -287,19 +264,18 @@ const ValuablePackages = () => {
                 viewport={{ once: true }}
                 className="text-center max-w-2xl"
             >
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#F27D31] leading-tight drop-shadow-lg">
-                    Our Valuable <span className="text-black">Packages</span>
+                <h2 className="text-3xl md:text-5xl font-custom font-bold text-white tracking-widest uppercase mb-4">
+                    VALUABLE <span className="text-primary">PACKAGES</span>
                 </h2>
-                <p className="text-gray-600 mt-4 text-sm md:text-base">
-                    Experience year-round comfort with our Comfort Zone packages — designed
-                    to keep your home warm in winter, cool in summer, and stylish every day.
+                <p className="text-white/40 font-bold tracking-widest uppercase text-sm">
+                    Experience year-round comfort with our premium curated performance packages.
                 </p>
             </motion.div>
 
                     {/* Cards Grid */}
                     {displayPackages.length > 0 ? (
                         <motion.div
-                            className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 w-full gap-3 sm:gap-6 justify-items-center max-w-[1200px]"
+                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full gap-6 justify-items-center max-w-[1200px]"
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
@@ -333,8 +309,7 @@ const ValuablePackages = () => {
                     viewport={{ once: true }}
                     className="text-center py-12"
                 >
-                    <p className="text-gray-500 text-lg">No packages available at the moment.</p>
-                    <p className="text-gray-400 mt-2">Check back soon for our latest offers!</p>
+                    <p className="text-white/40 font-custom tracking-widest uppercase">No packages available at the moment.</p>
                 </motion.div>
             )}
         </section>

@@ -2,10 +2,10 @@
 
 import ProductCart from "@/components/card/ProductCart";
 import imageUrl from "@/const/imageUrl";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Zap, CheckCircle2, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import Image from "next/image";
 import React, {useEffect, useLayoutEffect, useState, useCallback} from "react";
-import { FaStar, FaStarHalfAlt, FaRegStar, FaCheck } from "react-icons/fa";
+import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { useParams, useRouter } from "next/navigation";
 import Loader from "@/components/loader/Loader";
 import { toast } from "sonner";
@@ -16,6 +16,7 @@ import { getAPackageServerSide, getRelatedPackagesServerSide } from "@/server/fu
 import OrderModal from "@/components/modal/OrderModal";
 import {IUser} from "@/server/models/user/user.interfce";
 import {isAuthenticatedAndGetUser} from "@/server/functions/auth.fun";
+import { motion } from "framer-motion";
 
 function PackageViewPage() {
     const [packageData, setPackageData] = useState<IPackage | null>(null);
@@ -29,26 +30,28 @@ function PackageViewPage() {
 
     const { id } = useParams();
     const router = useRouter();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
 
-    // Calculate discount percentage and main image
+    useEffect(() => {
+        if (packageData && searchParams?.get('checkout') === 'true') {
+            setIsOrderModalOpen(true);
+        }
+    }, [packageData, searchParams]);
+
     const discountPercentage = packageData?.originalPrice && packageData?.price
         ? Math.round(((packageData.originalPrice - packageData.price) / packageData.originalPrice) * 100)
         : 0;
 
     const mainImage = packageData?.imageUrl?.[selectedImageIndex] || imageUrl.packageImage.image1;
 
-    // Fetch main package with useCallback to prevent infinite re-renders
     const fetchPackage = useCallback(async () => {
         if (!id) return;
         setLoading(true);
 
         try {
             const packageResponse = await getAPackageServerSide(id);
-
-            if (packageResponse.data) {
-                setPackageData(packageResponse.data as IPackage);
-            }
-
+            if (packageResponse.data) setPackageData(packageResponse.data as IPackage);
             if (packageResponse.isError || !packageResponse.data) {
                 router.back();
                 return;
@@ -61,23 +64,15 @@ function PackageViewPage() {
         }
     }, [id, router]);
 
-    // Fetch related packages when packageData updates
     const fetchRelatedPackages = useCallback(async (category: string, packageId: string) => {
         try {
-            const relatedResponse = await getRelatedPackagesServerSide(
-                category,
-                packageId
-            );
-
-            if (!relatedResponse.isError && relatedResponse.data) {
-                setRelatedPackages(relatedResponse.data as IPackage[]);
-            }
+            const relatedResponse = await getRelatedPackagesServerSide(category, packageId);
+            if (!relatedResponse.isError && relatedResponse.data) setRelatedPackages(relatedResponse.data as IPackage[]);
         } catch (error) {
             console.error("Error fetching related packages:", error);
         }
     }, []);
 
-    // Get user authentication
     useLayoutEffect(() => {
         ;( async ()=> {
             const cookie = await getCookie("user");
@@ -96,84 +91,79 @@ function PackageViewPage() {
         })()
     },[]);
 
-    // Initial data fetch
     useEffect(() => {
-        if (id) {
-            fetchPackage();
-        }
+        if (id) fetchPackage();
     }, [id, fetchPackage]);
 
-    // Fetch related packages when packageData is available
     useEffect(() => {
-        if (packageData?.category && packageData?._id) {
-            fetchRelatedPackages(packageData.category, packageData._id);
-        }
+        if (packageData?.category && packageData?._id) fetchRelatedPackages(packageData.category, packageData._id);
     }, [packageData?.category, packageData?._id, fetchRelatedPackages]);
 
-    // Set client-side flag
     useEffect(() => {
         setIsClient(true);
     }, []);
 
-    // Render star ratings dynamically
     const renderStars = (rating: number) => {
         const stars = [];
         const fullStars = Math.floor(rating);
         const hasHalfStar = rating % 1 >= 0.5;
-
         for (let i = 1; i <= 5; i++) {
-            if (i <= fullStars) {
-                stars.push(<FaStar key={i} className="text-[#F27D31]" />);
-            } else if (i === fullStars + 1 && hasHalfStar) {
-                stars.push(<FaStarHalfAlt key={i} className="text-[#F27D31]" />);
-            } else {
-                stars.push(<FaRegStar key={i} className="text-[#F27D31]" />);
-            }
+            if (i <= fullStars) stars.push(<FaStar key={i} className="text-primary" />);
+            else if (i === fullStars + 1 && hasHalfStar) stars.push(<FaStarHalfAlt key={i} className="text-primary" />);
+            else stars.push(<FaRegStar key={i} className="text-white/20" />);
         }
         return stars;
     };
 
     const handleQuantityChange = (change: number) => {
         const newQuantity = quantity + change;
-        if (newQuantity >= 1) {
-            setQuantity(newQuantity);
-        }
+        if (newQuantity >= 1) setQuantity(newQuantity);
     };
 
     const handleAddToCart = async () => {
         const cookie = await getCookie("user");
+
+        // GUEST ADD TO CART
         if (!cookie) {
-            toast.error("Please login to add items to cart");
+            const guestCart = JSON.parse(localStorage.getItem("gym-shop-cart") || "[]");
+            const existingItemIndex = guestCart.findIndex((item: any) => item.id === packageData?._id && item.type === "package");
+
+            if (existingItemIndex > -1) {
+                guestCart[existingItemIndex].quantity += quantity;
+            } else {
+                guestCart.push({
+                    id: packageData?._id,
+                    type: "package",
+                    quantity: quantity,
+                    name: packageData?.title,
+                    price: packageData?.price,
+                    image: packageData?.imageUrl?.[0],
+                    category: packageData?.category
+                });
+            }
+
+            localStorage.setItem("gym-shop-cart", JSON.stringify(guestCart));
+            toast.success("Added to guest cart!");
+            window.dispatchEvent(new Event("cart-updated"));
             return;
         }
 
+        // LOGGED IN
         const userCookie = JSON.parse(cookie);
-
-        const response = await addToCart({
-            userId: userCookie._id,
-            packageId: packageData?._id
-        });
-
+        const response = await addToCart({ userId: userCookie._id, packageId: packageData?._id });
         if (response.isError) {
             toast.error(response.message);
             return;
         }
-
         toast.success(response.message);
+        window.dispatchEvent(new Event("cart-updated"));
         router.push("/cart");
     };
 
-    const directBuy = () => {
-        // if (!user){
-        //     return toast.warning("Please login to buy a product");
-        // }
-        setIsOrderModalOpen(true);
-    }
+    const directBuy = () => setIsOrderModalOpen(true);
 
-    // Prepare items for OrderModal
     const getOrderModalItems = () => {
         if (!packageData) return [];
-
         return [{
             package: packageData._id as string,
             product: undefined,
@@ -185,234 +175,201 @@ function PackageViewPage() {
         }];
     };
 
-    if (loading) {
-        return <Loader />;
-    }
-
-    if (!packageData && !loading) {
-        return (
-            <div className="w-full min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <h2 className="text-2xl font-semibold text-gray-700">Package Not Found</h2>
-                    <button
-                        onClick={() => router.back()}
-                        className="mt-4 bg-[#F27D31] text-white px-6 py-2 rounded-md hover:bg-[#e36e20] transition"
-                    >
-                        Go Back
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    // Only render the main content when we're on the client side and have data
-    if (!isClient || !packageData) {
-        return <Loader />;
-    }
+    if (loading || !isClient || !packageData) return <Loader />;
 
     return (
-        <div className="w-full min-h-screen bg-white">
-            {loading && <Loader />}
-
-            {/* --- Title Section --- */}
-            <section className="w-full text-center p-5 max-w-[800px] mx-auto">
-                <h1 className="text-2xl md:text-3xl font-semibold text-[#F27D31] mb-3">
-                    Package Details
-                </h1>
-                <p className="text-gray-700 text-sm md:text-base font-light leading-relaxed">
-                    {packageData.description || "Explore the features and benefits of our premium package."}
-                </p>
-            </section>
-
-            {/* --- Package Section --- */}
-            <section className="w-full flex flex-col md:flex-row justify-center items-start gap-10 px-5 lg:px-20 py-6">
-                {/* --- Left: Image Gallery --- */}
-                <div className="flex flex-col items-center md:items-start gap-4 mx-auto">
-                    {/* Main Image */}
-                    <div className="relative w-[280px] sm:w-[350px] md:w-[400px] xl:w-[500px] aspect-square bg-gray-100 rounded-md overflow-hidden shadow-md">
-                        <Image
-                            src={mainImage}
-                            alt={packageData.title}
-                            fill
-                            className="object-cover"
-                            priority
-                            quality={90}
-                        />
-                        {discountPercentage > 0 && (
-                            <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
-                                -{discountPercentage}%
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Sub Images */}
-                    {packageData.imageUrl && packageData.imageUrl.length > 1 && (
-                        <div className="flex gap-3 justify-center md:justify-start flex-wrap">
-                            {packageData.imageUrl.map((image, index) => (
-                                <div
-                                    key={index}
-                                    className={`relative w-[80px] sm:w-[100px] aspect-square rounded-md overflow-hidden border-2 cursor-pointer transition-all ${
-                                        selectedImageIndex === index
-                                            ? 'border-[#F27D31]'
-                                            : 'border-gray-200'
-                                    }`}
-                                    onClick={() => setSelectedImageIndex(index)}
-                                >
-                                    <Image
-                                        src={image}
-                                        alt={`${packageData.title} ${index + 1}`}
-                                        fill
-                                        className="object-cover"
-                                    />
+        <div className="w-full min-h-screen bg-black pt-24 pb-20">
+            <div className="max-w-7xl mx-auto px-4 md:px-6">
+                
+                <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
+                    
+                    {/* Left: Image Section */}
+                    <div className="flex-1 space-y-6">
+                        <div className="relative aspect-square bg-white/5 rounded-3xl overflow-hidden border border-white/10 group">
+                            <Image
+                                src={mainImage}
+                                alt={packageData.title}
+                                fill
+                                className="object-contain p-8 transition-transform duration-700 group-hover:scale-105"
+                                priority
+                            />
+                            {discountPercentage > 0 && (
+                                <div className="absolute top-6 left-6 bg-primary text-black px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider shadow-xl">
+                                    -{discountPercentage}%
                                 </div>
-                            ))}
+                            )}
                         </div>
-                    )}
-                </div>
 
-                {/* --- Right: Package Info --- */}
-                <div className="flex-1 max-w-[500px] space-y-5 mx-auto">
-                    {/* Category */}
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span className="bg-gray-100 px-2 py-1 rounded">Category: {packageData.category}</span>
-                        {packageData.isFeatured && (
-                            <span className="bg-[#F27D31] text-white px-2 py-1 rounded">Featured</span>
-                        )}
-                    </div>
-
-                    {/* Rating */}
-                    <div className="flex items-center gap-2">
-                        <div className="flex gap-1 text-xl">
-                            {renderStars(packageData.rating)}
-                        </div>
-                        <p className="text-gray-700 text-sm font-light">
-                            ({packageData.rating.toFixed(1)} Rating)
-                        </p>
-                    </div>
-
-                    {/* Package Name */}
-                    <h1 className="text-2xl md:text-3xl font-semibold text-[#F27D31]">
-                        {packageData.title}
-                    </h1>
-
-                    {/* Description */}
-                    <p className="text-gray-700 leading-relaxed">
-                        {packageData.description}
-                    </p>
-
-                    {/* Price */}
-                    <div className="flex items-center gap-3">
-                        <p className="text-2xl font-semibold text-[#242222]">
-                            ৳ {packageData.price.toLocaleString()}
-                        </p>
-                        {packageData.originalPrice && packageData.originalPrice > packageData.price && (
-                            <p className="text-lg font-light line-through text-gray-500">
-                                ৳ {packageData.originalPrice.toLocaleString()}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Features */}
-                    {packageData.features && packageData.features.length > 0 && (
-                        <div className="space-y-3">
-                            <h3 className="font-semibold text-gray-700">Package Includes:</h3>
-                            <div className="space-y-2">
-                                {packageData.features.map((feature, index) => (
-                                    <div key={index} className="flex items-center gap-3">
-                                        <FaCheck className="text-green-500 flex-shrink-0" />
-                                        <span className="text-gray-600">{feature}</span>
-                                    </div>
+                        {/* Thumbnails */}
+                        {packageData.imageUrl && packageData.imageUrl.length > 1 && (
+                            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                                {packageData.imageUrl.map((image, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => setSelectedImageIndex(index)}
+                                        className={`relative min-w-[100px] aspect-square rounded-2xl overflow-hidden border-2 transition-all ${
+                                            selectedImageIndex === index ? 'border-primary' : 'border-white/10 hover:border-white/30'
+                                        }`}
+                                    >
+                                        <Image src={image} alt={`Thumb ${index}`} fill className="object-cover" />
+                                    </button>
                                 ))}
                             </div>
-                        </div>
-                    )}
-
-                    {/* Availability Status */}
-                    <div className={`text-sm font-medium ${packageData.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                        {packageData.isActive ? 'Available' : 'Currently Unavailable'}
+                        )}
                     </div>
 
-                    {/* Quantity + Buttons */}
-                    <div className="space-y-4 mt-6">
-                        {/* Quantity Selector */}
+                    {/* Right: Info Section */}
+                    <div className="flex-1 space-y-8">
+                        <div>
+                            <div className="flex items-center gap-3 mb-4">
+                                <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+                                    {packageData.category}
+                                </span>
+                                {packageData.isFeatured && (
+                                    <span className="text-[10px] font-bold text-white uppercase tracking-[0.2em] bg-white/10 px-3 py-1 rounded-full border border-white/10">
+                                        Featured
+                                    </span>
+                                )}
+                            </div>
+                            
+                            <h1 className="text-3xl md:text-5xl font-custom font-bold text-white tracking-widest uppercase mb-4 leading-tight">
+                                {packageData.title}
+                            </h1>
+
+                            <div className="flex items-center gap-4">
+                                <div className="flex gap-1">
+                                    {renderStars(packageData.rating)}
+                                </div>
+                                <span className="text-xs font-bold text-white/40 uppercase tracking-widest pt-1">
+                                    {packageData.rating.toFixed(1)} Rating
+                                </span>
+                            </div>
+                        </div>
+
                         <div className="flex items-center gap-4">
-                            <span className="text-gray-700 font-medium">Quantity:</span>
-                            <div className="flex items-center border rounded-lg">
+                            <p className="text-4xl font-black text-white">
+                                ৳ {packageData.price.toLocaleString()}
+                            </p>
+                            {packageData.originalPrice && packageData.originalPrice > packageData.price && (
+                                <p className="text-xl font-bold line-through text-white/20">
+                                    ৳ {packageData.originalPrice.toLocaleString()}
+                                </p>
+                            )}
+                        </div>
+
+                        <p className="text-white/60 leading-relaxed text-lg italic border-l-4 border-primary pl-6 py-2 bg-white/5 rounded-r-2xl">
+                            {packageData.description}
+                        </p>
+
+                        {/* Included Features */}
+                        {packageData.features && packageData.features.length > 0 && (
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-bold text-white/40 uppercase tracking-[0.2em]">Package Includes:</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {packageData.features.map((feature, index) => (
+                                        <div key={index} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/5 group hover:border-primary/30 transition-colors">
+                                            <CheckCircle2 size={18} className="text-primary" />
+                                            <span className="text-sm font-bold text-white uppercase tracking-tight">{feature}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="space-y-6 pt-4">
+                            {/* Quantity Selector */}
+                            <div className="flex items-center gap-6">
+                                <span className="text-xs font-bold text-white/40 uppercase tracking-widest">Quantity</span>
+                                <div className="flex items-center bg-white/5 border border-white/10 rounded-full px-2 py-1">
+                                    <button
+                                        onClick={() => handleQuantityChange(-1)}
+                                        disabled={quantity <= 1}
+                                        className="p-2 text-white hover:text-primary transition disabled:opacity-20"
+                                    >
+                                        <Minus size={18} />
+                                    </button>
+                                    <input
+                                        type="number"
+                                        value={quantity}
+                                        readOnly
+                                        className="w-12 bg-transparent text-center font-bold text-white focus:outline-none"
+                                    />
+                                    <button
+                                        onClick={() => handleQuantityChange(1)}
+                                        className="p-2 text-white hover:text-primary transition"
+                                    >
+                                        <Plus size={18} />
+                                    </button>
+                                </div>
+                                <span className={`text-[10px] font-bold uppercase tracking-widest ${packageData.isActive ? 'text-green-500' : 'text-red-500'}`}>
+                                    {packageData.isActive ? 'Available Now' : 'Currently Unavailable'}
+                                </span>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex flex-col sm:flex-row gap-4">
                                 <button
-                                    className="p-2 hover:bg-gray-100 transition disabled:opacity-50"
-                                    onClick={() => handleQuantityChange(-1)}
-                                    disabled={quantity <= 1}
+                                    onClick={handleAddToCart}
+                                    disabled={!packageData.isActive}
+                                    className="flex-1 h-14 bg-white/5 border border-white/10 text-white font-custom text-sm tracking-widest uppercase rounded-full hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3 disabled:opacity-20"
                                 >
-                                    <Minus size={16} />
+                                    <ShoppingCart size={20} />
+                                    Add to Cart
                                 </button>
-                                <input
-                                    type="number"
-                                    value={quantity}
-                                    onChange={(e) => {
-                                        const value = parseInt(e.target.value);
-                                        if (value >= 1) {
-                                            setQuantity(value);
-                                        }
-                                    }}
-                                    className="w-12 text-center border-x focus:outline-none"
-                                    min="1"
-                                />
                                 <button
-                                    className="p-2 hover:bg-gray-100 transition"
-                                    onClick={() => handleQuantityChange(1)}
+                                    onClick={directBuy}
+                                    disabled={!packageData.isActive}
+                                    className="flex-1 h-14 bg-primary text-black font-custom text-sm tracking-widest uppercase rounded-full hover:bg-white transition-all flex items-center justify-center gap-3 disabled:opacity-20"
                                 >
-                                    <Plus size={16} />
+                                    <Zap size={20} className="fill-current" />
+                                    Buy It Now
                                 </button>
                             </div>
                         </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <button
-                                onClick={handleAddToCart}
-                                className="w-full cursor-pointer bg-[#F27D31] text-white text-lg font-semibold py-3 rounded-md hover:bg-[#e36e20] transition disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={!packageData.isActive}
-                            >
-                                {packageData.isActive ? 'Add to Cart' : 'Unavailable'}
-                            </button>
-                            <button
-                                onClick={directBuy}
-                                className="w-full cursor-pointer bg-transparent border border-[#F27D31] text-[#F27D31] text-lg font-semibold py-3 rounded-md hover:bg-[#F27D31] hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={!packageData.isActive}
-                            >
-                                Buy Now
-                            </button>
+                        {/* Trust Badges */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-8 border-t border-white/5">
+                            <div className="flex items-center gap-3 text-white/60">
+                                <Truck size={20} className="text-primary" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Fast Delivery</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-white/60">
+                                <ShieldCheck size={20} className="text-primary" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Secure Checkout</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-white/60">
+                                <RotateCcw size={20} className="text-primary" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Easy Returns</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </section>
 
-            {/* --- Related Packages --- */}
-            {relatedPackages.length > 0 && (
-                <section className="w-full text-center p-5 md:py-10 max-w-[1200px] mx-auto">
-                    <h2 className="text-2xl font-semibold text-[#F27D31] mb-6">
-                        Related Packages
-                    </h2>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 justify-items-center">
-                        {relatedPackages.map((pkg) => (
-                            <ProductCart
-                                key={pkg._id}
-                                id={pkg._id}
-                                image={pkg.imageUrl?.[0] || imageUrl.packageImage.image1}
-                                name={pkg.title}
-                                price={pkg.price}
-                                discount={pkg.originalPrice ?
-                                    Math.round(((pkg.originalPrice - pkg.price) / pkg.originalPrice) * 100) : 0}
-                                rating={pkg.rating}
-                                forwardUrl={`/package/${pkg._id.toString()}`}
-                            />
-                        ))}
+                {/* Related Section */}
+                {relatedPackages.length > 0 && (
+                    <div className="mt-20 pt-20 border-t border-white/5">
+                        <h2 className="text-2xl md:text-4xl font-custom font-bold text-white tracking-widest uppercase mb-12 text-center">
+                            Related Packages
+                        </h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            {relatedPackages.slice(0, 4).map((pkg) => (
+                                <ProductCart
+                                    key={pkg._id}
+                                    id={pkg._id}
+                                    image={pkg.imageUrl?.[0] || imageUrl.packageImage.image1}
+                                    name={pkg.title}
+                                    price={pkg.price}
+                                    discount={pkg.originalPrice ? Math.round(((pkg.originalPrice - pkg.price) / pkg.originalPrice) * 100) : 0}
+                                    rating={pkg.rating}
+                                    category={pkg.category}
+                                    forwardUrl={`/package/${pkg._id.toString()}`}
+                                />
+                            ))}
+                        </div>
                     </div>
-                </section>
-            )}
+                )}
+            </div>
 
-            {/* Order Modal */}
             <OrderModal
                 isOpen={isOrderModalOpen}
                 onClose={() => setIsOrderModalOpen(false)}

@@ -2,11 +2,7 @@
 
 import React from "react";
 import { IPackage } from "@/server/models/package/package.interface";
-import { Input } from "../ui/input";
-import { Label } from "@radix-ui/react-label";
-import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
-import { X, Star, ImageIcon, Upload, Loader2, Plus } from "lucide-react";
+import { X, Star, Upload, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 
 interface FormData {
@@ -60,334 +56,183 @@ const PackageModal = React.memo(({
                                      onUpdateFeature,
                                  }: PackageModalProps) => {
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
-                    <h2 className="text-xl font-bold">
-                        {editingPackage ? "Edit Package" : "Add New Package"}
-                    </h2>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={onClose}
-                        className="h-8 w-8 p-0"
-                    >
-                        <X size={20} />
-                    </Button>
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 z-[100] animate-in fade-in duration-500">
+            <div className="bg-black border border-white/10 rounded-[3rem] w-full max-w-5xl max-h-[90vh] overflow-hidden shadow-2xl">
+                <div className="flex justify-between items-center p-10 border-b border-white/5 sticky top-0 bg-black/80 backdrop-blur-md z-10">
+                    <div>
+                        <h2 className="text-2xl font-custom font-bold text-white uppercase tracking-widest">
+                            {editingPackage ? "UPDATE PERFORMANCE BUNDLE" : "INITIALIZE NEW BUNDLE"}
+                        </h2>
+                        <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Configure curated athlete experience</p>
+                    </div>
+                    <button onClick={onClose} className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-primary hover:text-black transition-all">
+                        <X size={24} />
+                    </button>
                 </div>
 
-                <form onSubmit={onSubmit} className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form onSubmit={onSubmit} className="p-10 overflow-auto max-h-[70vh] custom-scrollbar">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                         {/* Basic Information */}
-                        <div className="space-y-4">
-                            <h3 className="font-semibold text-lg text-gray-800">Basic Information</h3>
+                        <div className="space-y-8">
+                            <h3 className="text-sm font-custom font-bold text-primary uppercase tracking-widest border-l-4 border-primary pl-4">CORE DATA</h3>
 
-                            <div>
-                                <Label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Package Title *
-                                </Label>
-                                <Input
-                                    id="title"
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">BUNDLE TITLE *</label>
+                                <input
                                     type="text"
                                     required
                                     value={formData.title}
                                     onChange={(e) => setFormData({...formData, title: e.target.value})}
-                                    className="w-full"
-                                    placeholder="Enter package title"
+                                    className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none transition-all uppercase font-bold text-sm tracking-tight"
+                                    placeholder="ENTER BUNDLE NAME"
                                 />
                             </div>
 
-                            <div>
-                                <Label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Description
-                                </Label>
-                                <Textarea
-                                    id="description"
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">DESCRIPTION</label>
+                                <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({...formData, description: e.target.value})}
-                                    rows={3}
-                                    className="w-full"
-                                    placeholder="Enter package description"
+                                    rows={4}
+                                    className="w-full bg-white/5 border border-white/10 rounded-[2rem] px-6 py-4 text-white focus:border-primary outline-none resize-none transition-all text-sm leading-relaxed"
+                                    placeholder="DESCRIBE THE BUNDLE VALUE"
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <Label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-                                        Price *
-                                    </Label>
-                                    <Input
-                                        id="price"
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">BUNDLE PRICE *</label>
+                                    <input
                                         type="number"
-                                        step="0.01"
                                         required
                                         value={formData.price}
                                         onChange={(e) => setFormData({...formData, price: e.target.value})}
-                                        className="w-full"
-                                        placeholder="0.00"
+                                        className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none transition-all font-black"
+                                        placeholder="0"
                                     />
                                 </div>
-                                <div>
-                                    <Label htmlFor="originalPrice" className="block text-sm font-medium text-gray-700 mb-1">
-                                        Original Price
-                                    </Label>
-                                    <Input
-                                        id="originalPrice"
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">LIST PRICE</label>
+                                    <input
                                         type="number"
-                                        step="0.01"
                                         value={formData.originalPrice}
                                         onChange={(e) => setFormData({...formData, originalPrice: e.target.value})}
-                                        className="w-full"
-                                        placeholder="0.00"
+                                        className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none transition-all font-black"
+                                        placeholder="0"
                                     />
                                 </div>
                             </div>
 
-                            <div>
-                                <Label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Category *
-                                </Label>
-                                <Input
-                                    id="category"
-                                    type="text"
-                                    required
-                                    value={formData.category}
-                                    onChange={(e) => setFormData({...formData, category: e.target.value})}
-                                    className="w-full"
-                                    placeholder="Enter category"
-                                />
-                            </div>
-
-                            <div>
-                                <Label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Rating
-                                </Label>
-                                <div className="flex items-center gap-2">
-                                    <div className="flex">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">ELITE RATING</label>
+                                <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-full px-6 py-[14px]">
+                                    <div className="flex text-primary">
                                         {[1, 2, 3, 4, 5].map((star) => (
                                             <button
                                                 key={star}
                                                 type="button"
                                                 onClick={() => setFormData({...formData, rating: star})}
-                                                className="p-1"
+                                                className="p-0.5 hover:scale-125 transition-transform"
                                             >
                                                 <Star
-                                                    size={20}
-                                                    className={`${
-                                                        star <= formData.rating
-                                                            ? "text-yellow-400 fill-yellow-400"
-                                                            : "text-gray-300"
-                                                    } hover:text-yellow-400 transition-colors`}
+                                                    size={16}
+                                                    fill={star <= formData.rating ? "currentColor" : "none"}
+                                                    className={star <= formData.rating ? "" : "text-white/10"}
                                                 />
                                             </button>
                                         ))}
                                     </div>
-                                    <span className="text-sm text-gray-600">({formData.rating}/5)</span>
+                                    <span className="text-xs font-black text-white">{formData.rating}/5</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Images & Features */}
-                        <div className="space-y-4">
+                        <div className="space-y-10">
                             {/* Image Upload */}
-                            <div>
-                                <h3 className="font-semibold text-lg text-gray-800 mb-3">Images</h3>
-                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        onChange={onFileChange}
-                                        multiple
-                                        accept="image/*"
-                                        className="hidden"
-                                    />
-                                    <div className="flex gap-2 mb-3">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => fileInputRef.current?.click()}
-                                            className="flex items-center gap-2"
-                                        >
-                                            <ImageIcon size={16} />
-                                            Choose Images
-                                        </Button>
-                                        {selectedFiles.length > 0 && (
-                                            <Button
-                                                type="button"
-                                                onClick={onImageUpload}
-                                                disabled={imageUploading}
-                                                className="flex items-center gap-2"
-                                            >
-                                                {imageUploading ? (
-                                                    <Loader2 size={16} className="animate-spin" />
-                                                ) : (
-                                                    <Upload size={16} />
-                                                )}
-                                                {imageUploading ? "Uploading..." : "Upload Images"}
-                                            </Button>
-                                        )}
-                                    </div>
+                            <div className="space-y-6">
+                                <h3 className="text-sm font-custom font-bold text-primary uppercase tracking-widest border-l-4 border-primary pl-4">VISUAL ASSETS</h3>
+                                <div className="border-2 border-dashed border-white/10 rounded-[2.5rem] p-8 bg-white/5">
+                                    <input type="file" ref={fileInputRef} onChange={onFileChange} multiple accept="image/*" className="hidden" />
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="w-full py-6 bg-black border border-white/10 rounded-full text-white font-custom font-bold uppercase tracking-widest text-[10px] hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3"
+                                    >
+                                        <Upload size={18} /> SELECT VISUALS
+                                    </button>
 
-                                    {selectedFiles.length > 0 && (
-                                        <p className="text-sm text-gray-600 mb-2">
-                                            {selectedFiles.length} image(s) selected for upload
-                                        </p>
-                                    )}
-
-                                    {(formData.imageUrl.length > 0 || previewImages.length > 0) && (
-                                        <div className="mt-4">
-                                            <p className="text-sm text-gray-600 mb-2">Package Images:</p>
-                                            <div className="grid grid-cols-3 gap-2">
-                                                {formData.imageUrl.map((url, index) => (
-                                                    <div key={`saved-${index}`} className="relative group">
-                                                        <Image
-                                                            src={url}
-                                                            alt={`Package ${index + 1}`}
-                                                            width={100}
-                                                            height={80}
-                                                            className="w-full h-20 object-cover rounded"
-                                                        />
-                                                        <Button
-                                                            type="button"
-                                                            variant="destructive"
-                                                            size="sm"
-                                                            onClick={() => onRemoveImage(index)}
-                                                            className="absolute -top-2 -right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                        >
-                                                            <X size={12} />
-                                                        </Button>
-                                                    </div>
-                                                ))}
-                                                {previewImages.map((src, index) => (
-                                                    <div key={`preview-${index}`} className="relative group">
-                                                        <Image
-                                                            src={src}
-                                                            alt={`Preview ${index + 1}`}
-                                                            width={100}
-                                                            height={80}
-                                                            className="w-full h-20 object-cover rounded border-2 border-blue-300"
-                                                        />
-                                                        <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center">
-                              <span className="text-white text-xs font-medium bg-blue-600 px-2 py-1 rounded">
-                                New
-                              </span>
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                    <div className="mt-8 grid grid-cols-4 gap-4">
+                                        {formData.imageUrl.map((url, index) => (
+                                            <div key={`saved-${index}`} className="aspect-square relative rounded-2xl overflow-hidden border border-white/10 bg-black group">
+                                                <Image src={url} alt="P" fill className="object-contain p-2 grayscale group-hover:grayscale-0 transition-all" />
+                                                <button type="button" onClick={() => onRemoveImage(index)} className="absolute top-1 right-1 h-6 w-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity scale-75"><X size={12} /></button>
                                             </div>
-                                        </div>
-                                    )}
+                                        ))}
+                                        {previewImages.map((src, index) => (
+                                            <div key={`preview-${index}`} className="aspect-square relative rounded-2xl overflow-hidden border-2 border-primary bg-black">
+                                                <Image src={src} alt="P" fill className="object-contain p-2 animate-pulse" />
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Features */}
-                            <div>
-                                <h3 className="font-semibold text-lg text-gray-800 mb-3">Features</h3>
-                                <div className="space-y-2">
+                            <div className="space-y-6">
+                                <h3 className="text-sm font-custom font-bold text-primary uppercase tracking-widest border-l-4 border-primary pl-4">BUNDLE FEATURES</h3>
+                                <div className="space-y-3">
                                     {formData.features.map((feature, index) => (
-                                        <div key={index} className="flex gap-2">
-                                            <Input
+                                        <div key={index} className="flex gap-3">
+                                            <input
                                                 type="text"
                                                 value={feature}
                                                 onChange={(e) => onUpdateFeature(index, e.target.value)}
-                                                placeholder={`Feature ${index + 1}`}
-                                                className="flex-1"
+                                                className="flex-1 bg-white/5 border border-white/10 rounded-full px-6 py-3 text-white focus:border-primary outline-none uppercase font-bold text-xs"
+                                                placeholder={`SPECIFICATION ${index + 1}`}
                                             />
-                                            {formData.features.length > 1 && (
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => onRemoveFeature(index)}
-                                                    className="text-red-600 hover:text-red-700"
-                                                >
-                                                    <X size={16} />
-                                                </Button>
-                                            )}
+                                            <button type="button" onClick={() => onRemoveFeature(index)} className="p-3 text-red-500 hover:bg-red-500/10 rounded-full transition-all"><Trash2 size={16} /></button>
                                         </div>
                                     ))}
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={onAddFeature}
-                                        className="w-full flex items-center gap-2"
-                                    >
-                                        <Plus size={16} />
-                                        Add Feature
-                                    </Button>
+                                    <button type="button" onClick={onAddFeature} className="w-full py-3 border border-dashed border-white/10 rounded-full text-white/20 hover:text-primary hover:border-primary transition-all font-black uppercase text-[10px] flex items-center justify-center gap-2">
+                                        <Plus size={14} /> ADD SPECIFICATION
+                                    </button>
                                 </div>
                             </div>
 
                             {/* Status Toggles */}
-                            <div className="space-y-3 pt-4">
-                                <h3 className="font-semibold text-lg text-gray-800">Status</h3>
-                                <div className="flex items-center justify-between">
-                                    <Label htmlFor="isActive" className="text-sm font-medium text-gray-700">
-                                        Active Package
-                                    </Label>
-                                    <button
-                                        type="button"
-                                        id="isActive"
-                                        onClick={() => setFormData({...formData, isActive: !formData.isActive})}
-                                        className={`relative inline-flex h-6 w-11 items-center rounded-full ${
-                                            formData.isActive ? "bg-green-600" : "bg-gray-200"
-                                        } transition-colors`}
-                                    >
-                    <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                            formData.isActive ? "translate-x-6" : "translate-x-1"
-                        }`}
-                    />
-                                    </button>
-                                </div>
+                            <div className="flex flex-wrap gap-8 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({...formData, isActive: !formData.isActive})}
+                                    className={`flex items-center gap-3 px-6 py-3 rounded-full border transition-all ${
+                                        formData.isActive ? 'border-green-500/50 bg-green-500/10 text-green-500' : 'border-white/10 bg-white/5 text-white/20'
+                                    }`}
+                                >
+                                    <div className={`w-2 h-2 rounded-full ${formData.isActive ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-white/20'}`} />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">LIVE STATUS</span>
+                                </button>
 
-                                <div className="flex items-center justify-between">
-                                    <Label htmlFor="isFeatured" className="text-sm font-medium text-gray-700">
-                                        Featured Package
-                                    </Label>
-                                    <button
-                                        type="button"
-                                        id="isFeatured"
-                                        onClick={() => setFormData({...formData, isFeatured: !formData.isFeatured})}
-                                        className={`relative inline-flex h-6 w-11 items-center rounded-full ${
-                                            formData.isFeatured ? "bg-yellow-600" : "bg-gray-200"
-                                        } transition-colors`}
-                                    >
-                    <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                            formData.isFeatured ? "translate-x-6" : "translate-x-1"
-                        }`}
-                    />
-                                    </button>
-                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({...formData, isFeatured: !formData.isFeatured})}
+                                    className={`flex items-center gap-3 px-6 py-3 rounded-full border transition-all ${
+                                        formData.isFeatured ? 'border-primary/50 bg-primary/10 text-primary' : 'border-white/10 bg-white/5 text-white/20'
+                                    }`}
+                                >
+                                    <div className={`w-2 h-2 rounded-full ${formData.isFeatured ? 'bg-primary shadow-[0_0_8px_rgba(255,153,0,0.5)]' : 'bg-white/20'}`} />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">ELITE STATUS</span>
+                                </button>
                             </div>
                         </div>
                     </div>
 
                     {/* Form Actions */}
-                    <div className="flex gap-3 justify-end mt-8 pt-6 border-t">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={onClose}
-                            disabled={formLoading}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={formLoading || imageUploading}
-                            className="bg-[#125BAC] hover:bg-[#0d4793]"
-                        >
-                            {formLoading ? (
-                                <>
-                                    <Loader2 size={16} className="animate-spin mr-2" />
-                                    {editingPackage ? "Updating..." : "Creating..."}
-                                </>
-                            ) : (
-                                editingPackage ? "Update Package" : "Create Package"
-                            )}
-                        </Button>
+                    <div className="flex flex-col sm:flex-row gap-4 mt-12 pt-10 border-t border-white/5">
+                        <button type="button" onClick={onClose} className="flex-1 px-10 py-5 border border-white/10 text-white font-custom font-bold uppercase rounded-full hover:bg-white/5 transition-all text-xs">DISCARD</button>
+                        <button type="submit" disabled={formLoading} className="flex-[2] bg-primary text-black font-custom font-bold uppercase rounded-full hover:bg-white transition-all text-xs shadow-xl shadow-primary/10">
+                            {formLoading ? "COMMITTING..." : editingPackage ? "UPDATE BUNDLE" : "DEPLOY BUNDLE"}
+                        </button>
                     </div>
                 </form>
             </div>

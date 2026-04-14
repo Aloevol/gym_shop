@@ -19,6 +19,12 @@ const UserTab = lazy(() => import("../tabs/User"));
 const PrivacyPolicy = lazy(() => import("../tabs/PrivacyPolicy"));
 const Contact = lazy(() => import("../tabs/Contact"));
 
+const Features = lazy(() => import("../tabs/Features"));
+const Testimonials = lazy(() => import("../tabs/Testimonials"));
+const Instagram = lazy(() => import("../tabs/Instagram"));
+
+const Settings = lazy(() => import("../tabs/Settings"));
+
 export default function DashboardLayout() {
     const [activeTab, setActiveTab] = useState<string>("Overview");
 
@@ -32,25 +38,30 @@ export default function DashboardLayout() {
             case "Package Management": return <PackageManagement />;
             case "Banner Message": return <BannerManagement />;
             case "Navbar": return <NavbarManagement />;
+            case "Features": return <Features />;
+            case "Testimonials": return <Testimonials />;
+            case "Instagram": return <Instagram />;
             case "AboutMe": return <AboutMe />;
             case "OurTeam": return <OurTeam />;
             case "Contact": return <Contact />;
             case "User": return <UserTab />;
             case "About Me": return <AboutMe />;
-            case "PrivacyPolicy": return <PrivacyPolicy />;
-            case "Order Management": return <OrderManagement/>;
+            case "Order Management": return <OrderManagement />;
+            case "Settings": return <Settings />;
             default: return <h1>Not Found</h1>;
         }
     };
 
     return (
-        <main className={"w-full h-[88vh]"}>
+        <main className={"w-full h-screen bg-black overflow-hidden flex flex-col"}>
             <Navbar />
-            <div className={"w-full h-full flex"}>
+            <div className={"w-full flex-1 flex overflow-hidden"}>
                 <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-                <div className={"w-full h-full overflow-auto"}>
-                    <Suspense fallback={<Loader overlay size="md" key={Math.random()} message="Loading..." />}>
-                        {renderTabContent()}
+                <div className={"flex-1 h-full overflow-auto custom-scrollbar p-8 bg-black"}>
+                    <Suspense fallback={<Loader overlay size="md" key={Math.random()} message="SYNCING CONSOLE..." />}>
+                        <div className="animate-in fade-in duration-700">
+                            {renderTabContent()}
+                        </div>
                     </Suspense>
                 </div>
             </div>

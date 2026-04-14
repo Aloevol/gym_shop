@@ -36,108 +36,82 @@ export default function FailedPage() {
 
     if (loading) {
         return (
-            <section className="w-full min-h-screen bg-white py-16 px-6 md:px-12 lg:px-20">
-                <div className="max-w-4xl mx-auto text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F27D31] mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading order details...</p>
+            <section className="w-full min-h-screen bg-black flex items-center justify-center pt-20 px-6">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    <p className="text-white/40 font-custom font-bold uppercase tracking-widest text-sm">FETCHING STATUS...</p>
                 </div>
             </section>
         );
     }
 
     return (
-        <section className="w-full min-h-screen bg-white py-16 px-6 md:px-12 lg:px-20">
+        <section className="w-full min-h-screen bg-black pt-24 pb-20 px-6 md:px-12 lg:px-20">
             <div className="max-w-4xl mx-auto text-center">
                 {/* Failure Header */}
-                <div className="mb-12">
-                    <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <XCircle className="w-10 h-10 text-red-600" />
+                <div className="mb-16">
+                    <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-2xl shadow-red-500/10">
+                        <XCircle className="w-12 h-12 text-red-500" />
                     </div>
-                    <h1 className="text-3xl font-bold text-red-500 mb-4">
-                        Order Failed
+                    <h1 className="text-3xl md:text-6xl font-custom font-bold text-white uppercase tracking-widest mb-6">
+                        ORDER <span className="text-red-500">FAILED</span>
                     </h1>
-                    <p className="text-lg text-gray-700 mb-2">
-                        Unfortunately, we couldn&#39;t process your order at this time.
+                    <p className="text-white/40 font-bold uppercase tracking-widest text-sm mb-4">
+                        UNFORTUNATELY, YOUR TRANSACTION COULD NOT BE COMPLETED.
                     </p>
                     {order && (
-                        <p className="text-gray-500">
-                            Order ID: <span className="font-semibold">{order.orderNumber}</span>
+                        <p className="text-red-500 font-black uppercase text-xs tracking-[0.2em] bg-red-500/5 border border-red-500/10 inline-block px-6 py-2 rounded-full">
+                            ID: {order.orderNumber}
                         </p>
                     )}
                 </div>
 
                 {/* Error Details */}
-                <div className="bg-red-50 border border-red-200 rounded-xl p-6 max-w-2xl mx-auto mb-8">
-                    <h2 className="text-xl font-semibold text-red-800 mb-4">
-                        What went wrong?
-                    </h2>
-                    <div className="text-left space-y-3 text-red-700">
-                        <p>• Payment authorization failed</p>
-                        <p>• Insufficient funds in your account</p>
-                        <p>• Network connectivity issues</p>
-                        <p>• Payment gateway timeout</p>
+                <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10 max-w-2xl mx-auto mb-12">
+                    <h2 className="text-sm font-custom font-bold text-white uppercase tracking-widest mb-8 text-center">POSSIBLE ISSUES</h2>
+                    <div className="grid gap-4 text-left">
+                        {['AUTHORIZATION FAILED', 'INSUFFICIENT BALANCE', 'NETWORK DISRUPTION', 'GATEWAY TIMEOUT'].map((issue, i) => (
+                            <div key={i} className="flex items-center gap-4 bg-black p-4 rounded-2xl border border-white/5">
+                                <div className="w-2 h-2 bg-red-500 rounded-full" />
+                                <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">{issue}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                {order && (
-                    <div className="bg-gray-50 rounded-xl p-6 max-w-2xl mx-auto mb-8">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Order Details</h3>
-                        <div className="space-y-2 text-sm text-gray-600">
-                            <div className="flex justify-between">
-                                <span>Order ID:</span>
-                                <span className="font-medium">{order.orderNumber}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Total Amount:</span>
-                                <span className="font-medium text-[#F27D31]">৳ {order.total?.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Payment Method:</span>
-                                <span className="font-medium capitalize">
-                                    {order.paymentMethod?.replace(/([A-Z])/g, ' $1').trim()}
-                                </span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Status:</span>
-                                <span className="font-medium text-red-600">Failed</span>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
                 {/* Action Buttons */}
-                <div className="space-y-6">
-                    <div className="space-x-4">
+                <div className="space-y-10">
+                    <div className="flex flex-wrap justify-center gap-6">
                         <button
                             onClick={() => window.location.reload()}
-                            className="inline-flex items-center gap-2 bg-[#F27D31] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#e66d1f] transition-all"
+                            className="inline-flex items-center gap-4 bg-primary text-black font-custom font-bold px-10 py-4 rounded-full hover:bg-white transition-all shadow-xl shadow-primary/10 uppercase text-xs"
                         >
                             <RotateCcw className="w-4 h-4" />
-                            Try Again
+                            RETRY NOW
                         </button>
                         <Link
                             href="/cart"
-                            className="inline-flex items-center gap-2 border border-[#F27D31] text-[#F27D31] font-semibold px-6 py-3 rounded-full hover:bg-[#F27D31] hover:text-white transition-all"
+                            className="inline-flex items-center gap-4 border border-white/20 text-white font-custom font-bold px-10 py-4 rounded-full hover:bg-white hover:text-black transition-all uppercase text-xs tracking-widest"
                         >
-                            Return to Cart
+                            RETURN TO CART
                         </Link>
                     </div>
 
-                    <div className="pt-6 border-t">
-                        <p className="text-gray-600 mb-4">Need help with your order?</p>
-                        <div className="space-x-4">
+                    <div className="pt-12 border-t border-white/5 max-w-2xl mx-auto">
+                        <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-8">NEED ELITE SUPPORT?</p>
+                        <div className="flex flex-wrap justify-center gap-8">
                             <Link
                                 href="/track-order"
-                                className="inline-flex items-center gap-2 text-gray-700 hover:text-[#F27D31] transition-colors"
+                                className="inline-flex items-center gap-3 text-white/40 hover:text-primary transition-colors text-[10px] font-black uppercase tracking-widest"
                             >
-                                Track Your Order
+                                ORDER TRACKER
                                 <ArrowRight className="w-4 h-4" />
                             </Link>
                             <Link
                                 href="/contact"
-                                className="inline-flex items-center gap-2 text-gray-700 hover:text-[#F27D31] transition-colors"
+                                className="inline-flex items-center gap-3 text-white/40 hover:text-primary transition-colors text-[10px] font-black uppercase tracking-widest"
                             >
-                                Contact Support
+                                CONTACT SUPPORT
                                 <ArrowRight className="w-4 h-4" />
                             </Link>
                         </div>

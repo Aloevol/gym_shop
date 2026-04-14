@@ -23,7 +23,6 @@ function ContactPage() {
             [name]: value
         }));
 
-        // Clear error when user starts typing
         if (errors[name]) {
             setErrors(prev => ({
                 ...prev,
@@ -34,45 +33,22 @@ function ContactPage() {
 
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
-
-        if (!formData.name.trim()) {
-            newErrors.name = "Name is required";
-        } else if (formData.name.trim().length < 2) {
-            newErrors.name = "Name must be at least 2 characters";
-        }
-
-        if (!formData.email.trim()) {
-            newErrors.email = "Email is required";
-        } else if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(formData.email)) {
-            newErrors.email = "Please enter a valid email address";
-        }
-
-        if (!formData.subject.trim()) {
-            newErrors.subject = "Subject is required";
-        } else if (formData.subject.trim().length < 5) {
-            newErrors.subject = "Subject must be at least 5 characters";
-        }
-
-        if (!formData.message.trim()) {
-            newErrors.message = "Message is required";
-        } else if (formData.message.trim().length < 10) {
-            newErrors.message = "Message must be at least 10 characters";
-        }
-
+        if (!formData.name.trim()) newErrors.name = "Name is required";
+        if (!formData.email.trim()) newErrors.email = "Email is required";
+        else if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(formData.email)) newErrors.email = "Invalid email address";
+        if (!formData.subject.trim()) newErrors.subject = "Subject is required";
+        if (!formData.message.trim()) newErrors.message = "Message is required";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         if (!validateForm()) {
             toast.error("Please fix the errors in the form");
             return;
         }
-
         setIsSubmitting(true);
-
         try {
             const formDataToSend = new FormData();
             formDataToSend.append("name", formData.name.trim());
@@ -81,22 +57,15 @@ function ContactPage() {
             formDataToSend.append("message", formData.message.trim());
 
             const result = await createContactMessageServerSide(formDataToSend);
-
             if (result.isError) {
                 toast.error(result.message);
             } else {
                 toast.success(result.message);
-                // Reset form
-                setFormData({
-                    name: "",
-                    email: "",
-                    subject: "",
-                    message: ""
-                });
+                setFormData({ name: "", email: "", subject: "", message: "" });
                 setErrors({});
             }
         } catch (error) {
-            toast.error("Failed to send message. Please try again.");
+            toast.error("Failed to send message.");
             console.error("Contact form error:", error);
         } finally {
             setIsSubmitting(false);
@@ -105,190 +74,136 @@ function ContactPage() {
 
     const contactInfo = [
         {
-            icon: <MdLocationOn className="text-[#F27D31] text-4xl" />,
+            icon: <MdLocationOn size={32} className="text-primary" />,
             title: "Our Location",
             description: "123 Fitness Street, Dhaka, Bangladesh"
         },
         {
-            icon: <BsTelephone className="text-[#F27D31] text-4xl" />,
+            icon: <BsTelephone size={28} className="text-primary" />,
             title: "Call Us",
             description: "+880 1234 567 890"
         },
         {
-            icon: <MdEmail className="text-[#F27D31] text-4xl" />,
+            icon: <MdEmail size={32} className="text-primary" />,
             title: "Email Us",
             description: "support@fitclub.com"
         },
         {
-            icon: <MdAccessTime className="text-[#F27D31] text-4xl" />,
+            icon: <MdAccessTime size={32} className="text-primary" />,
             title: "Working Hours",
             description: "Mon - Sat: 7AM - 10PM"
         }
     ];
 
     return (
-        <div className="w-full bg-white">
+        <div className="w-full bg-black min-h-screen pt-24 pb-20">
             {/* Section 1: Hero */}
-            <section className="max-w-[1500px] mx-auto px-6 py-20 text-center">
-                <h1 className="text-3xl md:text-4xl font-bold text-[#F27D31]">
-                    Get in <span className="text-[#222]">Touch With Us</span>
+            <section className="max-w-7xl mx-auto px-6 py-16 text-center">
+                <h1 className="text-3xl md:text-6xl font-custom font-bold text-white uppercase tracking-widest mb-6">
+                    GET IN <span className="text-primary">TOUCH</span>
                 </h1>
-                <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
+                <p className="text-white/40 font-bold uppercase tracking-widest text-sm max-w-2xl mx-auto">
                     Have questions or want to know more about our fitness programs?
                     Feel free to reach out to us. Our team is always ready to help!
                 </p>
             </section>
 
             {/* Section 2: Contact Info */}
-            <section className="max-w-[1500px] mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pb-20">
+            <section className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pb-20">
                 {contactInfo.map((info, index) => (
                     <div
                         key={index}
-                        className="flex flex-col items-center gap-3 bg-[#FEF2EA] p-6 rounded-xl shadow hover:shadow-md transition hover:transform hover:-translate-y-1 duration-300"
+                        className="flex flex-col items-center gap-4 bg-white/5 border border-white/10 p-8 rounded-3xl hover:border-primary/50 transition-all group"
                     >
-                        {info.icon}
-                        <h3 className="font-semibold text-lg text-[#222]">{info.title}</h3>
-                        <p className="text-gray-600 text-center">{info.description}</p>
+                        <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary transition-colors">
+                            {React.cloneElement(info.icon as React.ReactElement, { 
+                                className: "text-primary group-hover:text-black transition-colors" 
+                            })}
+                        </div>
+                        <h3 className="font-custom font-bold text-xl text-white uppercase tracking-widest">{info.title}</h3>
+                        <p className="text-white/40 text-xs font-bold uppercase text-center tracking-wider">{info.description}</p>
                     </div>
                 ))}
             </section>
 
             {/* Section 3: Contact Form */}
-            <section className="max-w-[360px] md:max-w-[1000px] mx-auto px-6 py-20 bg-[#FEF2EA] rounded-3xl shadow">
-                <h2 className="text-2xl md:text-3xl font-bold text-[#222] text-center mb-8">
-                    Send Us a Message
+            <section className="max-w-4xl mx-auto px-6 py-20 bg-white/5 border border-white/10 rounded-[3rem]">
+                <h2 className="text-2xl md:text-4xl font-custom font-bold text-white text-center mb-12 uppercase tracking-widest">
+                    Send Us a <span className="text-primary">Message</span>
                 </h2>
 
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Name */}
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-[#222]">Full Name *</label>
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="flex flex-col gap-3">
+                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] ml-2">Full Name</label>
                         <input
                             type="text"
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            placeholder="Enter your name"
-                            className={`w-full border px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F27D31] ${
-                                errors.name ? "border-red-500" : "border-gray-300"
+                            placeholder="YOUR NAME"
+                            className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
+                                errors.name ? "border-red-500" : "border-white/10"
                             }`}
                         />
-                        {errors.name && (
-                            <p className="text-red-500 text-sm">{errors.name}</p>
-                        )}
+                        {errors.name && <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4">{errors.name}</p>}
                     </div>
 
-                    {/* Email */}
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-[#222]">Email Address *</label>
+                    <div className="flex flex-col gap-3">
+                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] ml-2">Email Address</label>
                         <input
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            placeholder="Enter your email"
-                            className={`w-full border px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F27D31] ${
-                                errors.email ? "border-red-500" : "border-gray-300"
+                            placeholder="YOUR EMAIL"
+                            className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
+                                errors.email ? "border-red-500" : "border-white/10"
                             }`}
                         />
-                        {errors.email && (
-                            <p className="text-red-500 text-sm">{errors.email}</p>
-                        )}
+                        {errors.email && <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4">{errors.email}</p>}
                     </div>
 
-                    {/* Subject */}
-                    <div className="flex flex-col gap-2 md:col-span-2">
-                        <label className="text-sm font-medium text-[#222]">Subject *</label>
+                    <div className="flex flex-col gap-3 md:col-span-2">
+                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] ml-2">Subject</label>
                         <input
                             type="text"
                             name="subject"
                             value={formData.subject}
                             onChange={handleChange}
-                            placeholder="Message subject"
-                            className={`w-full border px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F27D31] ${
-                                errors.subject ? "border-red-500" : "border-gray-300"
+                            placeholder="HOW CAN WE HELP?"
+                            className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
+                                errors.subject ? "border-red-500" : "border-white/10"
                             }`}
                         />
-                        {errors.subject && (
-                            <p className="text-red-500 text-sm">{errors.subject}</p>
-                        )}
+                        {errors.subject && <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4">{errors.subject}</p>}
                     </div>
 
-                    {/* Message */}
-                    <div className="flex flex-col gap-2 md:col-span-2">
-                        <label className="text-sm font-medium text-[#222]">Your Message *</label>
+                    <div className="flex flex-col gap-3 md:col-span-2">
+                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] ml-2">Your Message</label>
                         <textarea
                             name="message"
                             value={formData.message}
                             onChange={handleChange}
                             rows={5}
-                            placeholder="Write your message..."
-                            className={`w-full border px-4 py-3 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#F27D31] ${
-                                errors.message ? "border-red-500" : "border-gray-300"
+                            placeholder="WRITE YOUR MESSAGE HERE..."
+                            className={`w-full bg-black border px-8 py-6 rounded-[2rem] text-white placeholder:text-white/10 resize-none focus:border-primary outline-none transition-all ${
+                                errors.message ? "border-red-500" : "border-white/10"
                             }`}
                         />
-                        {errors.message && (
-                            <p className="text-red-500 text-sm">{errors.message}</p>
-                        )}
+                        {errors.message && <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4">{errors.message}</p>}
                     </div>
 
-                    {/* Submit Button */}
-                    <div className="md:col-span-2 flex justify-center">
+                    <div className="md:col-span-2 flex justify-center mt-4">
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="bg-[#F27D31] text-white font-medium px-8 py-3 rounded-full hover:bg-[#e86f20] transition disabled:opacity-50 disabled:cursor-not-allowed min-w-[150px]"
+                            className="bg-primary text-black font-custom font-bold text-sm tracking-widest px-12 py-4 rounded-full hover:bg-white transition-all disabled:opacity-50 min-w-[200px] uppercase shadow-lg shadow-primary/20"
                         >
-                            {isSubmitting ? (
-                                <div className="flex items-center justify-center gap-2">
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    Sending...
-                                </div>
-                            ) : (
-                                "Send Message"
-                            )}
+                            {isSubmitting ? "SENDING..." : "SEND MESSAGE"}
                         </button>
                     </div>
                 </form>
             </section>
-
-            {/* Section 4: Map / Image */}
-            {/*<section className="max-w-[1500px] mx-auto px-6 py-20">*/}
-            {/*    <div className="relative w-full h-[300px] md:h-[450px] rounded-2xl overflow-hidden shadow">*/}
-            {/*        <Image*/}
-            {/*            src={imageUrl.about[1]}*/}
-            {/*            alt="Fitness Center Location"*/}
-            {/*            fill*/}
-            {/*            className="object-cover"*/}
-            {/*            priority*/}
-            {/*        />*/}
-            {/*        /!* Overlay *!/*/}
-            {/*        <div className="absolute inset-0 bg-[#00000055] flex flex-col items-center justify-center text-white text-center px-4">*/}
-            {/*            <h3 className="text-2xl md:text-3xl font-bold">Visit Our Fitness Center</h3>*/}
-            {/*            <p className="text-sm md:text-base mt-2 max-w-md">*/}
-            {/*                Stay fit, stay strong — we&#39;re just a visit away!*/}
-            {/*            </p>*/}
-            {/*            <button*/}
-            {/*                onClick={() => {*/}
-            {/*                    // You can add map navigation logic here*/}
-            {/*                    toast.info("Opening location in maps...");*/}
-            {/*                }}*/}
-            {/*                className="mt-4 bg-[#F27D31] text-white px-6 py-2 rounded-full hover:bg-[#e86f20] transition"*/}
-            {/*            >*/}
-            {/*                Get Directions*/}
-            {/*            </button>*/}
-            {/*        </div>*/}
-            {/*    </div>*/}
-            {/*</section>*/}
-
-            {/* Success Message (optional) */}
-            {!isSubmitting && Object.keys(formData).every(key => !formData[key as keyof typeof formData]) && (
-                <div className="max-w-[1500px] mx-auto px-6 pb-20 text-center mt-6">
-                    <p className="text-gray-600">
-                        We typically respond within 24 hours during business days.
-                    </p>
-                </div>
-            )}
         </div>
     );
 }

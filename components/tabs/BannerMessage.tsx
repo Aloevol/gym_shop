@@ -155,145 +155,147 @@ function BannerManagement() {
   const commonIcons = ['🔹', '🚚', '💸', '📦', '🔥', '🌍', '🥇', '⭐', '🎯', '💎'];
 
   return (
-    <div className="w-full min-h-[88vh] p-4">
-      <div className="w-full h-full bg-white border rounded-3xl p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold">Banner Messages Management</h1>
+    <div className="w-full min-h-full">
+      <div className="w-full bg-white/5 border border-white/10 rounded-[3rem] p-10 shadow-2xl">
+        <div className="mb-12">
+          <h1 className="text-3xl md:text-4xl font-custom font-bold text-white uppercase tracking-widest">PERFORMANCE <span className="text-primary">TICKER</span></h1>
+          <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Manage scrolling broadcast messages</p>
         </div>
 
         {/* Add New Message */}
-        <div className="mb-8 p-6 border rounded-2xl bg-gray-50">
-          <h2 className="text-xl font-semibold mb-4">Add New Message</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex flex-col">
-              <Label className="text-sm font-medium mb-2">Message Text *</Label>
+        <div className="mb-12 p-10 border border-primary/20 rounded-[2.5rem] bg-primary/5 animate-in slide-in-from-top duration-500">
+          <h2 className="text-xl font-custom font-bold text-white uppercase tracking-widest mb-8 text-center sm:text-left">INITIALIZE NEW BROADCAST</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex flex-col gap-2">
+              <Label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">BROADCAST CONTENT *</Label>
               <Input
-                placeholder="Enter banner message"
+                placeholder="ENTER PERFORMANCE MESSAGE"
                 value={newMessage.text}
                 onChange={(e) => setNewMessage({ ...newMessage, text: e.target.value })}
-                className="p-3 border-2 border-gray-200 rounded-lg"
+                className="bg-black border-white/10 rounded-full px-6 py-6 text-white focus:border-primary transition-all placeholder:text-white/5"
               />
             </div>
             
-            <div className="flex flex-col">
-              <Label className="text-sm font-medium mb-2">Icon</Label>
+            <div className="flex flex-col gap-2">
+              <Label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">VISUAL INDICATOR</Label>
               <select
                 value={newMessage.icon}
                 onChange={(e) => setNewMessage({ ...newMessage, icon: e.target.value })}
-                className="p-3 border-2 border-gray-200 rounded-lg"
+                className="bg-black border-white/10 rounded-full px-6 py-[14px] text-white focus:border-primary transition-all outline-none appearance-none cursor-pointer"
               >
                 {commonIcons.map(icon => (
-                  <option key={icon} value={icon}>{icon}</option>
+                  <option key={icon} value={icon} className="bg-black text-xl">{icon}</option>
                 ))}
               </select>
             </div>
 
             <div className="flex items-end">
-              <Button 
+              <button 
                 onClick={handleCreateMessage}
-                className="bg-[#125BAC] hover:bg-[#0f4a8c] cursor-pointer w-full"
+                className="bg-primary text-black font-custom font-bold py-4 rounded-full hover:bg-white transition-all uppercase text-xs w-full shadow-xl shadow-primary/10 disabled:opacity-20"
                 disabled={loading || !newMessage.text.trim()}
               >
-                Add Message
-              </Button>
+                DEPLOY BROADCAST
+              </button>
             </div>
           </div>
         </div>
 
         {/* Messages List */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">Manage Messages ({messages.length})</h2>
+          <h2 className="text-sm font-custom font-bold text-white uppercase tracking-widest mb-8">ACTIVE TICKER SEQUENCE ({messages.length})</h2>
           
           {messages.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              No banner messages found. Add your first message above.
+            <div className="text-center py-20 bg-black rounded-[3rem] border border-dashed border-white/10">
+              <p className="text-white/20 font-black uppercase tracking-widest text-sm">NO BROADCASTS DEPLOYED</p>
             </div>
           ) : (
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="banner-messages">
                 {(provided: DroppableProvided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
+                  <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
                     {messages.map((message, index) => (
                       <Draggable key={message._id} draggableId={message._id} index={index}>
                         {(provided: DraggableProvided) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
-                            className="flex items-center gap-4 p-4 border rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                            className={`flex items-center gap-6 p-6 bg-black border rounded-3xl group transition-all duration-500 ${
+                              message.isActive ? 'border-white/10' : 'border-red-500/20 opacity-50'
+                            }`}
                           >
                             {/* Drag Handle */}
-                            <div {...provided.dragHandleProps} className="cursor-grab">
-                              <GripVertical className="w-5 h-5 text-gray-400" />
+                            <div {...provided.dragHandleProps} className="cursor-move p-2 hover:bg-white/5 rounded-lg transition-colors">
+                              <GripVertical className="h-6 w-6 text-white/20 group-hover:text-primary" />
                             </div>
 
                             {/* Icon */}
-                            <div className="text-2xl">{message.icon}</div>
+                            <div className="w-14 h-14 bg-white/5 text-3xl flex items-center justify-center rounded-2xl border border-white/10">
+                              {message.icon}
+                            </div>
 
                             {/* Message Text */}
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                               {editingId === message._id ? (
                                 <Input
                                   value={editText}
                                   onChange={(e) => setEditText(e.target.value)}
-                                  className="p-2 border rounded"
+                                  className="bg-black border-primary rounded-full px-6 py-4 text-white outline-none"
+                                  autoFocus
                                 />
                               ) : (
-                                <span className={`text-lg ${!message.isActive ? 'text-gray-400 line-through' : ''}`}>
+                                <p className={`text-lg font-black uppercase tracking-tight truncate ${!message.isActive ? 'text-white/20 line-through' : 'text-white'}`}>
                                   {message.text}
-                                </span>
+                                </p>
                               )}
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
                               {/* Status Toggle */}
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-3 mr-4">
                                 <Switch
                                   checked={message.isActive}
                                   onCheckedChange={(checked) => handleUpdateStatus(message._id, checked)}
+                                  className="data-[state=checked]:bg-primary"
                                 />
-                                <Label className="text-sm">
-                                  {message.isActive ? 'Active' : 'Inactive'}
-                                </Label>
+                                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest hidden sm:block w-16">
+                                  {message.isActive ? 'LIVE' : 'OFFLINE'}
+                                </span>
                               </div>
 
                               {/* Edit/Save */}
                               {editingId === message._id ? (
                                 <>
-                                  <Button
+                                  <button
                                     onClick={() => handleSaveEdit(message._id)}
-                                    size="sm"
-                                    className="bg-green-600 hover:bg-green-700"
+                                    className="p-3 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 hover:bg-green-500 hover:text-black transition-all"
                                   >
-                                    <Save className="w-4 h-4" />
-                                  </Button>
-                                  <Button
+                                    <Save size={18} />
+                                  </button>
+                                  <button
                                     onClick={() => setEditingId(null)}
-                                    size="sm"
-                                    variant="outline"
+                                    className="p-3 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white hover:text-black transition-all"
                                   >
-                                    <X className="w-4 h-4" />
-                                  </Button>
+                                    <X size={18} />
+                                  </button>
                                 </>
                               ) : (
-                                <Button
+                                <button
                                   onClick={() => handleEdit(message)}
-                                  size="sm"
-                                  variant="outline"
+                                  className="p-3 rounded-full border border-white/10 text-white/40 hover:border-white hover:text-white transition-all"
                                 >
-                                  <Edit className="w-4 h-4" />
-                                </Button>
+                                  <Edit size={18} />
+                                </button>
                               )}
 
                               {/* Delete */}
-                              <Button
+                              <button
                                 onClick={() => handleDelete(message._id)}
-                                size="sm"
-                                variant="outline"
-                                className="text-red-600 border-red-200 hover:bg-red-50"
+                                className="p-3 rounded-full border border-red-500/20 text-red-500/40 hover:bg-red-500 hover:text-white transition-all"
                               >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                                <Trash2 size={18} />
+                              </button>
                             </div>
                           </div>
                         )}

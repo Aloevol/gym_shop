@@ -77,76 +77,74 @@ export default function TrackOrderPage() {
     };
 
     return (
-        <section className="w-full min-h-screen bg-white py-16 px-6 md:px-12 lg:px-20">
+        <section className="w-full min-h-screen bg-black pt-24 pb-20 px-6 md:px-12 lg:px-20">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-3xl font-bold text-[#F27D31] mb-4">
-                        Track Your Order
+                <div className="text-center mb-16">
+                    <h1 className="text-3xl md:text-6xl font-custom font-bold text-white uppercase tracking-widest mb-6">
+                        TRACK <span className="text-primary">ORDER</span>
                     </h1>
-                    <p className="text-gray-600 text-lg">
-                        Enter your order ID to check the current delivery status and estimated delivery time.
+                    <p className="text-white/40 font-bold uppercase tracking-widest text-sm max-w-2xl mx-auto">
+                        Enter your order ID to check the current delivery status and performance journey of your gear.
                     </p>
                 </div>
 
                 {/* Search Form */}
-                <div className="bg-gray-50 rounded-xl p-6 mb-8">
-                    <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
+                <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10 mb-12">
+                    <div className="flex flex-col sm:flex-row gap-6 max-w-2xl mx-auto">
                         <div className="flex-1 relative">
-                            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                            <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-white/40 w-5 h-5" />
                             <input
                                 type="text"
-                                placeholder="Enter Order ID (e.g., ORD-251123-6E0WCN)"
+                                placeholder="ORD-000000-XXXXXX"
                                 value={orderId}
                                 onChange={(e) => setOrderId(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && trackOrder()}
-                                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-full text-gray-700 focus:ring-2 focus:ring-[#F27D31] outline-none"
+                                className="w-full bg-black border border-white/10 pl-16 pr-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all uppercase font-bold text-sm tracking-widest"
                             />
                         </div>
                         <button
                             onClick={trackOrder}
                             disabled={loading}
-                            className="bg-[#F27D31] text-white font-semibold px-8 py-3 rounded-full hover:bg-[#e66d1f] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            className="bg-primary text-black font-custom font-bold px-10 py-4 rounded-full hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 uppercase text-sm"
                         >
                             {loading ? (
-                                <>
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    Tracking...
-                                </>
+                                <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
                             ) : (
                                 <>
-                                    <Search className="w-4 h-4" />
-                                    Track Order
+                                    <Search className="w-5 h-5" />
+                                    TRACK
                                 </>
                             )}
                         </button>
                     </div>
                     {error && (
-                        <p className="text-red-500 text-center mt-3">{error}</p>
+                        <p className="text-red-500 text-center mt-6 text-[10px] font-black uppercase tracking-widest">{error}</p>
                     )}
                 </div>
 
                 {/* Order Details */}
                 {order && (
-                    <div className="space-y-8">
+                    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-10 duration-700">
                         {/* Order Status Card */}
-                        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                            <h2 className="text-xl font-semibold text-gray-800 mb-6">Order Status</h2>
+                        <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10">
+                            <h2 className="text-xl font-custom font-bold text-white uppercase tracking-widest mb-10 text-center">CURRENT PROGRESS</h2>
 
                             {/* Status Steps */}
-                            <div className="mb-6">
-                                <div className="flex items-center justify-between mb-4">
+                            <div className="mb-12">
+                                <div className="flex items-center justify-between relative px-4">
+                                    <div className="absolute top-5 left-0 w-full h-[2px] bg-white/5 -z-0" />
                                     {getStatusSteps(order.status).map((step) => (
-                                        <div key={step.status} className="flex flex-col items-center flex-1">
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
+                                        <div key={step.status} className="flex flex-col items-center flex-1 relative z-10">
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 transition-all duration-500 border-2 ${
                                                 step.completed
-                                                    ? 'bg-[#F27D31] text-white'
-                                                    : 'bg-gray-200 text-gray-400'
+                                                    ? 'bg-primary border-primary text-black'
+                                                    : 'bg-black border-white/10 text-white/20'
                                             }`}>
                                                 {step.icon}
                                             </div>
-                                            <span className={`text-sm text-center ${
-                                                step.completed ? 'text-[#F27D31] font-medium' : 'text-gray-500'
+                                            <span className={`text-[9px] font-black uppercase tracking-widest text-center ${
+                                                step.completed ? 'text-primary' : 'text-white/20'
                                             }`}>
                                                 {step.label}
                                             </span>
@@ -155,76 +153,60 @@ export default function TrackOrderPage() {
                                 </div>
                             </div>
 
-                            {/* Current Status */}
-                            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                                <div className={`p-3 rounded-full ${getStatusColor(order.status)}`}>
+                            {/* Current Status Highlight */}
+                            <div className="flex items-center gap-6 p-8 bg-black rounded-[2rem] border border-white/5">
+                                <div className={`p-4 rounded-2xl ${getStatusColor(order.status).replace('bg-', 'bg-').replace('text-', 'text-')}`}>
                                     {getStatusIcon(order.status)}
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-gray-800 capitalize text-lg">{order.status}</p>
-                                    <p className="text-gray-600">
-                                        {order.status === 'pending' && 'Your order is being processed'}
-                                        {order.status === 'confirmed' && 'Order has been confirmed'}
-                                        {order.status === 'processing' && 'Preparing your order for shipment'}
-                                        {order.status === 'shipped' && 'Your order is on the way to you'}
-                                        {order.status === 'delivered' && 'Order has been successfully delivered'}
+                                    <p className="font-custom font-bold text-white uppercase text-2xl tracking-widest mb-1">{order.status}</p>
+                                    <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest">
+                                        {order.status === 'pending' && 'YOUR PERFORMANCE GEAR IS BEING PROCESSED'}
+                                        {order.status === 'confirmed' && 'ORDER HAS BEEN OFFICIALLY CONFIRMED'}
+                                        {order.status === 'processing' && 'PREPARING YOUR ESSENTIALS FOR SHIPMENT'}
+                                        {order.status === 'shipped' && 'YOUR GEAR IS CURRENTLY ON THE WAY'}
+                                        {order.status === 'delivered' && 'GEAR HAS BEEN SUCCESSFULLY DELIVERED'}
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Order Information */}
-                        <div className="grid md:grid-cols-2 gap-6">
-                            {/* Order Details */}
-                            <div className="bg-gray-50 rounded-xl p-6">
-                                <h3 className="text-lg font-semibold text-gray-800 mb-4">Order Information</h3>
-                                <div className="space-y-3 text-sm">
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-600">Order ID:</span>
-                                        <span className="font-medium">{order.orderNumber}</span>
+                        {/* Order Information Grid */}
+                        <div className="grid md:grid-cols-2 gap-8">
+                            <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-10">
+                                <h3 className="text-sm font-custom font-bold text-primary uppercase tracking-widest mb-8">ORDER DATA</h3>
+                                <div className="space-y-4">
+                                    <div className="flex justify-between pb-4 border-b border-white/5">
+                                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">ORDER ID</span>
+                                        <span className="text-xs font-black text-white">{order.orderNumber}</span>
+                                    </div>
+                                    <div className="flex justify-between pb-4 border-b border-white/5">
+                                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">DATE</span>
+                                        <span className="text-xs font-black text-white">{new Date(order.createdAt).toLocaleDateString()}</span>
+                                    </div>
+                                    <div className="flex justify-between pb-4 border-b border-white/5">
+                                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">TOTAL</span>
+                                        <span className="text-xs font-black text-primary font-custom">৳ {order.total?.toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-gray-600">Order Date:</span>
-                                        <span className="font-medium">
-                                            {new Date(order.createdAt).toLocaleDateString()}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-600">Total Amount:</span>
-                                        <span className="font-medium text-[#F27D31]">
-                                            ৳ {order.total?.toLocaleString()}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-600">Payment Method:</span>
-                                        <span className="font-medium capitalize">
-                                            {order.paymentMethod?.replace(/([A-Z])/g, ' $1').trim()}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-600">Payment Status:</span>
-                                        <span className={`font-medium ${
-                                            order.paymentStatus === 'paid' ? 'text-green-600' : 'text-yellow-600'
-                                        }`}>
-                                            {order.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
-                                        </span>
+                                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">PAYMENT</span>
+                                        <span className={`text-xs font-black uppercase ${order.paymentStatus === 'paid' ? 'text-green-500' : 'text-yellow-500'}`}>{order.paymentStatus}</span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Shipping Information */}
-                            <div className="bg-gray-50 rounded-xl p-6">
-                                <h3 className="text-lg font-semibold text-gray-800 mb-4">Shipping Information</h3>
-                                <div className="space-y-3 text-sm">
-                                    <div className="flex items-start gap-2">
-                                        <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                                        <div>
-                                            <p className="font-medium">{order.shippingAddress?.fullName}</p>
-                                            <p className="text-gray-600">{order.shippingAddress?.address}</p>
-                                            <p className="text-gray-600">
-                                                {order.shippingAddress?.city}, {order.shippingAddress?.district}
+                            <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-10">
+                                <h3 className="text-sm font-custom font-bold text-primary uppercase tracking-widest mb-8">DELIVERY TARGET</h3>
+                                <div className="space-y-4">
+                                    <div className="flex items-start gap-4">
+                                        <MapPin className="w-5 h-5 text-primary shrink-0 mt-1" />
+                                        <div className="space-y-2">
+                                            <p className="text-sm font-black text-white uppercase tracking-tight">{order.shippingAddress?.fullName}</p>
+                                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">
+                                                {order.shippingAddress?.address}<br/>
+                                                {order.shippingAddress?.city}, {order.shippingAddress?.district}<br/>
+                                                {order.shippingAddress?.phone}
                                             </p>
-                                            <p className="text-gray-600">{order.shippingAddress?.phone}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -232,29 +214,31 @@ export default function TrackOrderPage() {
                         </div>
 
                         {/* Order Items */}
-                        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                            <h3 className="text-lg font-semibold text-gray-800 mb-4">Order Items</h3>
-                            <div className="space-y-4">
+                        <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10">
+                            <h3 className="text-sm font-custom font-bold text-white uppercase tracking-widest mb-10 text-center">ORDER CONTENT</h3>
+                            <div className="grid gap-6">
                                 {order.items?.map((item: IOrderItem, index: number) => (
-                                    <div key={index} className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg">
-                                        <div className="w-16 h-16 rounded-lg overflow-hidden">
-                                            <ImageWithSkeleton
-                                                className="rounded-lg h-full w-full object-cover"
+                                    <div key={index} className="flex items-center gap-6 p-6 bg-black rounded-3xl border border-white/5 hover:border-primary/30 transition-all group">
+                                        <div className="w-20 h-20 rounded-2xl overflow-hidden bg-white/5 border border-white/10 p-2 shrink-0">
+                                            <Image
                                                 src={item.image}
                                                 alt={item.title}
+                                                width={80}
+                                                height={80}
+                                                className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
                                             />
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className="font-medium text-gray-800">{item.title}</h4>
-                                            <p className="text-gray-600 text-sm">
-                                                Quantity: {item.quantity} × ৳{item.price.toLocaleString()}
+                                            <h4 className="text-sm font-black text-white uppercase tracking-tight mb-1">{item.title}</h4>
+                                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                                                QTY: {item.quantity} × ৳{item.price.toLocaleString()}
                                             </p>
-                                            <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mt-1">
-                                                {item.type === "product" ? "Product" : "Package"}
+                                            <span className="inline-block bg-primary/10 text-primary text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full mt-2 border border-primary/20">
+                                                {item.type}
                                             </span>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-semibold text-gray-800">
+                                            <p className="text-lg font-black text-white tracking-tighter">
                                                 ৳ {(item.price * item.quantity).toLocaleString()}
                                             </p>
                                         </div>

@@ -44,7 +44,7 @@ function SpecialProducts() {
 
     if (loading) {
         return (
-            <section className='bg-white pb-20 px-6 md:px-12 lg:px-20 flex flex-col items-center gap-12'>
+            <section className='bg-black pb-20 px-6 md:px-12 lg:px-20 flex flex-col items-center gap-12'>
                 <motion.div
                     initial={{ opacity: 0, y: -40 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -52,16 +52,14 @@ function SpecialProducts() {
                     viewport={{ once: true }}
                     className="text-center max-w-2xl"
                 >
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#F27D31] leading-tight drop-shadow-lg">
-                        <span className="text-black">Our</span> Special Products List
+                    <h2 className="text-3xl md:text-5xl font-custom font-bold text-white tracking-widest uppercase mb-4">
+                        SPECIAL <span className="text-primary">PRODUCTS</span>
                     </h2>
-                    <p className="text-gray-600 mt-4 text-sm md:text-base">
-                        Experience year-round comfort with our Comport Zone, designed to keep your home warm in winter, cool in summer, and stylish every day.
-                    </p>
+                    <div className="w-24 h-1 bg-primary mx-auto mb-6"></div>
                 </motion.div>
 
                 <div className="flex justify-center items-center py-12">
-                    <Loader className="w-8 h-8 animate-spin text-[#F27D31]" />
+                    <Loader className="w-8 h-8 animate-spin text-primary" />
                 </div>
             </section>
         )
@@ -69,7 +67,7 @@ function SpecialProducts() {
 
     if (error) {
         return (
-            <section className='bg-white pb-20 px-6 md:px-12 lg:px-20 flex flex-col items-center gap-12'>
+            <section className='bg-black pb-20 px-6 md:px-12 lg:px-20 flex flex-col items-center gap-12'>
                 <motion.div
                     initial={{ opacity: 0, y: -40 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -77,23 +75,20 @@ function SpecialProducts() {
                     viewport={{ once: true }}
                     className="text-center max-w-2xl"
                 >
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#F27D31] leading-tight drop-shadow-lg">
-                        <span className="text-black">Our</span> Special Products List
+                    <h2 className="text-3xl md:text-5xl font-custom font-bold text-white tracking-widest uppercase mb-4">
+                        SPECIAL <span className="text-primary">PRODUCTS</span>
                     </h2>
-                    <p className="text-gray-600 mt-4 text-sm md:text-base">
-                        Experience year-round comfort with our Comport Zone, designed to keep your home warm in winter, cool in summer, and stylish every day.
-                    </p>
                 </motion.div>
 
                 <div className="text-center py-12">
-                    <p className="text-red-500 text-lg">{error}</p>
+                    <p className="text-red-500 uppercase font-bold tracking-widest">{error}</p>
                 </div>
             </section>
         )
     }
 
     return (
-        <section className='bg-white pb-20 px-6 md:px-12 lg:px-20 flex flex-col items-center gap-12'>
+        <section className='bg-black pb-20 px-6 md:px-12 lg:px-20 flex flex-col items-center gap-12'>
             <motion.div
                 initial={{ opacity: 0, y: -40 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -101,11 +96,11 @@ function SpecialProducts() {
                 viewport={{ once: true }}
                 className="text-center max-w-2xl"
             >
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#F27D31] leading-tight drop-shadow-lg">
-                    <span className="text-black">Our</span> Special Products List
+                <h2 className="text-3xl md:text-5xl font-custom font-bold text-white tracking-widest uppercase mb-4">
+                    SPECIAL <span className="text-primary">PRODUCTS</span>
                 </h2>
-                <p className="text-gray-600 mt-4 text-sm md:text-base">
-                    Experience year-round comfort with our Comport Zone, designed to keep your home warm in winter, cool in summer, and stylish every day.
+                <p className="text-white/40 font-bold tracking-widest uppercase text-sm">
+                    Discover our most popular performance essentials, trusted by athletes everywhere.
                 </p>
             </motion.div>
 
@@ -117,8 +112,7 @@ function SpecialProducts() {
                     viewport={{ once: true }}
                     className="text-center py-12"
                 >
-                    <p className="text-gray-500 text-lg">No featured products available</p>
-                    <p className="text-gray-400 text-sm mt-2">Check back later for special offers</p>
+                    <p className="text-white/40 font-custom tracking-widest uppercase">No featured products available</p>
                 </motion.div>
             ) : (
                 <motion.div
@@ -126,7 +120,7 @@ function SpecialProducts() {
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, staggerChildren: 0.1 }}
                     viewport={{ once: true }}
-                    className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6 w-full max-w-[1540px]"
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 w-full max-w-7xl"
                 >
                     {featuredProducts.map((product, index) => (
                         <motion.div
@@ -144,10 +138,10 @@ function SpecialProducts() {
                                 rating={product.rating}
                                 isActive={product.isActive}
                                 brand={product.brand}
-                                price={product.originalPrice || product.price + (product.price * 0.2)} // Calculate original price if not exists
+                                price={product.originalPrice || product.price + (product.price * 0.2)}
                                 discount={calculateDiscount(product.price, product.originalPrice)}
                                 priceAfterDiscount={product.price}
-                                image={product.images?.[0] || "/placeholder-product.jpg"}
+                                image={product.images?.[0] || "/placeholder.jpg"}
                             />
                         </motion.div>
                     ))}

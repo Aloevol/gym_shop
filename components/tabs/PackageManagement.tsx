@@ -8,70 +8,53 @@ import PackageGrid from "@/components/ui/PackageGrid";
 import PackageModal from "@/components/ui/PackageModal";
 
 export default function PackageManagement() {
-    const {
-        packages,
-        loading,
-        isMounted,
-        loadPackages,
-        handleDelete,
-        handleToggleFeatured
-    } = usePackageManagement();
+    const { packages, loading, isMounted, loadPackages, handleDelete, handleToggleFeatured } = usePackageManagement();
+    const { formData, setFormData, editingPackage, isModalOpen, formLoading, imageUploading, previewImages, selectedFiles, fileInputRef, handleAddNew, handleEdit, handleSubmit, handleFileChange, handleImageUpload, removeImage, addFeature, removeFeature, updateFeature, closeModal } = usePackageForm({ loadPackages });
 
-    const {
-        formData,
-        setFormData,
-        editingPackage,
-        isModalOpen,
-        formLoading,
-        imageUploading,
-        previewImages,
-        selectedFiles,
-        fileInputRef,
-        handleAddNew,
-        handleEdit,
-        handleSubmit,
-        handleFileChange,
-        handleImageUpload,
-        removeImage,
-        addFeature,
-        removeFeature,
-        updateFeature,
-        closeModal
-    } = usePackageForm({ loadPackages });
-
-    const renderStars = useCallback((rating: number) => {
-        return (
-            <div className="flex justify-center space-x-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                        key={star}
-                        size={16}
-                        className={star <= rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
-                    />
-                ))}
-            </div>
-        );
-    }, []);
+    const renderStars = useCallback((rating: number) => (
+        <div className="flex justify-center space-x-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+                <Star key={star} size={14} fill={star <= rating ? "currentColor" : "none"} className={star <= rating ? "text-primary" : "text-white/10"} />
+            ))}
+        </div>
+    ), []);
 
     if (!isMounted || loading) {
-        return <LoadingState />;
+        return (
+            <div className="w-full min-h-full flex flex-col items-center justify-center pt-20">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+                <p className="text-white/20 font-black uppercase tracking-widest text-xs">SYNCING PACKAGES...</p>
+            </div>
+        );
     }
 
     return (
-        <div className="w-full min-h-[88vh] p-4">
-            <div className="w-full h-full bg-white border rounded-3xl overflow-hidden">
-                <Header
-                    packagesCount={packages.length}
-                    onAddNew={handleAddNew}
-                />
+        <div className="w-full min-h-full">
+            <div className="w-full h-full bg-white/5 border border-white/10 rounded-[3rem] overflow-hidden flex flex-col shadow-2xl">
+                {/* Header */}
+                <div className="w-full flex flex-col sm:flex-row justify-between items-center p-10 border-b border-white/5">
+                    <div>
+                        <h1 className="text-3xl font-custom font-bold text-white uppercase tracking-widest">PERFORMANCE <span className="text-primary">PACKAGES</span></h1>
+                        <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Manage curated elite bundles ({packages.length})</p>
+                    </div>
+                    <button
+                        onClick={handleAddNew}
+                        className="bg-primary text-black font-custom font-bold px-10 py-4 rounded-full hover:bg-white transition-all uppercase text-xs shadow-xl shadow-primary/10 flex items-center gap-2"
+                    >
+                        <Plus size={20} strokeWidth={3} />
+                        INITIALIZE PACKAGE
+                    </button>
+                </div>
 
-                <PackageGrid
-                    packages={packages}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    onToggleFeatured={handleToggleFeatured}
-                    renderStars={renderStars}
-                />
+                <div className="flex-1 overflow-auto bg-black p-10 custom-scrollbar">
+                    <PackageGrid
+                        packages={packages}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        onToggleFeatured={handleToggleFeatured}
+                        renderStars={renderStars}
+                    />
+                </div>
 
                 {isModalOpen && (
                     <PackageModal
@@ -97,69 +80,3 @@ export default function PackageManagement() {
         </div>
     );
 }
-
-// Header Component
-const Header = React.memo(({
-                               packagesCount,
-                               onAddNew
-                           }: {
-    packagesCount: number;
-    onAddNew: () => void;
-}) => (
-    <div className="w-full flex flex-col sm:flex-row justify-between items-center p-6 border-b">
-        <div>
-            <h1 className="text-2xl font-bold text-gray-800">Package Management</h1>
-            <p className="text-gray-600 mt-1">Manage your valuable packages</p>
-            <p className="text-sm text-gray-500">Total packages: {packagesCount}</p>
-        </div>
-        <Button onClick={onAddNew}>
-            <Plus size={20} />
-            Add New Package
-        </Button>
-    </div>
-));
-
-Header.displayName = 'Header';
-
-// Loading State Component
-const LoadingState = React.memo(() => (
-    <div className="w-full min-h-[88vh] p-4 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-[#125BAC]" />
-            <p className="text-gray-600">Loading packages...</p>
-        </div>
-    </div>
-));
-
-LoadingState.displayName = 'LoadingState';
-
-// Reusable Button Component
-const Button = React.memo(({
-                               children,
-                               onClick,
-                               variant = "primary",
-                               ...props
-                           }: {
-    children: React.ReactNode;
-    onClick?: () => void;
-    variant?: "primary" | "secondary" | "danger";
-} & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
-    const baseClasses = "cursor-pointer flex items-center gap-2 mt-2 sm:mt-0 transition-colors duration-200 px-4 py-2 rounded-lg font-medium";
-    const variants = {
-        primary: "bg-[#125BAC] hover:bg-[#0d4793] text-white",
-        secondary: "bg-gray-500 hover:bg-gray-600 text-white",
-        danger: "bg-red-600 hover:bg-red-700 text-white"
-    };
-
-    return (
-        <button
-            className={`${baseClasses} ${variants[variant]} ${props.className || ''}`}
-            onClick={onClick}
-            {...props}
-        >
-            {children}
-        </button>
-    );
-});
-
-Button.displayName = 'Button';

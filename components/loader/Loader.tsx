@@ -24,24 +24,24 @@ const Loader: React.FC<LoaderProps> = ({message = 'Loading...', size = 'md', ove
 
     return (
         <div className={`fixed inset-0 z-[9999] flex items-center justify-center cursor-wait ${
-            overlay ? 'bg-black/5 bg-opacity-10 backdrop-blur-xs' : ''
+            overlay ? 'bg-black/80 backdrop-blur-md' : ''
         }`}>
-            <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="flex flex-col items-center justify-center space-y-6">
                 {/* Spinner */}
                 <div className={`${sizeClasses[size]} relative`}>
                     {/* Outer ring */}
-                    <div className={`absolute inset-0 rounded-full border-4 border-gray-200`}></div>
+                    <div className={`absolute inset-0 rounded-full border-4 border-white/5`}></div>
 
                     {/* Spinning ring */}
-                    <div className={`absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin`}></div>
+                    <div className={`absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin`}></div>
 
                     {/* Inner dot */}
-                    <div className="absolute inset-2 rounded-full bg-blue-500 animate-pulse"></div>
+                    <div className="absolute inset-4 rounded-full bg-primary animate-pulse"></div>
                 </div>
 
                 {/* Message */}
                 {message && (
-                    <p className={`${textSizes[size]} text-white font-medium text-center`}>
+                    <p className={`${textSizes[size]} text-white font-custom font-bold uppercase tracking-[0.3em] text-xs text-center`}>
                         {message}
                     </p>
                 )}

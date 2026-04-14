@@ -18,8 +18,39 @@ const navLinkSchema = new Schema({
   isActive: { type: Boolean, default: true }
 });
 
+const featureSchema = new Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  icon: { type: String, default: "Dumbbell" }
+});
+
+const testimonialSchema = new Schema({
+  name: { type: String, required: true },
+  role: { type: String, default: "Athlete" },
+  quote: { type: String, required: true },
+  stars: { type: Number, default: 5 }
+});
+
+const instagramPostSchema = new Schema({
+  imageUrl: { type: String, required: true },
+  link: { type: String, default: "" }
+});
+
 const siteSchema = new Schema<ISite>({
+  siteName: { type: String, default: "THRYVE" },
+  logoUrl: { type: String, default: "/NavLogo.png" },
+  contactEmail: { type: String, default: "support@thryve.com" },
+  contactPhone: { type: String, default: "+880 1234 567 890" },
+  contactAddress: { type: String, default: "Dhaka, Bangladesh" },
+  socialLinks: {
+    facebook: { type: String, default: "" },
+    instagram: { type: String, default: "" },
+    twitter: { type: String, default: "" },
+  },
   heroSlides: [heroSlideSchema],
+  features: [featureSchema],
+  testimonials: [testimonialSchema],
+  instagramGallery: [instagramPostSchema],
   privacyAndPolicy: { type: String, default: "" },
   navLinks: [navLinkSchema],
 }, { timestamps: true });

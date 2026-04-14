@@ -58,12 +58,34 @@ function ProductCart({
         setIsAdding(true);
         try {
             const cookie = await getCookie("user");
+            
+            // IF GUEST USER
             if (!cookie) {
-                toast.error("Please login to add items to cart");
-                router.push("/auth/signin");
+                const guestCart = JSON.parse(localStorage.getItem("gym-shop-cart") || "[]");
+                const existingItemIndex = guestCart.findIndex((item: any) => item.id === id && item.type === "product");
+
+                if (existingItemIndex > -1) {
+                    guestCart[existingItemIndex].quantity += 1;
+                } else {
+                    guestCart.push({
+                        id,
+                        type: "product",
+                        quantity: 1,
+                        // Store minimal data for immediate UI feedback
+                        name,
+                        price: priceAfterDiscount,
+                        image,
+                        category
+                    });
+                }
+
+                localStorage.setItem("gym-shop-cart", JSON.stringify(guestCart));
+                toast.success("Added to guest cart!");
+                window.dispatchEvent(new Event("cart-updated")); // Notify navbar
                 return;
             }
 
+            // IF LOGGED IN USER
             const user = JSON.parse(cookie);
             const response = await addToCart({
                 userId: user._id,
@@ -74,7 +96,7 @@ function ProductCart({
                 toast.error(response.message);
             } else {
                 toast.success("Added to cart successfully!");
-                // Optionally refresh the page or update cart count in navbar
+                window.dispatchEvent(new Event("cart-updated"));
                 router.refresh();
             }
         } catch (error) {
@@ -91,143 +113,101 @@ function ProductCart({
 
         if (!isActive) return;
 
-        try {
-            const cookie = await getCookie("user");
-            if (!cookie) {
-                toast.error("Please login to buy items");
-                router.push("/auth/signin");
-                return;
-            }
-
-            const user = JSON.parse(cookie);
-            const response = await addToCart({
-                userId: user._id,
-                productId: id,
-            });
-
-            // Even if it's already in cart, we want to go to cart page
-            router.push("/cart");
-        } catch (error) {
-            console.error("Error in buy now:", error);
-            router.push("/cart");
-        }
+        // Simplified for "Buy Now" - just open the modal directly or go to cart
+        // We'll redirect to product page first to ensure full data or just trigger checkout
+        router.push(forwardUrl + "?checkout=true");
     };
 
     return (
-        <div className="w-full bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden flex flex-col relative transition-all duration-300 hover:shadow-md group">
+        <div className="w-full bg-white/5 border border-white/10 shadow-xl rounded-2xl overflow-hidden flex flex-col relative transition-all duration-500 hover:border-primary/30 group">
             {/* Discount Badge */}
             {discount > 0 && (
-                <div className="absolute top-2 left-2 bg-[#F27D31] text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded-full flex items-center justify-center z-10 shadow-sm">
-                    -{discount}% OFF
+                <div className="absolute top-4 left-4 bg-primary text-black text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-lg uppercase tracking-wider">
+                    -{discount}%
                 </div>
             )}
 
             {/* Inactive Badge */}
             {!isActive && (
-                <div className="absolute top-2 right-2 bg-red-500 text-white text-[10px] sm:text-xs font-semibold px-2 py-1 rounded-full z-10 shadow-sm">
-                    Out of Stock
+                <div className="absolute top-4 right-4 bg-red-500/80 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 uppercase tracking-wider">
+                    Sold Out
                 </div>
             )}
 
             {/* Image Section */}
-            <Link href={forwardUrl} className="relative w-full aspect-square overflow-hidden bg-gray-50">
+            <Link href={forwardUrl} className="relative w-full aspect-square overflow-hidden bg-white/5 p-6">
                 <Image
                     src={image}
                     alt={name}
                     fill
-                    className="object-contain p-2 transition-transform duration-500 group-hover:scale-110"
+                    className="object-contain p-4 transition-transform duration-700 group-hover:scale-110"
                 />
             </Link>
 
             {/* Product Info */}
-            <div className="flex flex-col p-3 flex-grow">
-                <div className="mb-1">
-                    <h3 className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">{category}</h3>
+            <div className="flex flex-col p-5 flex-grow">
+                <div className="mb-2">
+                    <h3 className="text-[10px] uppercase tracking-[0.2em] text-primary font-bold mb-1">{category}</h3>
                     <Link href={forwardUrl}>
-                        <h1 className="text-sm sm:text-base font-bold text-gray-800 line-clamp-2 hover:text-[#F27D31] transition-colors min-h-[40px] leading-tight">
+                        <h1 className="text-base font-bold text-white line-clamp-1 group-hover:text-primary transition-colors uppercase tracking-tight">
                             {name}
                         </h1>
                     </Link>
                 </div>
 
                 {/* Brand and Rating */}
-                <div className="flex items-center justify-between mt-1">
+                <div className="flex items-center justify-between mb-4">
                     {brand && (
-                        <span className="text-[10px] text-gray-500 font-medium">
+                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
                             {brand}
                         </span>
                     )}
-                    <div className="flex items-center gap-0.5">
-                        <Star size={12} className={`${rating > 0 ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`} />
-                        <span className="text-[10px] text-gray-600 font-bold">{rating > 0 ? rating : "N/A"}</span>
+                    <div className="flex items-center gap-1">
+                        <Star size={10} className={`${rating > 0 ? "text-primary fill-primary" : "text-white/20"}`} />
+                        <span className="text-[10px] text-white/60 font-bold">{rating > 0 ? rating : "0"}</span>
                     </div>
                 </div>
 
                 {/* Price */}
-                <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-lg font-extrabold text-[#125BAC] flex items-center">
-                        <TbCurrencyTaka size={20} />
+                <div className="mt-auto flex items-center gap-3">
+                    <span className="text-xl font-black text-white flex items-center">
+                        <TbCurrencyTaka size={22} className="text-primary" />
                         {priceAfterDiscount}
                     </span>
                     {discount > 0 && (
-                        <span className="text-xs text-gray-400 line-through flex items-center font-medium">
-                            <TbCurrencyTaka size={14} />
+                        <span className="text-sm text-white/30 line-through flex items-center font-bold">
+                            <TbCurrencyTaka size={16} />
                             {price}
                         </span>
                     )}
                 </div>
 
-                {/* Quantity & Actions */}
-                <div className="mt-4 space-y-2">
-                    {/* Quantity Selector */}
-                    <div className="flex items-center justify-between bg-gray-50 rounded-lg p-1 border border-gray-100">
-                        <span className="text-[10px] font-bold text-gray-400 ml-2 uppercase">Qty</span>
-                        <div className="flex items-center gap-3">
-                            <button 
-                                onClick={() => handleQuantity("dec")}
-                                className="w-7 h-7 flex items-center justify-center rounded-md bg-white border border-gray-200 text-gray-600 hover:border-[#F27D31] hover:text-[#F27D31] transition-colors"
-                                disabled={!isActive}
-                            >
-                                <Minus size={14} />
-                            </button>
-                            <span className="text-sm font-bold w-4 text-center">{quantity}</span>
-                            <button 
-                                onClick={() => handleQuantity("inc")}
-                                className="w-7 h-7 flex items-center justify-center rounded-md bg-white border border-gray-200 text-gray-600 hover:border-[#F27D31] hover:text-[#F27D31] transition-colors"
-                                disabled={!isActive}
-                            >
-                                <Plus size={14} />
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="grid grid-cols-2 gap-2">
-                        <button
-                            onClick={handleAddToCart}
-                            disabled={!isActive || isAdding}
-                            className={`flex items-center justify-center gap-1 py-2 px-1 rounded-lg text-[10px] sm:text-xs font-bold transition-all ${
-                                isActive 
-                                ? "bg-white border-2 border-[#125BAC] text-[#125BAC] hover:bg-[#125BAC] hover:text-white" 
-                                : "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200 border-2"
-                            }`}
-                        >
-                            <ShoppingCart size={14} />
-                            {isAdding ? "..." : "ADD TO CART"}
-                        </button>
-                        <button
-                            onClick={handleBuyNow}
-                            disabled={!isActive}
-                            className={`flex items-center justify-center gap-1 py-2 px-1 rounded-lg text-[10px] sm:text-xs font-bold transition-all ${
-                                isActive 
-                                ? "bg-[#F27D31] text-white hover:bg-[#e56f28] shadow-sm shadow-[#F27D31]/20" 
-                                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                            }`}
-                        >
-                            <Zap size={14} className="fill-current" />
-                            BUY NOW
-                        </button>
-                    </div>
+                {/* Actions */}
+                <div className="mt-6 flex flex-col gap-2">
+                    <button
+                        onClick={handleAddToCart}
+                        disabled={!isActive || isAdding}
+                        className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-[10px] font-bold tracking-[0.1em] transition-all uppercase ${
+                            isActive 
+                            ? "bg-white/5 border border-white/10 text-white hover:bg-white hover:text-black" 
+                            : "bg-white/5 text-white/20 cursor-not-allowed border-white/5"
+                        }`}
+                    >
+                        <ShoppingCart size={14} />
+                        {isAdding ? "Adding..." : "Add to Cart"}
+                    </button>
+                    <button
+                        onClick={handleBuyNow}
+                        disabled={!isActive}
+                        className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-[10px] font-bold tracking-[0.1em] transition-all uppercase ${
+                            isActive 
+                            ? "bg-primary text-black hover:bg-white" 
+                            : "bg-white/5 text-white/20 cursor-not-allowed"
+                        }`}
+                    >
+                        <Zap size={14} className="fill-current" />
+                        Buy It Now
+                    </button>
                 </div>
             </div>
         </div>

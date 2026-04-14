@@ -20,98 +20,93 @@ const PackageCard = React.memo(({
                                     onToggleFeatured,
                                     renderStars
                                 }: PackageCardProps) => (
-    <div className="w-full border-2 rounded-2xl p-4 relative shadow-lg hover:shadow-xl transition-all duration-300 bg-white group">
-        {/* Featured Badge */}
-        {pkg.isFeatured && (
-            <div className="absolute -top-2 -left-2 bg-[#F27D31] text-white px-3 py-1 rounded-full text-xs font-bold">
-                Featured
-            </div>
-        )}
-
-        {/* Inactive Badge */}
-        {!pkg.isActive && (
-            <div className="absolute -top-2 -left-2 bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                Inactive
-            </div>
-        )}
-
-        {/* Package Images */}
-        {pkg.imageUrl && pkg.imageUrl.length > 0 && (
-            <div className="w-full h-32 mb-3 rounded-lg overflow-hidden relative">
-                <ImageWithSkeleton
-                    src={pkg.imageUrl[0]}
-                    alt={pkg.title}
-                    className="w-full h-full object-cover"
-                />
-                {pkg.imageUrl.length > 1 && (
-                    <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs">
-                        +{pkg.imageUrl.length - 1} more
-                    </div>
-                )}
-            </div>
-        )}
-
-        {/* Package Content */}
-        <div className="text-center">
-            <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-1">{pkg.title}</h3>
-            <p className="text-sm text-gray-600 mb-3 line-clamp-2">{pkg.description}</p>
-
-            {renderStars(pkg.rating || 0)}
-
-            <div className="mt-3 space-y-1">
-                <p className="text-2xl font-bold text-[#125BAC]">${pkg.price}</p>
-                {pkg.originalPrice && pkg.originalPrice > pkg.price && (
-                    <p className="text-sm text-gray-500 line-through">৳{pkg.originalPrice}</p>
-                )}
-                <p className="text-xs text-gray-400 capitalize">{pkg.category}</p>
-            </div>
-
-            {/* Features */}
-            {pkg.features && pkg.features.length > 0 && (
-                <div className="mt-3 text-left">
-                    <p className="text-xs font-semibold text-gray-700 mb-1">Features:</p>
-                    <ul className="text-xs text-gray-600 space-y-1">
-                        {pkg.features.slice(0, 3).map((feature, index) => (
-                            <li key={index} className="line-clamp-1">• {feature}</li>
-                        ))}
-                        {pkg.features.length > 3 && (
-                            <li className="text-gray-400">+{pkg.features.length - 3} more</li>
-                        )}
-                    </ul>
-                </div>
+    <div className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] p-6 relative group transition-all duration-500 hover:border-primary/30">
+        {/* Status Badges */}
+        <div className="absolute top-6 left-6 flex flex-col gap-2 z-10">
+            {!pkg.isActive && (
+                <span className="bg-red-500 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
+                    OFFLINE
+                </span>
+            )}
+            {pkg.isFeatured && (
+                <span className="bg-primary text-black text-[8px] font-black px-3 py-1 rounded-full flex items-center gap-1 uppercase tracking-widest shadow-lg">
+                    <Star size={10} fill="currentColor" />
+                    ELITE
+                </span>
             )}
         </div>
 
         {/* Action Buttons */}
-        <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 flex gap-2 z-10 translate-y-2 group-hover:translate-y-0">
             <button
                 onClick={() => onToggleFeatured(pkg)}
-                className={`p-2 h-8 w-8 rounded ${
-                    pkg.isFeatured
-                        ? "bg-[#F27D31] hover:bg-[#e06d21]"
-                        : "bg-gray-500 hover:bg-gray-600"
-                } text-white transition-colors`}
-                title={pkg.isFeatured ? "Remove from featured" : "Mark as featured"}
+                className={`h-10 w-10 border rounded-full flex items-center justify-center transition-all ${
+                    pkg.isFeatured ? 'bg-primary border-primary text-black' : 'bg-white/10 border-white/10 text-white/40 hover:text-white'
+                }`}
             >
-                <Star size={14} fill={pkg.isFeatured ? "white" : "none"} />
+                <Star size={16} fill={pkg.isFeatured ? "currentColor" : "none"} />
             </button>
             <button
                 onClick={() => onEdit(pkg)}
-                className="bg-[#125BAC] hover:bg-[#0d4793] text-white p-2 h-8 w-8 rounded transition-colors"
-                title="Edit package"
+                className="h-10 w-10 bg-white/10 border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-white hover:text-black transition-all"
             >
-                <Edit size={14} />
+                <Edit size={16} />
             </button>
             <button
                 onClick={() => onDelete(pkg._id)}
-                className="bg-red-600 hover:bg-red-700 text-white p-2 h-8 w-8 rounded transition-colors"
-                title="Delete package"
+                className="h-10 w-10 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all"
             >
-                <Trash2 size={14} />
+                <Trash2 size={16} />
             </button>
+        </div>
+
+        {/* Package Images */}
+        <div className="w-full aspect-square bg-black rounded-3xl mb-6 overflow-hidden relative border border-white/5">
+            {pkg.imageUrl && pkg.imageUrl.length > 0 ? (
+                <Image
+                    src={pkg.imageUrl[0]}
+                    alt={pkg.title}
+                    fill
+                    className="object-contain p-6 grayscale group-hover:grayscale-0 transition-all duration-700"
+                />
+            ) : (
+                <div className="w-full h-full flex items-center justify-center text-white/5 font-black uppercase text-[10px]">NO VISUAL</div>
+            )}
+        </div>
+
+        {/* Package Content */}
+        <div>
+            <h3 className="font-custom font-bold text-white text-lg uppercase tracking-tight mb-2 line-clamp-1 group-hover:text-primary transition-colors">{pkg.title}</h3>
+            
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col">
+                    <span className="text-2xl font-black text-white tracking-tighter">
+                        ৳ {pkg.price.toLocaleString()}
+                    </span>
+                    {pkg.originalPrice && pkg.originalPrice > pkg.price && (
+                        <span className="text-white/20 text-[10px] line-through font-bold uppercase tracking-widest">
+                            ৳ {pkg.originalPrice.toLocaleString()}
+                        </span>
+                    )}
+                </div>
+                <div className="text-right">
+                    <p className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">RATING</p>
+                    {renderStars(pkg.rating || 0)}
+                </div>
+            </div>
+
+            {/* Features */}
+            {pkg.features && pkg.features.length > 0 && (
+                <div className="pt-6 border-t border-white/5 grid grid-cols-2 gap-2">
+                    {pkg.features.slice(0, 4).map((feature, index) => (
+                        <span key={index} className="text-[8px] font-black text-white/40 uppercase tracking-widest truncate bg-white/5 px-2 py-1 rounded border border-white/5">• {feature}</span>
+                    ))}
+                </div>
+            )}
         </div>
     </div>
 ));
+
 
 PackageCard.displayName = 'PackageCard';
 
