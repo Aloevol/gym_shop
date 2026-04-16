@@ -2,6 +2,7 @@
 
 import React from "react";
 import { IPackage } from "@/server/models/package/package.interface";
+import Image from "next/image";
 import { Edit, Trash2, Star } from "lucide-react";
 import ImageWithSkeleton from "../ui/ImageWIthSkeleton";
 

@@ -79,6 +79,7 @@ const HeroSlider = () => {
               alt={displaySlides[currentSlide].title}
               fill
               priority
+              sizes="100vw"
               className="object-cover grayscale hover:grayscale-0 transition-all duration-1000"
             />
             {/* Subtle Overlay */}

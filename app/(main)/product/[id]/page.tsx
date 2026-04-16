@@ -166,6 +166,10 @@ function ProductViewPage() {
     };
 
     const directBuy = () => setIsOrderModalOpen(true);
+    const handleOrderSuccess = () => {
+        setIsOrderModalOpen(false);
+        router.push("/");
+    };
 
     const getOrderModalItems = () => {
         if (!productData) return [];
@@ -196,6 +200,7 @@ function ProductViewPage() {
                                 src={mainImage}
                                 alt={productData.title}
                                 fill
+                                sizes="(max-width: 768px) 100vw, 50vw"
                                 className="object-contain p-8 transition-transform duration-700 group-hover:scale-105"
                                 priority
                             />
@@ -379,6 +384,7 @@ function ProductViewPage() {
             <OrderModal
                 isOpen={isOrderModalOpen}
                 onClose={() => setIsOrderModalOpen(false)}
+                onOrderSuccess={handleOrderSuccess}
                 items={getOrderModalItems()}
                 userId={user?._id ?? ""}
             />

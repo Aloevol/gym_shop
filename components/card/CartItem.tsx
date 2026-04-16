@@ -37,7 +37,7 @@ interface CartItemProps {
         quantity: number;
         isActive: boolean;
     };
-    getItemData: (item: CartItemProps["item"]) => CartItemData;
+    getItemData: (item: any) => CartItemData | null;
     isItemSelected: (id: string) => boolean;
     toggleSelection: (id: string) => void;
     isItemUpdating: (id: string) => boolean;

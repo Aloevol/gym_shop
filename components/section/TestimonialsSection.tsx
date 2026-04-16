@@ -10,7 +10,7 @@ const TestimonialsSection = () => {
   useEffect(() => {
     const fetchTestimonials = async () => {
       const res = await getTestimonialsServerSide();
-      if (!res.isError && res.data && res.data.length > 0) {
+      if (!res.isError && res.data && Array.isArray(res.data) && res.data.length > 0) {
         setTestimonials(res.data);
       }
       setLoading(false);

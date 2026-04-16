@@ -25,9 +25,9 @@ const paymentStatusOptions = [
 ];
 
 export default function AdminOrdersPage() {
-    const [orders, setOrders] = useState<IOrder[]>([]);
+    const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
+    const [selectedOrder, setSelectedOrder] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -53,7 +53,7 @@ export default function AdminOrdersPage() {
         if (result.success) {
             setOrders(prev => prev.map(order => (order as any)._id === orderId ? { ...order, status: newStatus } : order));
             if (selectedOrder && (selectedOrder as any)._id === orderId) {
-                setSelectedOrder(prev => prev ? { ...prev, status: newStatus } : null);
+                setSelectedOrder((prev: any) => prev ? { ...prev, status: newStatus } : null);
             }
         }
     };
@@ -65,7 +65,7 @@ export default function AdminOrdersPage() {
             if (result.success) {
                 setOrders(prev => prev.map(order => (order as any)._id === orderId ? { ...order, paymentStatus: newPaymentStatus } : order));
                 if (selectedOrder && (selectedOrder as any)._id === orderId) {
-                    setSelectedOrder(prev => prev ? { ...prev, paymentStatus: newPaymentStatus } : null);
+                    setSelectedOrder((prev: any) => prev ? { ...prev, paymentStatus: newPaymentStatus } : null);
                 }
             }
         } finally {
@@ -173,7 +173,7 @@ export default function AdminOrdersPage() {
                                             onChange={(e) => handlePaymentStatusUpdate((order as any)._id, e.target.value)}
                                             className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border focus:outline-none appearance-none cursor-pointer ${paymentStatusOptions.find(s => s.value === order.paymentStatus)?.color || ""}`}
                                         >
-                                            {paymentStatusOptions.map(opt => <option key={option.value} value={opt.value} className="bg-black">{opt.label}</option>)}
+                                            {paymentStatusOptions.map(opt => <option key={opt.value} value={opt.value} className="bg-black">{opt.label}</option>)}
                                         </select>
 
                                         <div className="flex gap-2">

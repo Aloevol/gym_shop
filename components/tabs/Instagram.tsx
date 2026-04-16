@@ -21,7 +21,7 @@ const Instagram = () => {
 
   const fetchPosts = async () => {
     const res = await getInstagramGalleryServerSide();
-    if (!res.isError) setPosts(res.data);
+    if (!res.isError && Array.isArray(res.data)) setPosts(res.data);
     setLoading(false);
   };
 

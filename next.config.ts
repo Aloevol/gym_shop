@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-      domains: ["res.cloudinary.com","localhost"],
       remotePatterns: [
           {
               protocol: 'https',
@@ -12,6 +11,14 @@ const nextConfig: NextConfig = {
           {
               protocol: 'https',
               hostname: 'thryve.b-cdn.net',
+          },
+          {
+              protocol: 'http',
+              hostname: 'localhost',
+          },
+          {
+              protocol: 'https',
+              hostname: 'localhost',
           },
       ],
   },

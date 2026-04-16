@@ -1,17 +1,24 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { getInstagramGalleryServerSide } from '@/server/functions/admin.fun';
+import { getInstagramGalleryServerSide, getSiteSettingsServerSide } from '@/server/functions/admin.fun';
 
 const InstagramGallery = () => {
   const [posts, setPosts] = useState<any[]>([]);
+  const [siteSettings, setSiteSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const res = await getInstagramGalleryServerSide();
-      if (!res.isError && res.data && res.data.length > 0) {
+      const [res, settingsRes] = await Promise.all([
+        getInstagramGalleryServerSide(),
+        getSiteSettingsServerSide(),
+      ]);
+      if (!res.isError && res.data && Array.isArray(res.data) && res.data.length > 0) {
         setPosts(res.data);
+      }
+      if (!settingsRes.isError && settingsRes.data) {
+        setSiteSettings(settingsRes.data);
       }
       setLoading(false);
     };
@@ -41,12 +48,12 @@ const InstagramGallery = () => {
           </p>
         </div>
         <a
-          href="https://www.instagram.com/"
+          href={siteSettings?.socialLinks?.instagram || "#"}
           target="_blank"
           rel="noopener noreferrer"
           className="border border-white/10 bg-white/5 text-white px-12 py-5 rounded-full font-custom text-[10px] font-black tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all shadow-xl"
         >
-          @thryvesports.bd
+          {siteSettings?.socialLinks?.instagram ? "FOLLOW ON INSTAGRAM" : "@THRYVE"}
         </a>
       </div>
 
@@ -57,6 +64,7 @@ const InstagramGallery = () => {
               src={post.imageUrl}
               alt={`Gallery ${i}`}
               fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
               className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />

@@ -2,7 +2,7 @@
 
 import { connectToDB } from "@/server/db";
 import { UserModel } from "../models/user/user.model";
-import { USER_ROLE } from "@/enum/user.enum";
+import { USER_ROLE, USER_STATUS } from "@/enum/user.enum";
 import { SendResponse } from "../helper/sendResponse.helper";
 import { ServerError } from "../interface/serverError.interface";
 import { handleServerError } from "../helper/ErrorHandler";
@@ -15,23 +15,48 @@ import { uploadImageToCloudinary, uploadMultipleToCloudinary } from "../helper/c
 import { ICreateOfferInput, IOfferResponse, IUpdateOfferInput } from "../interface/offer.interface";
 import { OfferModel } from "../models/offer/offer.model";
 import { Types } from "mongoose";
+import { hashData } from "../helper/crypt";
 
 let isAdminCreated = false;
+
+const DEFAULT_NAV_LINKS: INavLink[] = [
+  { name: "Home", href: "/", order: 0, isActive: true },
+  { name: "Shop", href: "/shop", order: 1, isActive: true },
+  { name: "Contact", href: "/contact", order: 2, isActive: true },
+  { name: "Athletes", href: "/athletes", order: 3, isActive: true }
+];
 
 export async function createAdminServerSide(){
     if(isAdminCreated) return SendResponse({ isError: true, status: 409, message: "Admin already exists!" });
     try {
         await connectToDB();
 
-        const isAdminExist = await UserModel.exists({ role: USER_ROLE.ADMIN });
-        if(isAdminExist) return SendResponse({ isError: true, status: 409, message: "Admin already exists!" });
+        const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+        const adminPassword = process.env.ADMIN_PASSWORD?.trim();
 
-        await UserModel.create({
+        if (!adminEmail || !adminPassword) {
+            return SendResponse({ isError: true, status: 400, message: "Admin credentials are missing from .env" });
+        }
+
+        const isAdminExist = await UserModel.exists({ role: USER_ROLE.ADMIN });
+        if(isAdminExist) {
+            isAdminCreated = true;
+            return SendResponse({ isError: true, status: 409, message: "Admin already exists!" });
+        }
+
+        await UserModel.collection.insertOne({
             name: "Hasan Saud",
-            email: process.env.ADMIN_EMAIL,
-            password: process.env.ADMIN_PASSWORD,
+            image: "",
+            email: adminEmail,
+            password: adminPassword,
+            contact: "+880",
+            status: USER_STATUS.ACTIVE,
             isVerified: true,
-            role: USER_ROLE.ADMIN
+            role: USER_ROLE.ADMIN,
+            otp: "",
+            hashToken: await hashData(`${adminEmail}:${adminPassword}`),
+            createdAt: new Date(),
+            updatedAt: new Date()
         });
 
         isAdminCreated = true;
@@ -40,6 +65,33 @@ export async function createAdminServerSide(){
 
     } catch (error: ServerError) {
         return handleServerError(error);
+    }
+}
+
+export async function ensureAdminFromEnvServerSide() {
+    try {
+        const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+        const adminPassword = process.env.ADMIN_PASSWORD?.trim();
+
+        if (!adminEmail || !adminPassword) return;
+
+        await connectToDB();
+
+        const existingAdmin = await UserModel.findOne({
+            $or: [
+                { role: USER_ROLE.ADMIN },
+                { email: adminEmail }
+            ]
+        }).lean().exec();
+
+        if (existingAdmin) {
+            isAdminCreated = true;
+            return;
+        }
+
+        await createAdminServerSide();
+    } catch (error) {
+        console.error("Failed to ensure admin from env:", error);
     }
 }
 
@@ -753,9 +805,15 @@ export async function getNavLinksServerSide(): Promise<IResponse> {
   try {
     await connectToDB();
 
-    const site = await SiteModle.findOne({}).lean().exec();
-    
-    const links = site?.navLinks || [];
+    let site = await SiteModle.findOne({});
+    if (!site) {
+      site = await SiteModle.create({ navLinks: DEFAULT_NAV_LINKS });
+    } else if (!site.navLinks || site.navLinks.length === 0) {
+      site.navLinks = DEFAULT_NAV_LINKS;
+      await site.save();
+    }
+
+    const links = site.navLinks || [];
     const sortedLinks = links.sort((a, b) => a.order - b.order);
     
     return SendResponse({
@@ -976,18 +1034,23 @@ export async function deleteInstagramPostServerSide(postId: string): Promise<IRe
 export async function getSiteSettingsServerSide(): Promise<IResponse> {
   try {
     await connectToDB();
-    let site = await SiteModle.findOne({}).lean().exec();
+    let site = await SiteModle.findOne({});
     if (!site) {
       // Initialize if not exists
       site = await SiteModle.create({
         siteName: "THRYVE",
+        siteDescription: "Performance nutrition, premium gear, and a fast storefront experience managed from one dashboard.",
         logoUrl: "/NavLogo.png",
         contactEmail: "support@thryve.com",
         contactPhone: "+880 1234 567 890",
-        contactAddress: "Dhaka, Bangladesh"
+        contactAddress: "Dhaka, Bangladesh",
+        navLinks: DEFAULT_NAV_LINKS
       });
+    } else if (!site.navLinks || site.navLinks.length === 0) {
+      site.navLinks = DEFAULT_NAV_LINKS;
+      await site.save();
     }
-    return SendResponse({ isError: false, status: 200, message: "Settings fetched", data: JSON.parse(JSON.stringify(site)) });
+    return SendResponse({ isError: false, status: 200, message: "Settings fetched", data: site.toObject() });
   } catch (error: any) { return handleServerError(error); }
 }
 
@@ -996,5 +1059,55 @@ export async function updateSiteSettingsServerSide(settings: Partial<ISite>): Pr
     await connectToDB();
     await SiteModle.findOneAndUpdate({}, { $set: settings }, { upsert: true });
     return SendResponse({ isError: false, status: 200, message: "Global settings updated successfully" });
+  } catch (error: any) { return handleServerError(error); }
+}
+
+// --- Athletes Management ---
+export async function getAthletesServerSide(): Promise<IResponse> {
+  try {
+    await connectToDB();
+    const site = await SiteModle.findOne({}).lean().exec();
+    return SendResponse({ isError: false, status: 200, message: "Athletes fetched", data: site?.athletes || [] });
+  } catch (error: any) { return handleServerError(error); }
+}
+
+export async function addAthleteServerSide(body: FormData): Promise<IResponse> {
+  try {
+    await connectToDB();
+    const name = body.get("name") as string;
+    const role = body.get("role") as string;
+    const bio = body.get("bio") as string;
+    const imageFile = body.get("imageFile") as File;
+    const facebook = body.get("facebook") as string;
+    const instagram = body.get("instagram") as string;
+    const twitter = body.get("twitter") as string;
+
+    let imageUrl = "";
+    if (imageFile) {
+      const cloudinaryResponse = await uploadImageToCloudinary(imageFile);
+      if (cloudinaryResponse) imageUrl = cloudinaryResponse.url;
+    }
+
+    if (!imageUrl) return SendResponse({ isError: true, status: 400, message: "Image is required" });
+
+    const newAthlete = {
+      name,
+      role,
+      bio,
+      image: imageUrl,
+      socialLinks: { facebook, instagram, twitter },
+      isActive: true
+    };
+
+    await SiteModle.findOneAndUpdate({}, { $push: { athletes: newAthlete } }, { upsert: true });
+    return SendResponse({ isError: false, status: 200, message: "Athlete added successfully" });
+  } catch (error: any) { return handleServerError(error); }
+}
+
+export async function deleteAthleteServerSide(athleteId: string): Promise<IResponse> {
+  try {
+    await connectToDB();
+    await SiteModle.findOneAndUpdate({}, { $pull: { athletes: { _id: athleteId } } });
+    return SendResponse({ isError: false, status: 200, message: "Athlete removed" });
   } catch (error: any) { return handleServerError(error); }
 }

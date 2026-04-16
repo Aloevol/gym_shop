@@ -18,7 +18,7 @@ const FeaturesSection = () => {
   useEffect(() => {
     const fetchFeatures = async () => {
       const res = await getFeaturesServerSide();
-      if (!res.isError && res.data && res.data.length > 0) {
+      if (!res.isError && res.data && Array.isArray(res.data) && res.data.length > 0) {
         setFeatures(res.data);
       }
       setLoading(false);

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import {useRouter, useSearchParams} from "next/navigation";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {IError} from "@/server/interface/error.interface";
 import {ISetPasswordInput} from "@/server/interface/auth.interface";

@@ -1,13 +1,10 @@
 "use client";
-import { Contact2, Menu, MessageCircle, Package2, User } from "lucide-react";
-import { BiSolidOffer } from "react-icons/bi";
+import { Contact2, LayoutTemplate, Menu, MessageCircle, Settings2, ShieldCheck, ShoppingBag, User, Users } from "lucide-react";
 import { FcPrivacy } from "react-icons/fc";
 import { GrDashboard } from "react-icons/gr";
-import { MdProductionQuantityLimits } from "react-icons/md";
 import { PiFlagBanner } from "react-icons/pi";
-import { TbBrandBing } from "react-icons/tb";
-import { SVGProps, useMemo } from "react";
-import {AiFillProfile} from "react-icons/ai";
+import type { ComponentType, SVGProps } from "react";
+import { useMemo } from "react";
 import {FaJediOrder} from "react-icons/fa";
 
 interface Props {
@@ -21,7 +18,7 @@ interface IconProps extends SVGProps<SVGSVGElement> {
   className?: string;
 }
 
-const createIconComponent = (IconComponent: React.ComponentType<IconProps>, size = 18) => (
+const createIconComponent = (IconComponent: ComponentType<IconProps>, size = 18) => (
     <IconComponent size={size} />
 );
 
@@ -36,20 +33,8 @@ export default function Sidebar({ activeTab, setActiveTab }: Props) {
             icon: () => createIconComponent(PiFlagBanner)
         },
         {
-            title: "Offer",
-            icon: () => createIconComponent(BiSolidOffer)
-        },
-        {
             title: "Products",
-            icon: () => createIconComponent(MdProductionQuantityLimits)
-        },
-        {
-            title: "Personal Training",
-            icon: () => createIconComponent(TbBrandBing)
-        },
-        {
-            title: "Package Management",
-            icon: () => createIconComponent(Package2)
+            icon: () => createIconComponent(ShoppingBag)
         },
         {
             title: "Banner Message",
@@ -61,15 +46,15 @@ export default function Sidebar({ activeTab, setActiveTab }: Props) {
         },
         {
             title: "Features",
-            icon: () => createIconComponent(MdProductionQuantityLimits)
+            icon: () => createIconComponent(LayoutTemplate)
         },
         {
             title: "Testimonials",
             icon: () => createIconComponent(MessageCircle)
         },
         {
-            title: "Instagram",
-            icon: () => createIconComponent(BiSolidOffer)
+            title: "Athletes",
+            icon: () => createIconComponent(Users)
         },
         {
             title: "PrivacyPolicy",
@@ -84,31 +69,38 @@ export default function Sidebar({ activeTab, setActiveTab }: Props) {
             icon: () => createIconComponent(User)
         },
         {
-            title: "About Me",
-            icon: () => createIconComponent(AiFillProfile)
-        },
-        {
             title: "Order Management",
             icon: () => createIconComponent(FaJediOrder)
         },
         {
             title: "Settings",
-            icon: () => createIconComponent(AiFillProfile)
+            icon: () => createIconComponent(Settings2)
         }
     ], []);
 
     return (
-        <div className="w-[350px] h-full flex justify-center items-center relative bg-black border-r border-white/5">
-            <div className="w-[280px] h-[95%] bg-white/5 border border-white/10 rounded-[2.5rem] relative flex flex-col items-end pt-[32px] overflow-hidden">
+        <div className="w-[280px] md:w-[300px] h-full shrink-0 flex justify-center items-center relative bg-black border-r border-white/5">
+            <div className="w-[92%] h-[95%] bg-gradient-to-b from-white/8 to-white/[0.03] border border-white/10 rounded-[2.5rem] relative flex flex-col items-end pt-[32px] overflow-hidden shadow-2xl shadow-black/20">
                 <div className="w-full px-8 mb-8">
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Console</p>
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Storefront Console</p>
+                    <div className="mt-4 rounded-2xl border border-primary/15 bg-primary/8 px-4 py-3">
+                        <div className="flex items-center gap-3">
+                            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary text-black">
+                                {createIconComponent(ShieldCheck, 18)}
+                            </span>
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Public Site</p>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Only active storefront controls</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div className="w-full overflow-y-auto custom-scrollbar pr-1">
                     {tabs.map((Item) => (
                         <button
                             key={Item.title}
                             onClick={() => setActiveTab(Item.title)}
-                            className={`h-[50px] w-[92%] rounded-l-full flex justify-start items-center gap-4 pl-8 cursor-pointer duration-300 ease-in-out mb-1 ${
+                            className={`h-[52px] w-[92%] rounded-l-full flex justify-start items-center gap-4 pl-8 cursor-pointer duration-300 ease-in-out mb-1 ${
                                 Item.title === activeTab 
                                     ? 'text-black bg-primary font-black shadow-lg shadow-primary/20' 
                                     : 'text-white/60 hover:text-white hover:bg-white/5'

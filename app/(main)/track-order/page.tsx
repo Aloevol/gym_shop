@@ -5,6 +5,7 @@ import { Search, Package, Truck, CheckCircle, Clock, MapPin } from "lucide-react
 import { getOrderById } from "@/server/functions/order.fun";
 import { IOrder, IOrderItem } from "@/server/models/order/order.interface";
 import ImageWithSkeleton from "@/components/ui/ImageWIthSkeleton";
+import Image from "next/image";
 
 export default function TrackOrderPage() {
     const [orderId, setOrderId] = useState("");

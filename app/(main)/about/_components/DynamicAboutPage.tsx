@@ -78,18 +78,19 @@ function DynamicAboutPage({ sections, teamMembers }: DynamicAboutPageProps) {
     };
 
     // Get icon component based on icon name
-    const getIconComponent = (iconName: string) => {
+    const getIconComponent = (iconName: string, className?: string) => {
+        const iconProps = { className: className || "text-[#F27D31] text-2xl" };
         switch (iconName) {
             case 'ImConnection':
-                return <ImConnection className="text-[#F27D31] text-2xl" />;
+                return <ImConnection {...iconProps} />;
             case 'BsPeople':
-                return <BsPeople className="text-[#F27D31] text-2xl" />;
+                return <BsPeople {...iconProps} />;
             case 'IoCodeWorking':
-                return <IoCodeWorking className="text-[#F27D31] text-2xl" />;
+                return <IoCodeWorking {...iconProps} />;
             case 'MdOutlineFlaky':
-                return <MdOutlineFlaky className="text-[#F27D31] text-2xl" />;
+                return <MdOutlineFlaky {...iconProps} />;
             default:
-                return <ImConnection className="text-[#F27D31] text-2xl" />;
+                return <ImConnection {...iconProps} />;
         }
     };
 
@@ -236,9 +237,7 @@ function DynamicAboutPage({ sections, teamMembers }: DynamicAboutPageProps) {
                         {getWhyChooseFeatures().map((feature: WhyChooseFeature, i: number) => (
                             <div key={i} className="flex flex-col gap-6 bg-black border border-white/10 p-8 rounded-3xl hover:border-primary/50 transition-all group">
                                 <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary transition-colors">
-                                    {React.cloneElement(getIconComponent(feature.icon) as React.ReactElement, { 
-                                        className: "text-primary text-3xl group-hover:text-black transition-colors" 
-                                    })}
+                                    {getIconComponent(feature.icon, "text-primary text-3xl group-hover:text-black transition-colors")}
                                 </div>
                                 <div>
                                     <h2 className="font-custom font-bold text-xl text-white mb-3 uppercase tracking-widest">

@@ -12,11 +12,14 @@ export const SendResponse = <T = unknown>({
     message: string;
     data?: T;
 }): IResponse<T> => {
+    // Serialize data if it exists to ensure it's a plain object for Client Components
+    const serializedData = data !== undefined ? JSON.parse(JSON.stringify(data)) : undefined;
+
     return {
         isError,
         status,
         message,
-        data
+        data: serializedData
     };
 };
 

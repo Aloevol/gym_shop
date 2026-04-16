@@ -37,7 +37,7 @@ export async function getAllBannerMessagesServerSide() {
       isError: false,
       status: 200,
       message: "All banner messages fetched successfully",
-      data: { messages }
+      data: JSON.parse(JSON.stringify({ messages }))
     };
 
   } catch (error) {

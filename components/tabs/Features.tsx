@@ -14,7 +14,7 @@ const Features = () => {
 
   const fetchFeatures = async () => {
     const res = await getFeaturesServerSide();
-    if (!res.isError) setFeatures(res.data);
+    if (!res.isError && Array.isArray(res.data)) setFeatures(res.data);
     setLoading(false);
   };
 

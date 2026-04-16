@@ -36,8 +36,22 @@ const instagramPostSchema = new Schema({
   link: { type: String, default: "" }
 });
 
+const athleteSchema = new Schema({
+  name: { type: String, required: true },
+  role: { type: String, required: true },
+  image: { type: String, required: true },
+  bio: { type: String, default: "" },
+  socialLinks: {
+    facebook: { type: String, default: "" },
+    instagram: { type: String, default: "" },
+    twitter: { type: String, default: "" },
+  },
+  isActive: { type: Boolean, default: true }
+});
+
 const siteSchema = new Schema<ISite>({
   siteName: { type: String, default: "THRYVE" },
+  siteDescription: { type: String, default: "Performance nutrition, premium gear, and a fast storefront experience managed from one dashboard." },
   logoUrl: { type: String, default: "/NavLogo.png" },
   contactEmail: { type: String, default: "support@thryve.com" },
   contactPhone: { type: String, default: "+880 1234 567 890" },
@@ -51,6 +65,7 @@ const siteSchema = new Schema<ISite>({
   features: [featureSchema],
   testimonials: [testimonialSchema],
   instagramGallery: [instagramPostSchema],
+  athletes: [athleteSchema],
   privacyAndPolicy: { type: String, default: "" },
   navLinks: [navLinkSchema],
 }, { timestamps: true });

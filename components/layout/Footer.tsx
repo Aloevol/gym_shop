@@ -1,48 +1,131 @@
 "use client";
+
 import Link from "next/link";
 import React from "react";
-import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import Image from "next/image";
+import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
+import { MapPin, Mail, Phone } from "lucide-react";
+import { getNavLinksServerSide, getSiteSettingsServerSide } from "@/server/functions/admin.fun";
+import { DEFAULT_STOREFRONT_NAV_LINKS, filterStorefrontNavLinks } from "@/lib/storefront";
 
 const Footer = () => {
+  const [siteSettings, setSiteSettings] = React.useState<any>(null);
+  const [navLinks, setNavLinks] = React.useState(DEFAULT_STOREFRONT_NAV_LINKS);
+
+  React.useEffect(() => {
+    (async () => {
+      const [settingsRes, navRes] = await Promise.all([
+        getSiteSettingsServerSide(),
+        getNavLinksServerSide(),
+      ]);
+
+      if (!settingsRes.isError && settingsRes.data) {
+        setSiteSettings(settingsRes.data);
+      }
+
+      if (!navRes.isError && navRes.data) {
+        const links = filterStorefrontNavLinks(navRes.data as typeof DEFAULT_STOREFRONT_NAV_LINKS);
+        if (links.length > 0) {
+          setNavLinks(links);
+        }
+      }
+    })();
+  }, []);
+
+  const socialLinks = [
+    { href: siteSettings?.socialLinks?.instagram, icon: <FaInstagram size={16} />, label: "Instagram" },
+    { href: siteSettings?.socialLinks?.facebook, icon: <FaFacebookF size={16} />, label: "Facebook" },
+    { href: siteSettings?.socialLinks?.twitter, icon: <FaTwitter size={16} />, label: "Twitter / X" },
+  ].filter((item) => item.href);
+
   return (
-    <footer className="bg-black text-white py-12 px-6 flex flex-col items-center border-t border-white/5">
-      {/* Logo */}
-      <div className="mb-8">
-        <Link href="/">
-          <Image
-            src="/NavLogo.png"
-            alt="Logo"
-            width={120}
-            height={40}
-            className="h-8 md:h-10 w-auto object-contain"
-          />
-        </Link>
+    <footer className="border-t border-white/5 bg-black px-4 py-14 text-white md:px-6">
+      <div className="mx-auto grid max-w-7xl gap-10 rounded-[2.5rem] border border-white/10 bg-white/[0.03] p-6 sm:p-8 lg:grid-cols-[1.2fr_0.8fr_1fr] lg:p-10">
+        <div className="space-y-6">
+          <Link href="/" className="inline-flex">
+            <Image
+              src={siteSettings?.logoUrl || "/NavLogo.png"}
+              alt={siteSettings?.siteName || "Logo"}
+              width={144}
+              height={48}
+              className="h-10 w-auto object-contain"
+              style={{ height: "auto" }}
+            />
+          </Link>
+
+          <div className="space-y-3">
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">
+              {siteSettings?.siteName || "Gym Shop"}
+            </p>
+            <p className="max-w-md text-sm leading-7 text-white/55">
+              A cleaner storefront with only the essential public routes, fast product discovery, and dashboard-managed brand details.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            {socialLinks.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={item.label}
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black text-white transition-all hover:border-primary hover:bg-primary hover:text-black"
+              >
+                {item.icon}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-white/35">Pages</p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-bold uppercase tracking-[0.18em] text-white/70 transition-colors hover:text-primary"
+              >
+                {link.name}
+              </Link>
+            ))}
+            <Link
+              href="/cart"
+              className="text-sm font-bold uppercase tracking-[0.18em] text-white/70 transition-colors hover:text-primary"
+            >
+              Cart
+            </Link>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-white/35">Contact</p>
+          <div className="space-y-4">
+            <div className="flex items-start gap-3">
+              <MapPin size={16} className="mt-0.5 shrink-0 text-primary" />
+              <p className="text-sm leading-6 text-white/65">
+                {siteSettings?.contactAddress || "Dhaka, Bangladesh"}
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <Phone size={16} className="mt-0.5 shrink-0 text-primary" />
+              <p className="text-sm leading-6 text-white/65">
+                {siteSettings?.contactPhone || "+880 1234 567 890"}
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <Mail size={16} className="mt-0.5 shrink-0 text-primary" />
+              <p className="text-sm leading-6 text-white/65 break-all">
+                {siteSettings?.contactEmail || "support@thryve.com"}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Social Links */}
-      <div className="flex gap-6 mb-8">
-        <a
-          href="https://www.instagram.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-all"
-        >
-          <FaInstagram size={20} />
-        </a>
-        <a
-          href="https://www.facebook.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-all"
-        >
-          <FaFacebookF size={20} />
-        </a>
-      </div>
-
-      {/* Copyright */}
-      <p className="text-white/40 text-xs font-medium tracking-widest uppercase">
-        &copy; {new Date().getFullYear()} GYMSHOP. ALL RIGHTS RESERVED.
+      <p className="px-4 pt-8 text-center text-[11px] font-bold uppercase tracking-[0.2em] text-white/35">
+        &copy; {new Date().getFullYear()} {siteSettings?.siteName || "Gym Shop"}. All rights reserved.
       </p>
     </footer>
   );

@@ -35,9 +35,23 @@ export interface IInstagramPost {
   link?: string;
 }
 
+export interface IAthlete {
+  name: string;
+  role: string;
+  image: string;
+  bio?: string;
+  socialLinks?: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+  };
+  isActive: boolean;
+}
+
 export interface ISite {
   // Global Identity
   siteName: string;
+  siteDescription?: string;
   logoUrl: string;
   contactEmail: string;
   contactPhone: string;
@@ -52,6 +66,7 @@ export interface ISite {
   features: IFeature[];
   testimonials: ITestimonial[];
   instagramGallery: IInstagramPost[];
+  athletes: IAthlete[];
   privacyAndPolicy: string;
   navLinks: INavLink[];
   createdAt?: Date;

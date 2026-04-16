@@ -1,69 +1,68 @@
 "use client";
 
-import React, {useLayoutEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { UserCircle } from "lucide-react";
-import {isAuthenticatedAndGetUser} from "@/server/functions/auth.fun";
-import {IUser} from "@/server/models/user/user.interfce";
-import {getCookie, setCookie} from "@/server/helper/jwt.helper";
-import {USER_ROLE} from "@/enum/user.enum";
+import { Mail, Phone, UserCircle } from "lucide-react";
+import { isAuthenticatedAndGetUser } from "@/server/functions/auth.fun";
+import { getSiteSettingsServerSide } from "@/server/functions/admin.fun";
+import { IUser } from "@/server/models/user/user.interfce";
+import { getCookie, setCookie } from "@/server/helper/jwt.helper";
+import { USER_ROLE } from "@/enum/user.enum";
 
 const TopBar = () => {
   const [user, setUser] = useState<IUser | null>(null);
+  const [siteSettings, setSiteSettings] = useState<any>(null);
 
-  useLayoutEffect(() => {
-    ;( async ()=> {
-        const cookie = await getCookie("user");
-        if (typeof cookie == 'string' ) return setUser( JSON.parse(cookie) );
-        else {
-          const res = await isAuthenticatedAndGetUser();
-          if ( typeof res != "string" && res.isError == true) {
-              setUser(null)
-              return;
-          } else if ( typeof res == "string" ) {
-              await setCookie({name:"user", value: res });
-              setUser(JSON.parse(res));
-              return;
-          }
-        }
-    })()
-  },[]);
+  useEffect(() => {
+    (async () => {
+      const [settingsRes, cookie] = await Promise.all([
+        getSiteSettingsServerSide(),
+        getCookie("user"),
+      ]);
+
+      if (!settingsRes.isError && settingsRes.data) {
+        setSiteSettings(settingsRes.data);
+      }
+
+      if (typeof cookie === "string") {
+        setUser(JSON.parse(cookie));
+        return;
+      }
+
+      const res = await isAuthenticatedAndGetUser();
+      if (typeof res === "string") {
+        await setCookie({ name: "user", value: res });
+        setUser(JSON.parse(res));
+      } else if (res.isError) {
+        setUser(null);
+      }
+    })();
+  }, []);
 
   return (
-    <div className="w-full bg-[#222222]">
-      <div className=" text-white sm:text-xs text-[7px] py-2 px-4 flex justify-end items-center max-w-[1540px] mx-auto">
-        {/* Left links */}
-        <div className="flex gap-4">
-          <Link href="/privacy-policy" className="hover:underline border-r pr-3">
-            Privacy & Return Policy
-          </Link>
-          <Link href="/track-order" className="hover:underline border-r pr-3 mr-3">
-            Track Order
-          </Link>
+    <div className="w-full border-b border-white/5 bg-[#171717]">
+      <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white/55 sm:flex-row sm:items-center sm:justify-between md:px-6">
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="inline-flex items-center gap-2">
+            <Phone size={12} className="text-primary" />
+            {siteSettings?.contactPhone || "+880 1234 567 890"}
+          </span>
+          <span className="inline-flex items-center gap-2 break-all">
+            <Mail size={12} className="text-primary" />
+            {siteSettings?.contactEmail || "support@thryve.com"}
+          </span>
         </div>
 
-        {/* Right links */}
-        <div className="flex gap-3">
-            {
-                user?
-                    (
-                        <Link href={ user.role == USER_ROLE.ADMIN ? "/dashboard" : "/profile"} className="hover:underline" title={"Profile"}>
-                            <UserCircle size={16} />
-                        </Link>
-                    )   :
-                    (
-                        <>
-                          <Link href="/auth/signin" className="hover:underline">
-                            Sign In
-                          </Link>
-                          <span>/</span>
-                          <Link href="/auth/signup" className="hover:underline">
-                            Sign Up
-                          </Link>
-                        </>
-                    )
-            }
-        </div>
+        {user && (
+          <Link
+            href={user.role === USER_ROLE.ADMIN ? "/dashboard" : "/profile"}
+            className="inline-flex items-center gap-2 text-white transition-colors hover:text-primary"
+            title="Profile"
+          >
+            <UserCircle size={14} />
+            <span>{user.role === USER_ROLE.ADMIN ? "Dashboard" : "Profile"}</span>
+          </Link>
+        )}
       </div>
     </div>
   );

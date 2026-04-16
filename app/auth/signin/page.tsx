@@ -1,5 +1,4 @@
 "use client";
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import React, {useState} from 'react';
 import { useRouter } from "next/navigation";
@@ -11,6 +10,7 @@ import {ISignInInput} from "@/server/interface/auth.interface";
 import {isErrorResponse} from "@/server/helper/sendResponse.helper";
 import {toast} from "sonner";
 import {setCookie} from "@/server/helper/jwt.helper";
+import { USER_ROLE } from "@/enum/user.enum";
 
 const SignIn = () => {
   const router = useRouter();
@@ -59,8 +59,10 @@ const SignIn = () => {
       const res = await isAuthenticatedAndGetUser();
       await setCookie({name:"user", value: res as string });
 
+      const user = typeof res === "string" ? JSON.parse(res) : null;
+
       router.refresh();
-      router.push('/');
+      router.push(user?.role === USER_ROLE.ADMIN ? '/dashboard' : '/');
   }
 
   return (
@@ -102,7 +104,7 @@ const SignIn = () => {
             { error.field == "password" && (<span className={"text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4"}>{error.message}</span>)}
           </div>
           
-          <Link href="/auth/forgot-password" size="sm" className='text-right text-primary text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors'>Forgot Password?</Link>
+          <Link href="/auth/forgot-password" className='text-right text-primary text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors'>Forgot Password?</Link>
         </CardContent>
         <CardFooter className='gap-6 grid mt-4'>
           <button 

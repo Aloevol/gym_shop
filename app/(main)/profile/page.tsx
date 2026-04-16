@@ -6,7 +6,9 @@ import {getCookie, setCookie} from "@/server/helper/jwt.helper";
 import {isAuthenticatedAndGetUser} from "@/server/functions/auth.fun";
 import {IUser} from "@/server/models/user/user.interfce";
 import {USER_ROLE, USER_STATUS} from "@/enum/user.enum";
-import {SquarePen, Save, X, Edit3, Eye, EyeOff, LogOut, Package, Truck, MapPin, CreditCard} from "lucide-react";
+import {SquarePen, Save, X, Edit3, Eye, EyeOff, LogOut, Package, Truck, MapPin, CreditCard, ShoppingBag} from "lucide-react";
+import {MdEmail} from "react-icons/md";
+import {BsTelephone} from "react-icons/bs";
 import {toast} from "sonner";
 import { updateUserProfileServerSide, changeUserPasswordServerSide } from "@/server/functions/user.fun";
 import { Button } from "@/components/ui/button";
@@ -499,3 +501,5 @@ function ProfilePage() {
         </section>
     );
 }
+
+export default ProfilePage;

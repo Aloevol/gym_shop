@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ShoppingBag, Truck, MapPin } from "lucide-react";
+import { Check, ShoppingBag, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { getCookie } from "@/server/helper/jwt.helper";
 import { getCartItems, removeFromCart, updateCartQuantity } from "@/server/functions/cart.fun";
@@ -12,6 +12,8 @@ import imageUrl from "@/const/imageUrl";
 import CartItem from "@/components/card/CartItem";
 import OrderModal from "@/components/modal/OrderModal";
 import { removeCartItemsAfterOrder } from "@/server/functions/order.fun";
+import { calculateOrderTotals, getAllDistricts, getDeliveryAreaForDistrict } from "@/lib/delivery";
+import type { DeliveryArea } from "@/lib/delivery";
 
 // Unified cart item type
 interface CartItemType {
@@ -28,12 +30,6 @@ interface CartState {
     selectedItems: string[];
     loading: boolean;
     updatingItems: string[];
-    summary: {
-        subtotal: number;
-        shipping: number;
-        total: number;
-        selectedCount: number;
-    };
 }
 
 // Item quantity state interface
@@ -43,53 +39,6 @@ interface ItemQuantityState {
         totalPrice: number;
     };
 }
-
-// Delivery areas and prices
-interface DeliveryArea {
-    name: string;
-    price: number;
-    deliveryTime: string;
-    districts: string[];
-}
-
-const DELIVERY_AREAS: DeliveryArea[] = [
-    {
-        name: "Dhaka Metropolitan",
-        price: 60,
-        deliveryTime: "1-2 days",
-        districts: ["Dhaka", "Gazipur", "Narayanganj", "Savar"]
-    },
-    {
-        name: "Dhaka Suburbs",
-        price: 80,
-        deliveryTime: "2-3 days",
-        districts: ["Tangail", "Manikganj", "Munshiganj", "Narsingdi"]
-    },
-    {
-        name: "Chittagong City",
-        price: 100,
-        deliveryTime: "2-3 days",
-        districts: ["Chittagong", "Cox's Bazar"]
-    },
-    {
-        name: "Other Divisional Cities",
-        price: 120,
-        deliveryTime: "3-4 days",
-        districts: ["Rajshahi", "Khulna", "Sylhet", "Barisal", "Rangpur", "Mymensingh"]
-    },
-    {
-        name: "District Areas",
-        price: 150,
-        deliveryTime: "4-5 days",
-        districts: ["Comilla", "Noakhali", "Jessore", "Bogra", "Dinajpur"]
-    },
-    {
-        name: "Remote Areas",
-        price: 200,
-        deliveryTime: "5-7 days",
-        districts: ["Bandarban", "Rangamati", "Khagrachari", "Patuakhali", "Bagerhat"]
-    }
-];
 
 // Helper function to convert MongoDB objects to plain objects
 const convertToPlainObject = (obj: unknown): unknown => {
@@ -129,17 +78,15 @@ const convertToPlainObject = (obj: unknown): unknown => {
 function CartPage() {
     const router = useRouter();
     const [cartState, setCartState] = useState<CartState>({
-        items: [], selectedItems: [], loading: true, updatingItems: [],
-        summary: { subtotal: 0, shipping: 0, total: 0, selectedCount: 0 }
+        items: [], selectedItems: [], loading: true, updatingItems: []
     });
     const [itemQuantities, setItemQuantities] = useState<ItemQuantityState>({});
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
-    const [selectedDeliveryArea, setSelectedDeliveryArea] = useState<DeliveryArea>(DELIVERY_AREAS[0]);
     const [selectedDistrict, setSelectedDistrict] = useState<string>("");
     const [userId, setUserId] = useState("");
 
-    const allDistricts = DELIVERY_AREAS.flatMap(area => area.districts);
-    const uniqueDistricts = [...new Set(allDistricts)].sort();
+    const uniqueDistricts = getAllDistricts();
+    const selectedDeliveryArea: DeliveryArea | null = selectedDistrict ? getDeliveryAreaForDistrict(selectedDistrict) : null;
 
     const getItemData = (item: CartItemType) => {
         if (item.product) {
@@ -168,33 +115,22 @@ function CartPage() {
         }
     }, [cartState.items]);
 
-    // Get delivery area based on selected district
-    const getDeliveryAreaForDistrict = useCallback((district: string): DeliveryArea => {
-        const area = DELIVERY_AREAS.find(area =>
-            area.districts.includes(district)
-        );
-        return area || DELIVERY_AREAS[0];
-    }, []);
-
-    // Calculate cart summary with dynamic shipping
-    const calculateSummary = useCallback(() => {
+    const summary = useMemo(() => {
         const selectedCartItems = cartState.items.filter(item => cartState.selectedItems.includes(item._id));
         const subtotal = selectedCartItems.reduce((sum, item) => {
             const itemQuantity = itemQuantities[item._id]?.quantity || item.quantity || 1;
-            const itemData = cartState.items.find(i => i._id === item._id);
-            const price = itemData?.product?.price || itemData?.package?.price || 0;
+            const price = item.product?.price || item.package?.price || 0;
             return sum + (price * itemQuantity);
         }, 0);
-        
-        const area = selectedDistrict ? getDeliveryAreaForDistrict(selectedDistrict) : null;
-        const shipping = area ? (subtotal > 2000 ? 0 : area.price) : 0;
-        const tax = subtotal * 0.05;
-        const total = subtotal + shipping + tax;
-        
-        setCartState(prev => ({ ...prev, summary: { subtotal, shipping, total, selectedCount: selectedCartItems.length } }));
-    }, [cartState.items, cartState.selectedItems, itemQuantities, selectedDistrict, getDeliveryAreaForDistrict]);
 
-    useEffect(() => { calculateSummary(); }, [calculateSummary]);
+        const totals = calculateOrderTotals(subtotal, selectedDistrict);
+        return {
+            subtotal: totals.subtotal,
+            shipping: totals.shipping,
+            total: totals.total,
+            selectedCount: selectedCartItems.length
+        };
+    }, [cartState.items, cartState.selectedItems, itemQuantities, selectedDistrict]);
 
     const fetchCartItems = useCallback(async () => {
         try {
@@ -336,7 +272,7 @@ function CartPage() {
     }).filter(i => i !== null);
 
     const handleCheckout = () => {
-        if (cartState.summary.selectedCount === 0) return toast.error("Select items first");
+        if (summary.selectedCount === 0) return toast.error("Select items first");
         if (!selectedDistrict) return toast.error("Select district");
         setIsOrderModalOpen(true);
     };
@@ -353,7 +289,7 @@ function CartPage() {
             window.dispatchEvent(new Event("cart-updated"));
         }
 
-        if (!userId) { setIsOrderModalOpen(false); router.push("/order/success"); return; }
+        if (!userId) { setIsOrderModalOpen(false); router.push("/"); return; }
         
         try {
             setCartState(prev => ({ ...prev, loading: true }));
@@ -362,7 +298,7 @@ function CartPage() {
                 await removeCartItemsAfterOrder({ userId, itemIds: dbItemIds });
             }
             setIsOrderModalOpen(false);
-            router.push("/order/success");
+            router.push("/");
         } catch (error) { console.error(error); }
     };
 
@@ -402,7 +338,7 @@ function CartPage() {
 
                     <div className="w-full lg:w-[400px] bg-white/5 border border-white/10 p-10 rounded-[3rem] h-fit sticky top-24">
                         <h2 className="text-2xl font-custom font-bold text-white mb-10 uppercase tracking-widest text-center">ORDER <span className="text-primary">SUMMARY</span></h2>
-                        {cartState.summary.selectedCount > 0 ? (
+                        {summary.selectedCount > 0 ? (
                             <>
                                 <div className="mb-10 space-y-6">
                                     <label className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-2"><MapPin size={14} className="text-primary" />District</label>
@@ -413,17 +349,18 @@ function CartPage() {
                                     {selectedDistrict && (
                                         <div className="bg-primary/10 p-6 rounded-2xl border border-primary/20 flex justify-between items-center">
                                             <div>
-                                                <p className="text-[10px] font-black text-primary uppercase">{getDeliveryAreaForDistrict(selectedDistrict).name}</p>
-                                                <p className="text-[9px] text-white/40 uppercase">{getDeliveryAreaForDistrict(selectedDistrict).deliveryTime}</p>
+                                                <p className="text-[10px] font-black text-primary uppercase">{selectedDeliveryArea?.name}</p>
+                                                <p className="text-[9px] text-white/40 uppercase">{selectedDeliveryArea?.deliveryTime}</p>
                                             </div>
-                                            <p className="text-white font-black">৳ {getDeliveryAreaForDistrict(selectedDistrict).price}</p>
+                                            <p className="text-white font-black">{summary.shipping === 0 ? "FREE" : `৳ ${summary.shipping}`}</p>
                                         </div>
                                     )}
                                 </div>
                                 <div className="space-y-4 pt-6 border-t border-white/5">
-                                    <div className="flex justify-between text-[10px] font-bold text-white/40 uppercase"><span>Subtotal</span><span className="text-white">৳ {cartState.summary.subtotal.toLocaleString()}</span></div>
-                                    <div className="flex justify-between text-[10px] font-bold text-white/40 uppercase"><span>Shipping</span><span className="text-white">৳ {cartState.summary.shipping.toLocaleString()}</span></div>
-                                    <div className="flex justify-between text-2xl font-black text-primary uppercase pt-4 border-t border-white/5"><span>Total</span><span>৳ {cartState.summary.total.toLocaleString()}</span></div>
+                                    <div className="flex justify-between text-[10px] font-bold text-white/40 uppercase"><span>Subtotal</span><span className="text-white">৳ {summary.subtotal.toLocaleString()}</span></div>
+                                    <div className="flex justify-between text-[10px] font-bold text-white/40 uppercase"><span>Shipping</span><span className="text-white">{summary.shipping === 0 ? "FREE" : `৳ ${summary.shipping.toLocaleString()}`}</span></div>
+                                    <div className="flex justify-between text-[10px] font-bold text-white/40 uppercase"><span>Tax</span><span className="text-white">৳ {(summary.total - summary.subtotal - summary.shipping).toLocaleString()}</span></div>
+                                    <div className="flex justify-between text-2xl font-black text-primary uppercase pt-4 border-t border-white/5"><span>Total</span><span>৳ {summary.total.toLocaleString()}</span></div>
                                 </div>
                                 <button onClick={handleCheckout} disabled={!selectedDistrict} className="mt-10 w-full bg-primary text-black font-custom font-bold py-5 rounded-full hover:bg-white transition-all uppercase text-sm disabled:opacity-20">Proceed Checkout</button>
                             </>
@@ -432,7 +369,24 @@ function CartPage() {
                 </div>
             )}
 
-            <OrderModal isOpen={isOrderModalOpen} onClose={() => setIsOrderModalOpen(false)} onOrderSuccess={handleOrderSuccess} items={getSelectedItemsForOrder() as any} userId={userId} shippingInfo={{ district: selectedDistrict, area: selectedDeliveryArea.name, cost: cartState.summary.shipping, deliveryTime: selectedDeliveryArea.deliveryTime, provider: "Redx" }} orderSummary={cartState.summary} />
+            <OrderModal
+                isOpen={isOrderModalOpen}
+                onClose={() => setIsOrderModalOpen(false)}
+                onOrderSuccess={handleOrderSuccess}
+                items={getSelectedItemsForOrder() as any}
+                userId={userId}
+                shippingInfo={{
+                    district: selectedDistrict,
+                    area: selectedDeliveryArea?.name || "",
+                    cost: summary.shipping,
+                    deliveryTime: selectedDeliveryArea?.deliveryTime || "",
+                    provider: "Redx"
+                }}
+                orderSummary={{
+                    ...summary,
+                    tax: summary.total - summary.subtotal - summary.shipping
+                }}
+            />
         </section>
     );
 }

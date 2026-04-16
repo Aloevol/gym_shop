@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { getSiteSettingsServerSide, updateSiteSettingsServerSide } from '@/server/functions/admin.fun';
 import { toast } from 'sonner';
-import { Save, Globe, Mail, Phone, MapPin, Camera } from 'lucide-react';
+import { Save, Globe, Mail, Phone, MapPin, Camera, FileText } from 'lucide-react';
 import Image from 'next/image';
 import { uploadImageToCloudinary } from '@/server/helper/cloudinary.helper';
+import type { ISite } from '@/server/models/site/site.interface';
 
 const Settings = () => {
-  const [settings, setSettings] = useState<any>(null);
+  const [settings, setSettings] = useState<ISite | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
@@ -44,7 +45,7 @@ const Settings = () => {
         setSettings({ ...settings, logoUrl: url.url });
         toast.success("Logo visual synced");
       }
-    } catch (error) {
+    } catch {
       toast.error("Upload failed");
     } finally {
       setLogoUploading(false);
@@ -113,6 +114,20 @@ const Settings = () => {
                   value={settings.siteName}
                   onChange={(e) => handleInputChange('siteName', e.target.value)}
                   className="w-full bg-black border border-white/10 rounded-full pl-16 pr-6 py-4 text-white focus:border-primary outline-none uppercase font-bold text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-2">SITE DESCRIPTION</label>
+              <div className="relative">
+                <FileText className="absolute left-6 top-6 text-white/20" size={18} />
+                <textarea
+                  value={settings.siteDescription || ""}
+                  onChange={(e) => handleInputChange('siteDescription', e.target.value)}
+                  rows={4}
+                  className="w-full bg-black border border-white/10 rounded-[2rem] pl-16 pr-6 py-5 text-white focus:border-primary outline-none font-bold text-xs resize-none leading-relaxed"
+                  placeholder="Short SEO description for browser title cards and search previews"
                 />
               </div>
             </div>

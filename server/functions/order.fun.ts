@@ -8,6 +8,7 @@ import connectToDB from "@/server/db";
 import {OrderModel} from "@/server/models/order/order.model";
 import {CartModel} from "@/server/models/cart/cart.model";
 import mongoose from "mongoose";
+import { calculateOrderTotals, getDeliveryAreaForDistrict, normalizeDistrictName } from "@/lib/delivery";
 
 interface CreateOrderData {
     paymentStatus: string;
@@ -56,10 +57,10 @@ export async function createOrder(orderData: CreateOrderData) {
         console.log("Processed items:", items);
 
         // Calculate totals
+        const normalizedDistrict = normalizeDistrictName(orderData.shippingAddress.district);
         const subtotal = orderData.items.reduce((sum: number, item) => sum + (item.price * item.quantity), 0);
-        const shippingFee = 60; // Default shipping fee, you can calculate based on district
-        const tax = subtotal * 0.05;
-        const total = subtotal + shippingFee + tax;
+        const totals = calculateOrderTotals(subtotal, normalizedDistrict);
+        const deliveryArea = getDeliveryAreaForDistrict(normalizedDistrict);
 
         // Generate order number
         const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
@@ -76,16 +77,16 @@ export async function createOrder(orderData: CreateOrderData) {
                 city: orderData.shippingAddress.city,
                 postalCode: orderData.shippingAddress.postalCode || "",
                 country: orderData.shippingAddress.country,
-                district: orderData.shippingAddress.district
+                district: normalizedDistrict
             },
-            subtotal: subtotal,
-            shippingFee: shippingFee,
-            tax: tax,
-            total: total,
+            subtotal: totals.subtotal,
+            shippingFee: totals.shipping,
+            tax: totals.tax,
+            total: totals.total,
             status: "pending",
             paymentStatus: orderData.paymentStatus || "pending",
             paymentMethod: orderData.paymentMethod,
-            notes: orderData.notes || ""
+            notes: orderData.notes || `Checkout via Redx | ${deliveryArea.name} | ETA ${deliveryArea.deliveryTime}`
         };
 
         // Only add user field if userId is provided and not "guest"

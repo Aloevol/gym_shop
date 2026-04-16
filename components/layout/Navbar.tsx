@@ -9,8 +9,11 @@ import Image from "next/image";
 import { countCurrentCartLength } from "@/server/functions/cart.fun";
 import { getCookie } from "@/server/helper/jwt.helper";
 import { IUser } from "@/server/models/user/user.interfce";
+import { getNavLinksServerSide, getSiteSettingsServerSide } from "@/server/functions/admin.fun";
+import { DEFAULT_STOREFRONT_NAV_LINKS, filterStorefrontNavLinks } from "@/lib/storefront";
 
 interface NavLink {
+  _id?: string;
   name: string;
   href: string;
   isActive?: boolean;
@@ -19,24 +22,37 @@ interface NavLink {
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [cartCount, setCartCount] = useState<number>(0);
+  const [navLinks, setNavLinks] = useState<NavLink[]>([]);
+  const [siteSettings, setSiteSettings] = useState<any>(null);
   const pathname = usePathname();
+  const visibleNavLinks = navLinks.length > 0 ? navLinks : DEFAULT_STOREFRONT_NAV_LINKS;
 
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Shop", href: "/shop" },
-    { name: "Contact", href: "/contact" },
-    { name: "Athletes", href: "/athletes" },
-  ];
+  const fetchSiteData = useCallback(async () => {
+    try {
+      const [navRes, settingsRes] = await Promise.all([
+        getNavLinksServerSide(),
+        getSiteSettingsServerSide()
+      ]);
+
+      if (!navRes.isError && navRes.data) {
+        setNavLinks(filterStorefrontNavLinks(navRes.data as NavLink[]));
+      }
+
+      if (!settingsRes.isError && settingsRes.data) {
+        setSiteSettings(settingsRes.data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   const updateCartCount = useCallback(async () => {
     const cookie = await getCookie("user");
     let count = 0;
 
-    // Local storage count (always included)
     const guestCart = JSON.parse(localStorage.getItem("gym-shop-cart") || "[]");
     count += guestCart.reduce((sum: number, item: any) => sum + item.quantity, 0);
 
-    // Database count (if logged in)
     if (cookie) {
       try {
         const user = JSON.parse(cookie) as IUser;
@@ -44,15 +60,15 @@ const Navbar = () => {
         if (typeof cartLength === "number") count += cartLength;
       } catch (e) { console.error(e); }
     }
-
     setCartCount(count);
   }, []);
 
   useEffect(() => {
+    fetchSiteData();
     updateCartCount();
     window.addEventListener("cart-updated", updateCartCount);
     return () => window.removeEventListener("cart-updated", updateCartCount);
-  }, [updateCartCount]);
+  }, [updateCartCount, fetchSiteData]);
 
   return (
     <>
@@ -62,8 +78,8 @@ const Navbar = () => {
           <div className="flex-shrink-0">
             <Link href="/">
               <Image
-                src="/NavLogo.png"
-                alt="Logo"
+                src={siteSettings?.logoUrl || "/NavLogo.png"}
+                alt={siteSettings?.siteName || "Logo"}
                 width={120}
                 height={40}
                 priority
@@ -75,12 +91,12 @@ const Navbar = () => {
 
           {/* Desktop Links (Centered) */}
           <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center space-x-8">
-            {navLinks.map((link) => (
+            {visibleNavLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
-                className={`text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors ${
-                  pathname === link.href ? "text-primary" : "text-white"
+                className={`text-[11px] font-black uppercase tracking-[0.2em] hover:text-primary transition-all ${
+                  pathname === link.href ? "text-primary" : "text-white/60"
                 }`}
               >
                 {link.name}
@@ -131,11 +147,12 @@ const Navbar = () => {
               <div className="flex items-center justify-between mb-12">
                 <Link href="/" onClick={() => setIsOpen(false)}>
                   <Image
-                    src="/NavLogo.png"
-                    alt="Logo"
+                    src={siteSettings?.logoUrl || "/NavLogo.png"}
+                    alt={siteSettings?.siteName || "Logo"}
                     width={100}
                     height={30}
                     className="h-6 w-auto object-contain"
+                    style={{ height: "auto" }}
                   />
                 </Link>
                 <button
@@ -147,7 +164,7 @@ const Navbar = () => {
               </div>
 
               <div className="flex flex-col space-y-6">
-                {navLinks.map((link) => (
+                {visibleNavLinks.map((link) => (
                   <Link
                     key={link.name}
                     href={link.href}
@@ -159,23 +176,6 @@ const Navbar = () => {
                     {link.name}
                   </Link>
                 ))}
-              </div>
-
-              <div className="mt-auto pt-10 border-t border-white/10 space-y-4">
-                <Link
-                  href="/auth/signin"
-                  onClick={() => setIsOpen(false)}
-                  className="block text-sm font-bold uppercase tracking-widest hover:text-primary"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  onClick={() => setIsOpen(false)}
-                  className="block text-sm font-bold uppercase tracking-widest hover:text-primary"
-                >
-                  Sign Up
-                </Link>
               </div>
             </motion.div>
           </motion.div>

@@ -14,7 +14,7 @@ const Testimonials = () => {
 
   const fetchTestimonials = async () => {
     const res = await getTestimonialsServerSide();
-    if (!res.isError) setTestimonials(res.data);
+    if (!res.isError && Array.isArray(res.data)) setTestimonials(res.data);
     setLoading(false);
   };
 
