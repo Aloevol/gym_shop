@@ -3,7 +3,7 @@
 import Link from "next/link";
 import React from "react";
 import Image from "next/image";
-import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
+import { FaFacebookF, FaInstagram, FaTwitter, FaWhatsapp } from "react-icons/fa";
 import { MapPin, Mail, Phone } from "lucide-react";
 import { getNavLinksServerSide, getSiteSettingsServerSide } from "@/server/functions/admin.fun";
 import { DEFAULT_STOREFRONT_NAV_LINKS, filterStorefrontNavLinks } from "@/lib/storefront";
@@ -37,6 +37,7 @@ const Footer = () => {
     { href: siteSettings?.socialLinks?.instagram, icon: <FaInstagram size={16} />, label: "Instagram" },
     { href: siteSettings?.socialLinks?.facebook, icon: <FaFacebookF size={16} />, label: "Facebook" },
     { href: siteSettings?.socialLinks?.twitter, icon: <FaTwitter size={16} />, label: "Twitter / X" },
+    { href: siteSettings?.socialLinks?.whatsapp, icon: <FaWhatsapp size={16} />, label: "WhatsApp" },
   ].filter((item) => item.href);
 
   return (

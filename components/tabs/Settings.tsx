@@ -6,7 +6,7 @@ import { Save, Globe, Mail, Phone, MapPin, FileText } from 'lucide-react';
 import type { ISite } from '@/server/models/site/site.interface';
 
 type EditableSiteField = 'siteName' | 'siteDescription' | 'contactEmail' | 'contactPhone' | 'contactAddress';
-type EditableSocialField = 'facebook' | 'instagram' | 'twitter';
+type EditableSocialField = 'facebook' | 'instagram' | 'twitter' | 'whatsapp';
 
 const Settings = () => {
   const [settings, setSettings] = useState<ISite | null>(null);
@@ -19,7 +19,12 @@ const Settings = () => {
 
   const fetchSettings = async () => {
     const res = await getSiteSettingsServerSide();
-    if (!res.isError && res.data) setSettings(res.data as ISite);
+    if (!res.isError && res.data) {
+      const data = res.data as ISite;
+      if (!data.socialLinks) data.socialLinks = {};
+      if (!data.siteDescription) data.siteDescription = "";
+      setSettings(data);
+    }
     setLoading(false);
   };
 
@@ -42,7 +47,12 @@ const Settings = () => {
     if (!settings) return;
     setSaving(true);
     const res = await updateSiteSettingsServerSide(settings);
-    if (!res.isError) toast.success("Global performance settings committed");
+    if (!res.isError && res.data) {
+      setSettings(res.data as ISite);
+      toast.success("Global performance settings committed");
+    } else if (res.isError) {
+      toast.error(res.message || "Failed to save settings");
+    }
     setSaving(false);
   };
 
@@ -75,7 +85,7 @@ const Settings = () => {
               <div className="relative">
                 <Globe className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={18} />
                 <input
-                  value={settings.siteName}
+                  value={settings.siteName || ''}
                   onChange={(e) => handleInputChange('siteName', e.target.value)}
                   className="w-full bg-black border border-white/10 rounded-full pl-16 pr-6 py-4 text-white focus:border-primary outline-none uppercase font-bold text-xs"
                 />
@@ -108,7 +118,7 @@ const Settings = () => {
               <div className="relative">
                 <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={18} />
                 <input
-                  value={settings.contactEmail}
+                  value={settings.contactEmail || ''}
                   onChange={(e) => handleInputChange('contactEmail', e.target.value)}
                   className="w-full bg-black border border-white/10 rounded-full pl-16 pr-6 py-4 text-white focus:border-primary outline-none font-bold text-xs"
                 />
@@ -120,7 +130,7 @@ const Settings = () => {
               <div className="relative">
                 <Phone className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={18} />
                 <input
-                  value={settings.contactPhone}
+                  value={settings.contactPhone || ''}
                   onChange={(e) => handleInputChange('contactPhone', e.target.value)}
                   className="w-full bg-black border border-white/10 rounded-full pl-16 pr-6 py-4 text-white focus:border-primary outline-none font-bold text-xs"
                 />
@@ -132,7 +142,7 @@ const Settings = () => {
               <div className="relative">
                 <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={18} />
                 <input
-                  value={settings.contactAddress}
+                  value={settings.contactAddress || ''}
                   onChange={(e) => handleInputChange('contactAddress', e.target.value)}
                   className="w-full bg-black border border-white/10 rounded-full pl-16 pr-6 py-4 text-white focus:border-primary outline-none font-bold text-xs uppercase"
                 />
@@ -145,11 +155,11 @@ const Settings = () => {
         <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10 lg:col-span-2 space-y-8">
           <h3 className="text-sm font-custom font-bold text-primary uppercase tracking-widest border-l-4 border-primary pl-4">SOCIAL MATRIX</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-2">FACEBOOK</label>
               <input
-                value={settings.socialLinks?.facebook}
+                value={settings.socialLinks?.facebook || ''}
                 onChange={(e) => handleSocialChange('facebook', e.target.value)}
                 className="w-full bg-black border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none text-xs"
                 placeholder="HTTPS://FACEBOOK.COM/..."
@@ -158,7 +168,7 @@ const Settings = () => {
             <div className="space-y-2">
               <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-2">INSTAGRAM</label>
               <input
-                value={settings.socialLinks?.instagram}
+                value={settings.socialLinks?.instagram || ''}
                 onChange={(e) => handleSocialChange('instagram', e.target.value)}
                 className="w-full bg-black border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none text-xs"
                 placeholder="HTTPS://INSTAGRAM.COM/..."
@@ -167,10 +177,19 @@ const Settings = () => {
             <div className="space-y-2">
               <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-2">TWITTER / X</label>
               <input
-                value={settings.socialLinks?.twitter}
+                value={settings.socialLinks?.twitter || ''}
                 onChange={(e) => handleSocialChange('twitter', e.target.value)}
                 className="w-full bg-black border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none text-xs"
                 placeholder="HTTPS://X.COM/..."
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-2">WHATSAPP</label>
+              <input
+                value={settings.socialLinks?.whatsapp || ''}
+                onChange={(e) => handleSocialChange('whatsapp', e.target.value)}
+                className="w-full bg-black border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none text-xs"
+                placeholder="HTTPS://WA.ME/..."
               />
             </div>
           </div>

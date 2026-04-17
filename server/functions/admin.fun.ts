@@ -1043,22 +1043,73 @@ export async function getSiteSettingsServerSide(): Promise<IResponse<ISite>> {
         contactEmail: "support@thryve.com",
         contactPhone: "+880 1234 567 890",
         contactAddress: "Dhaka, Bangladesh",
-        navLinks: DEFAULT_NAV_LINKS
+        navLinks: DEFAULT_NAV_LINKS,
+        socialLinks: { facebook: "", instagram: "", twitter: "", whatsapp: "" }
       });
     } else if (!site.navLinks || site.navLinks.length === 0) {
       site.navLinks = DEFAULT_NAV_LINKS;
       await site.save();
     }
-    return SendResponse<ISite>({ isError: false, status: 200, message: "Settings fetched", data: site.toObject() });
+    
+    // Ensure socialLinks object exists even in old documents
+    if (!site.socialLinks) {
+      await SiteModle.updateOne({ _id: site._id }, { $set: { socialLinks: { facebook: "", instagram: "", twitter: "", whatsapp: "" } } });
+      const updatedSite = await SiteModle.findById(site._id).lean();
+      return SendResponse<ISite>({ isError: false, status: 200, message: "Settings fetched", data: updatedSite as ISite });
+    } else if (site.socialLinks.whatsapp === undefined) {
+      // Force whatsapp field if missing in existing socialLinks object
+      await SiteModle.updateOne({ _id: site._id }, { $set: { "socialLinks.whatsapp": "" } });
+      const updatedSite = await SiteModle.findById(site._id).lean();
+      return SendResponse<ISite>({ isError: false, status: 200, message: "Settings fetched", data: updatedSite as ISite });
+    }
+
+    const finalSite = await SiteModle.findOne({}).lean().exec();
+    return SendResponse<ISite>({ isError: false, status: 200, message: "Settings fetched", data: finalSite as ISite });
   } catch (error: any) { return handleServerError<ISite>(error); }
 }
 
 export async function updateSiteSettingsServerSide(settings: Partial<ISite>): Promise<IResponse<ISite>> {
   try {
     await connectToDB();
-    const updated = await SiteModle.findOneAndUpdate({}, { $set: settings }, { upsert: true, new: true });
-    return SendResponse<ISite>({ isError: false, status: 200, message: "Global settings updated successfully", data: updated?.toObject() });
-  } catch (error: any) { return handleServerError<ISite>(error); }
+    
+    // Create a clean update object
+    const updateData: any = {};
+    if (settings.siteName) updateData.siteName = settings.siteName;
+    if (settings.siteDescription !== undefined) updateData.siteDescription = settings.siteDescription;
+    if (settings.logoUrl) updateData.logoUrl = settings.logoUrl;
+    if (settings.contactEmail) updateData.contactEmail = settings.contactEmail;
+    if (settings.contactPhone) updateData.contactPhone = settings.contactPhone;
+    if (settings.contactAddress) updateData.contactAddress = settings.contactAddress;
+    if (settings.galleryTitle) updateData.galleryTitle = settings.galleryTitle;
+    if (settings.gallerySubtitle) updateData.gallerySubtitle = settings.gallerySubtitle;
+    if (settings.privacyAndPolicy) updateData.privacyAndPolicy = settings.privacyAndPolicy;
+    
+    // Save social links object directly to ensure all sub-fields (like whatsapp) are included
+    if (settings.socialLinks) {
+      updateData.socialLinks = {
+        facebook: settings.socialLinks.facebook || "",
+        instagram: settings.socialLinks.instagram || "",
+        twitter: settings.socialLinks.twitter || "",
+        whatsapp: settings.socialLinks.whatsapp || ""
+      };
+    }
+
+    // Use updateOne on the collection directly to bypass any cached schema issues in Mongoose
+    await SiteModle.collection.updateOne({}, { $set: updateData }, { upsert: true });
+    
+    // Fetch the updated document as a plain object
+    const finalSite = await SiteModle.findOne({}).lean().exec();
+
+    return SendResponse<ISite>({ 
+      isError: false, 
+      status: 200, 
+      message: "Global settings updated successfully", 
+      data: finalSite as ISite
+    });
+  } catch (error: any) { 
+    console.error("Update Site Settings Error:", error);
+    return handleServerError<ISite>(error); 
+  }
 }
 
 // --- Athletes Management ---

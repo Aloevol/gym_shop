@@ -27,7 +27,7 @@ const featureSchema = new Schema({
 const testimonialSchema = new Schema({
   name: { type: String, required: true },
   role: { type: String, default: "Athlete" },
-  quote: { type: String, required: true },
+  quote: { type: String, default: "" },
   stars: { type: Number, default: 5 }
 });
 
@@ -45,6 +45,7 @@ const athleteSchema = new Schema({
     facebook: { type: String, default: "" },
     instagram: { type: String, default: "" },
     twitter: { type: String, default: "" },
+    whatsapp: { type: String, default: "" },
   },
   isActive: { type: Boolean, default: true }
 });
@@ -60,6 +61,7 @@ const siteSchema = new Schema<ISite>({
     facebook: { type: String, default: "" },
     instagram: { type: String, default: "" },
     twitter: { type: String, default: "" },
+    whatsapp: { type: String, default: "" },
   },
   heroSlides: [heroSlideSchema],
   features: [featureSchema],
@@ -70,7 +72,7 @@ const siteSchema = new Schema<ISite>({
   navLinks: [navLinkSchema],
   galleryTitle: { type: String, default: "COMMUNITY SNAPSHOTS" },
   gallerySubtitle: { type: String, default: "Join the elite movement today" },
-}, { timestamps: true });
+}, { timestamps: true, strict: false });
 
 let SiteModle: ISiteModel;
 

@@ -62,6 +62,7 @@ export interface ISite {
     facebook?: string;
     instagram?: string;
     twitter?: string;
+    whatsapp?: string;
   };
 
   heroSlides: IHeroSlide[];
