@@ -1,14 +1,24 @@
-import { User } from "lucide-react";
+import { Menu, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-export default function Navbar () {
+interface NavbarProps {
+    onToggleSidebar?: () => void;
+}
 
+export default function Navbar({ onToggleSidebar }: NavbarProps) {
     return (
-        <nav className={"w-full h-[80px] border-b border-white/10 bg-black text-white"}>
+        <nav className={"w-full h-20 shrink-0 border-b border-white/10 bg-black text-white"}>
             <div className={"w-full h-full px-6 mx-auto flex justify-between items-center"}>
-                <div className={"w-[248px] h-[64px] flex justify-center items-center"}>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={onToggleSidebar}
+                        className="lg:hidden p-2 text-white/60 hover:text-white transition-colors rounded-full hover:bg-white/5"
+                        aria-label="Toggle sidebar"
+                    >
+                        <Menu size={22} />
+                    </button>
                     <Link href="/">
                         <Image
                             src="/NavLogo.png"
@@ -33,5 +43,5 @@ export default function Navbar () {
                 </div>
             </div>
         </nav>
-    )
+    );
 }

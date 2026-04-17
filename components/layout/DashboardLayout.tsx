@@ -46,6 +46,7 @@ export default function DashboardLayout() {
     const searchParams = useSearchParams();
     const urlTab = useMemo(() => parseTabParam(searchParams.get("tab")), [searchParams]);
     const [activeTab, setActiveTab] = useState<DashboardTab>(urlTab);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
         setActiveTab(urlTab);
@@ -79,10 +80,15 @@ export default function DashboardLayout() {
 
     return (
         <main className={"w-full h-screen bg-black overflow-hidden flex flex-col"}>
-            <Navbar />
+            <Navbar onToggleSidebar={() => setSidebarOpen(prev => !prev)} />
             <div className={"w-full flex-1 flex overflow-hidden"}>
-                <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} />
-                <div className={"flex-1 h-full overflow-auto custom-scrollbar p-8 bg-black"}>
+                <Sidebar
+                    activeTab={activeTab}
+                    setActiveTab={handleTabChange}
+                    isOpen={sidebarOpen}
+                    onClose={() => setSidebarOpen(false)}
+                />
+                <div className={"flex-1 h-full overflow-auto custom-scrollbar p-4 md:p-8 bg-black"}>
                     <Suspense fallback={<Loader overlay size="md" key={Math.random()} message="SYNCING CONSOLE..." />}>
                         <div className="animate-in fade-in duration-700">
                             {renderTabContent()}

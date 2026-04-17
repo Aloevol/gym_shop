@@ -272,10 +272,10 @@ function ProfilePage() {
     };
 
     return (
-        <section className="w-full min-h-screen bg-black py-24 px-6 md:px-12 lg:px-20 font-bold">
+        <section className="w-full min-h-screen bg-black py-24 px-4 md:px-8 lg:px-16 font-bold">
             <div className="max-w-6xl mx-auto">
                 {/* Header Profile Card */}
-                <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10 mb-12 flex flex-col md:flex-row items-center gap-10">
+                <div className="bg-white/5 border border-white/10 rounded-[3rem] p-6 md:p-10 mb-12 flex flex-col md:flex-row items-center gap-6 md:gap-10">
                     <div className="relative group">
                         <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-primary shadow-2xl shadow-primary/20">
                             <Image src={previewImage || user.image} alt="profile" fill className="object-cover" />
@@ -347,7 +347,7 @@ function ProfilePage() {
                     </div>
 
                     {ordersLoading ? (
-                        <div className="bg-white/5 border border-white/10 rounded-[2rem] p-20 text-center">
+                        <div className="bg-white/5 border border-white/10 rounded-4xl p-20 text-center">
                             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
                             <p className="text-white/40 uppercase text-xs tracking-widest font-bold">Fetching Orders...</p>
                         </div>
@@ -418,9 +418,9 @@ function ProfilePage() {
             </div>
 
             {isOrderModalOpen && selectedOrder && (
-                <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-[100]">
+                <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-100">
                     <div className="bg-black border border-white/10 rounded-[3rem] max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
-                        <div className="flex items-center justify-between p-10 border-b border-white/5 sticky top-0 bg-black/80 backdrop-blur-md z-10">
+                        <div className="flex items-center justify-between p-5 md:p-10 border-b border-white/5 sticky top-0 bg-black/80 backdrop-blur-md z-10">
                             <div>
                                 <h2 className="text-2xl font-custom font-bold text-white uppercase tracking-widest">ORDER <span className="text-primary">#{selectedOrder.orderNumber}</span></h2>
                                 <p className="text-white/40 text-[10px] uppercase tracking-[0.2em] mt-1">{new Date(selectedOrder.createdAt).toLocaleString()}</p>
@@ -430,7 +430,7 @@ function ProfilePage() {
                             </button>
                         </div>
 
-                        <div className="p-10 space-y-12">
+                        <div className="p-5 md:p-10 space-y-8 md:space-y-12">
                             {/* Summary Grid */}
                             <div className="grid md:grid-cols-3 gap-6">
                                 <div className="bg-white/5 p-6 rounded-3xl border border-white/5">
@@ -453,7 +453,7 @@ function ProfilePage() {
                                     <h3 className="text-white font-custom font-bold uppercase tracking-widest flex items-center gap-3">
                                         <MapPin size={20} className="text-primary" /> DELIVERY ADDRESS
                                     </h3>
-                                    <div className="bg-white/5 p-8 rounded-[2rem] border border-white/5 space-y-4">
+                                    <div className="bg-white/5 p-8 rounded-4xl border border-white/5 space-y-4">
                                         <p className="text-white font-black uppercase tracking-tight text-lg">{selectedOrder.shippingAddress.fullName}</p>
                                         <div className="space-y-2 text-white/40 text-sm font-bold uppercase tracking-widest">
                                             <p>{selectedOrder.shippingAddress.address}</p>
@@ -468,7 +468,7 @@ function ProfilePage() {
                                     <h3 className="text-white font-custom font-bold uppercase tracking-widest flex items-center gap-3">
                                         <Package size={20} className="text-primary" /> ORDER ITEMS
                                     </h3>
-                                    <div className="bg-white/5 p-8 rounded-[2rem] border border-white/5 space-y-6">
+                                    <div className="bg-white/5 p-8 rounded-4xl border border-white/5 space-y-6">
                                         {selectedOrder.items.map((item, index) => (
                                             <div key={index} className="flex items-center gap-4 group">
                                                 <div className="w-16 h-16 bg-black rounded-xl overflow-hidden border border-white/10 shrink-0">
@@ -491,7 +491,7 @@ function ProfilePage() {
                             </div>
                         </div>
 
-                        <div className="p-10 border-t border-white/5 flex justify-end gap-4">
+                        <div className="p-5 md:p-10 border-t border-white/5 flex justify-end gap-4">
                             <button onClick={closeOrderDetails} className="bg-white/5 text-white px-10 py-4 rounded-full uppercase text-xs font-bold tracking-widest hover:bg-white hover:text-black transition-all">CLOSE</button>
                             <button className="bg-primary text-black px-10 py-4 rounded-full uppercase text-xs font-bold tracking-widest hover:bg-white transition-all shadow-xl shadow-primary/10">INVOICE</button>
                         </div>

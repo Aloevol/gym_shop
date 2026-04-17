@@ -305,7 +305,7 @@ function CartPage() {
     if (cartState.loading) return <div className="min-h-screen bg-black flex items-center justify-center"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
 
     return (
-        <section className="w-full min-h-screen bg-black py-24 px-6 md:px-12 lg:px-20">
+        <section className="w-full min-h-screen bg-black py-24 px-4 md:px-8 lg:px-16">
             <div className="text-center mb-16">
                 <h1 className="text-3xl md:text-6xl font-custom font-bold text-white uppercase tracking-widest mb-4">YOUR <span className="text-primary">CART</span></h1>
                 <p className="text-white/40 font-bold uppercase tracking-widest text-sm">Review performance essentials and proceed.</p>
@@ -336,7 +336,7 @@ function CartPage() {
                         </div>
                     </div>
 
-                    <div className="w-full lg:w-[400px] bg-white/5 border border-white/10 p-10 rounded-[3rem] h-fit sticky top-24">
+                    <div className="w-full lg:w-[400px] bg-white/5 border border-white/10 p-6 md:p-10 rounded-[3rem] h-fit sticky top-24">
                         <h2 className="text-2xl font-custom font-bold text-white mb-10 uppercase tracking-widest text-center">ORDER <span className="text-primary">SUMMARY</span></h2>
                         {summary.selectedCount > 0 ? (
                             <>

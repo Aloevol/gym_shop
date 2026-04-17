@@ -3,7 +3,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import dotenv from "dotenv";
 dotenv.config({ path: ".env" });
 
-// Configuration
+// Configuration — called lazily before each operation
 const configureCloudinary = () => {
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
     const apiKey = process.env.CLOUDINARY_API_KEY;
@@ -18,9 +18,6 @@ const configureCloudinary = () => {
     });
 };
 
-// Initialize configuration
-configureCloudinary();
-
 export async function uploadMultipleToCloudinary(files: File[]): Promise<string[]> {
     try {
         if (!files || files.length === 0) {
@@ -28,10 +25,7 @@ export async function uploadMultipleToCloudinary(files: File[]): Promise<string[
             return [];
         }
 
-        // Verify configuration
-        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRE) {
-            throw new Error('Cloudinary configuration is missing');
-        }
+        configureCloudinary();
 
         const uploadPromises = files.map(async (file) => {
             const arrayBuffer = await file.arrayBuffer();
@@ -83,10 +77,7 @@ export async function uploadVideoToCloudinary(file: File, folder: string = "pers
             throw new Error('Video file size must be less than 100MB');
         }
 
-        // Verify configuration
-        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRE) {
-            throw new Error('Cloudinary configuration is missing');
-        }
+        configureCloudinary();
 
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
@@ -148,10 +139,7 @@ export async function uploadImageToCloudinary(file: File, folder: string = "pers
             throw new Error('Image file size must be less than 10MB');
         }
 
-        // Verify configuration
-        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRE) {
-            throw new Error('Cloudinary configuration is missing');
-        }
+        configureCloudinary();
 
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
@@ -198,10 +186,7 @@ export async function deleteFromCloudinary(publicId: string, resourceType: "imag
             throw new Error("No public ID provided for deletion");
         }
 
-        // Verify configuration
-        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRE) {
-            throw new Error('Cloudinary configuration is missing');
-        }
+        configureCloudinary();
 
         const result = await cloudinary.uploader.destroy(publicId, {
             resource_type: resourceType

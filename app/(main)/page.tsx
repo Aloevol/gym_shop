@@ -1,4 +1,15 @@
+import type { Metadata } from "next";
 import AutoSlider from "@/components/section/AutoSlider";
+
+export const metadata: Metadata = {
+    title: "Home",
+    description: "Shop premium fitness equipment, supplements, and personal training programs. Your ultimate fitness destination.",
+    openGraph: {
+        title: "Home",
+        description: "Shop premium fitness equipment, supplements, and personal training programs.",
+        type: "website",
+    },
+};
 import HeroSection from "@/components/section/HeroSection";
 import FeaturesSection from "@/components/section/FeaturesSection";
 import TestimonialsSection from "@/components/section/TestimonialsSection";

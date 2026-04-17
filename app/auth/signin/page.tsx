@@ -73,57 +73,60 @@ const SignIn = () => {
           <CardTitle className='text-3xl font-custom font-bold text-white uppercase tracking-widest'>Log In</CardTitle>
           <CardDescription className='text-white/40 font-bold uppercase text-[10px] tracking-widest mt-2'>Welcome back to Thryve</CardDescription>
         </CardHeader>
-        <CardContent className='gap-6 grid'>
-          <div className="space-y-2">
-            <label htmlFor="email" className='text-white/40 text-[10px] font-black uppercase tracking-[0.2em] ml-2'>Email Address</label>
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="text" 
-              name="email"
-              placeholder='YOUR EMAIL'
-              className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
-                error.field == "email" ? "border-red-500" : "border-white/10"
-              }`}
-            />
-            { error.field == "email" && (<span className={"text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4"}>{error.message}</span>)}
-          </div>
+        <form onSubmit={(e) => { e.preventDefault(); handleSignIn(); }}>
+          <CardContent className='gap-6 grid'>
+            <div className="space-y-2">
+              <label htmlFor="email" className='text-white/40 text-[10px] font-black uppercase tracking-[0.2em] ml-2'>Email Address</label>
+              <input
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
+                name="email"
+                autoComplete="email"
+                placeholder='YOUR EMAIL'
+                className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
+                  error.field == "email" ? "border-red-500" : "border-white/10"
+                }`}
+              />
+              {error.field == "email" && (<span className={"text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4"}>{error.message}</span>)}
+            </div>
 
-          <div className="space-y-2">
-            <label htmlFor="password" className='text-white/40 text-[10px] font-black uppercase tracking-[0.2em] ml-2'>Password</label>
-            <input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              type="password" 
-              name="password"
-              placeholder='YOUR PASSWORD'
-              className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
-                error.field == "password" ? "border-red-500" : "border-white/10"
-              }`}
-            />
-            { error.field == "password" && (<span className={"text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4"}>{error.message}</span>)}
-          </div>
-          
-          <Link href="/auth/forgot-password" className='text-right text-primary text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors'>Forgot Password?</Link>
-        </CardContent>
-        <CardFooter className='gap-6 grid mt-4'>
-          <button 
-            className='w-full bg-primary text-black font-custom font-bold py-4 rounded-full hover:bg-white transition-all uppercase text-sm shadow-xl shadow-primary/10'
-            onClick={handleSignIn}
-          >
-            Log In
-          </button>
-          
-          <p className='text-center text-[10px] font-bold text-white/40 uppercase tracking-widest'>
-            {"Don't have an account? "} 
-            <span 
-              className='text-primary cursor-pointer hover:text-white transition-colors ml-1' 
-              onClick={() => router.push('/auth/signup')}
+            <div className="space-y-2">
+              <label htmlFor="password" className='text-white/40 text-[10px] font-black uppercase tracking-[0.2em] ml-2'>Password</label>
+              <input
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type="password"
+                name="password"
+                autoComplete="current-password"
+                placeholder='YOUR PASSWORD'
+                className={`w-full bg-black border px-6 py-4 rounded-full text-white placeholder:text-white/10 focus:border-primary outline-none transition-all ${
+                  error.field == "password" ? "border-red-500" : "border-white/10"
+                }`}
+              />
+              {error.field == "password" && (<span className={"text-red-500 text-[10px] font-bold uppercase tracking-widest ml-4"}>{error.message}</span>)}
+            </div>
+
+            <Link href="/auth/forgot-password" className='text-right text-primary text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors'>Forgot Password?</Link>
+          </CardContent>
+          <CardFooter className='gap-6 grid mt-4'>
+            <button
+              type="submit"
+              className='w-full bg-primary text-black font-custom font-bold py-4 rounded-full hover:bg-white transition-all uppercase text-sm shadow-xl shadow-primary/10'
             >
-              Sign Up
-            </span>
-          </p>
-        </CardFooter>
+              Log In
+            </button>
+
+            <p className='text-center text-[10px] font-bold text-white/40 uppercase tracking-widest'>
+              {"Don't have an account? "}
+              <Link href='/auth/signup' className='text-primary hover:text-white transition-colors ml-1'>
+                Sign Up
+              </Link>
+            </p>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   )

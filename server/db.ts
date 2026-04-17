@@ -16,14 +16,6 @@ const mongooseCache: MongooseCache = {
     adminEnsured: false,
 };
 
-const MONGODB_URI = process.env.MONGODB_URI as string;
-
-if (!MONGODB_URI) {
-    throw new Error(
-        'Please define the MONGODB_URI environment variable inside .env'
-    );
-}
-
 async function ensureAdminExists(connection: typeof mongoose): Promise<void> {
     if (mongooseCache.adminEnsured) return;
 
@@ -109,6 +101,11 @@ export async function connectToDB(): Promise<typeof mongoose> {
     if (mongooseCache.promise) {
         mongooseCache.conn = await mongooseCache.promise;
         return mongooseCache.conn;
+    }
+
+    const MONGODB_URI = process.env.MONGODB_URI;
+    if (!MONGODB_URI) {
+        throw new Error('Please define the MONGODB_URI environment variable inside .env');
     }
 
     // Create new connection promise
