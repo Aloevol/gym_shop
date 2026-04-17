@@ -71,6 +71,8 @@ export interface ISite {
   athletes: IAthlete[];
   privacyAndPolicy: string;
   navLinks: INavLink[];
+  galleryTitle?: string;
+  gallerySubtitle?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

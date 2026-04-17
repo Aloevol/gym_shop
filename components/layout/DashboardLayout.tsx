@@ -16,6 +16,7 @@ const Contact = lazy(() => import("../tabs/Contact"));
 
 const Features = lazy(() => import("../tabs/Features"));
 const Testimonials = lazy(() => import("../tabs/Testimonials"));
+const InstagramTab = lazy(() => import("../tabs/Instagram"));
 
 const Settings = lazy(() => import("../tabs/Settings"));
 
@@ -26,6 +27,7 @@ const VALID_TABS = [
     "Banner Message",
     "Features",
     "Testimonials",
+    "Instagram",
     "Contact",
     "User",
     "Order Management",
@@ -69,6 +71,7 @@ export default function DashboardLayout() {
             case "Banner Message": return <BannerManagement />;
             case "Features": return <Features />;
             case "Testimonials": return <Testimonials />;
+            case "Instagram": return <InstagramTab />;
             case "Contact": return <Contact />;
             case "User": return <UserTab />;
             case "Order Management": return <OrderManagement />;

@@ -83,7 +83,7 @@ const VerifyOtp = () => {
           </button>
           
           <p className='text-center text-[10px] font-bold text-white/40 uppercase tracking-widest cursor-pointer hover:text-white transition-colors'>
-            Didn't receive the code? Resend
+            Didn&apos;t receive the code? Resend
           </p>
         </CardFooter>
       </Card>

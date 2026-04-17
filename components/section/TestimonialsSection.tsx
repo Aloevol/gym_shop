@@ -132,7 +132,7 @@ const TestimonialsSection = () => {
             </div>
 
             <p className="mb-8 text-base font-bold leading-8 tracking-tight text-white">
-              "{normalizeQuote(activeTestimonial.quote)}"
+              &quot;{normalizeQuote(activeTestimonial.quote)}&quot;
             </p>
 
             <div className="flex items-end justify-between gap-4">
@@ -202,7 +202,7 @@ const TestimonialsSection = () => {
             </div>
 
             <p className="max-w-3xl text-2xl font-bold leading-10 tracking-tight text-white">
-              "{normalizeQuote(activeTestimonial.quote)}"
+              &quot;{normalizeQuote(activeTestimonial.quote)}&quot;
             </p>
 
             <div className="mt-10 flex items-center justify-between gap-4">

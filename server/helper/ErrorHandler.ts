@@ -1,6 +1,6 @@
 import { IResponse } from "@/server/interface/response.interface";
 
-export const handleServerError = (error: unknown): IResponse => {
+export const handleServerError = <T = unknown>(error: unknown): IResponse<T> => {
     console.error("Server Error:", error);
 
     if (error instanceof Error) {

@@ -1030,7 +1030,7 @@ export async function deleteInstagramPostServerSide(postId: string): Promise<IRe
 }
 
 // --- Site Settings Management ---
-export async function getSiteSettingsServerSide(): Promise<IResponse> {
+export async function getSiteSettingsServerSide(): Promise<IResponse<ISite>> {
   try {
     await connectToDB();
     let site = await SiteModle.findOne({});
@@ -1049,16 +1049,16 @@ export async function getSiteSettingsServerSide(): Promise<IResponse> {
       site.navLinks = DEFAULT_NAV_LINKS;
       await site.save();
     }
-    return SendResponse({ isError: false, status: 200, message: "Settings fetched", data: site.toObject() });
-  } catch (error: any) { return handleServerError(error); }
+    return SendResponse<ISite>({ isError: false, status: 200, message: "Settings fetched", data: site.toObject() });
+  } catch (error: any) { return handleServerError<ISite>(error); }
 }
 
-export async function updateSiteSettingsServerSide(settings: Partial<ISite>): Promise<IResponse> {
+export async function updateSiteSettingsServerSide(settings: Partial<ISite>): Promise<IResponse<ISite>> {
   try {
     await connectToDB();
-    await SiteModle.findOneAndUpdate({}, { $set: settings }, { upsert: true });
-    return SendResponse({ isError: false, status: 200, message: "Global settings updated successfully" });
-  } catch (error: any) { return handleServerError(error); }
+    const updated = await SiteModle.findOneAndUpdate({}, { $set: settings }, { upsert: true, new: true });
+    return SendResponse<ISite>({ isError: false, status: 200, message: "Global settings updated successfully", data: updated?.toObject() });
+  } catch (error: any) { return handleServerError<ISite>(error); }
 }
 
 // --- Athletes Management ---

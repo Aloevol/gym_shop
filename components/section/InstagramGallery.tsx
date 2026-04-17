@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { getInstagramGalleryServerSide, getSiteSettingsServerSide } from '@/server/functions/admin.fun';
+import { ISite } from '@/server/models/site/site.interface';
 
 const InstagramGallery = () => {
   const [posts, setPosts] = useState<any[]>([]);
-  const [siteSettings, setSiteSettings] = useState<any>(null);
+  const [siteSettings, setSiteSettings] = useState<ISite | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,7 +19,7 @@ const InstagramGallery = () => {
         setPosts(res.data);
       }
       if (!settingsRes.isError && settingsRes.data) {
-        setSiteSettings(settingsRes.data);
+        setSiteSettings(settingsRes.data as ISite);
       }
       setLoading(false);
     };
@@ -41,10 +42,11 @@ const InstagramGallery = () => {
       <div className="max-w-7xl mx-auto px-6 mb-16 flex flex-col md:flex-row justify-between items-center gap-10">
         <div className="text-center md:text-left">
           <h2 className="text-2xl md:text-4xl font-custom font-bold text-white tracking-widest uppercase mb-4 leading-tight">
-            COMMUNITY <span className="text-primary">SNAPSHOTS</span>
+            {siteSettings?.galleryTitle?.split(' ').slice(0, -1).join(' ') || "COMMUNITY"}{' '}
+            <span className="text-primary">{siteSettings?.galleryTitle?.split(' ').slice(-1) || "SNAPSHOTS"}</span>
           </h2>
           <p className="text-primary font-custom tracking-widest uppercase text-xs font-black">
-            Join the elite movement today
+            {siteSettings?.gallerySubtitle || "Join the elite movement today"}
           </p>
         </div>
         <a
@@ -59,7 +61,13 @@ const InstagramGallery = () => {
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 px-2">
         {displayPosts.map((post, i) => (
-          <div key={i} className="aspect-square relative overflow-hidden group border border-white/5">
+          <a
+            key={i}
+            href={post.link || "#"}
+            target={post.link ? "_blank" : "_self"}
+            rel="noopener noreferrer"
+            className={`aspect-square relative overflow-hidden group border border-white/5 ${!post.link && 'cursor-default'}`}
+          >
             <Image
               src={post.imageUrl}
               alt={`Gallery ${i}`}
@@ -68,7 +76,7 @@ const InstagramGallery = () => {
               className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-          </div>
+          </a>
         ))}
       </div>
     </section>

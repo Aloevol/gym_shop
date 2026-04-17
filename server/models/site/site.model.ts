@@ -68,6 +68,8 @@ const siteSchema = new Schema<ISite>({
   athletes: [athleteSchema],
   privacyAndPolicy: { type: String, default: "" },
   navLinks: [navLinkSchema],
+  galleryTitle: { type: String, default: "COMMUNITY SNAPSHOTS" },
+  gallerySubtitle: { type: String, default: "Join the elite movement today" },
 }, { timestamps: true });
 
 let SiteModle: ISiteModel;

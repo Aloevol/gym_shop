@@ -1,14 +1,18 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { getInstagramGalleryServerSide, addInstagramPostServerSide, deleteInstagramPostServerSide } from '@/server/functions/admin.fun';
+import { getInstagramGalleryServerSide, addInstagramPostServerSide, deleteInstagramPostServerSide, getSiteSettingsServerSide, updateSiteSettingsServerSide } from '@/server/functions/admin.fun';
 import { toast } from 'sonner';
 import { Plus, Trash2, Camera, Link as LinkIcon, X } from 'lucide-react';
 import Image from 'next/image';
+import { ISite } from '@/server/models/site/site.interface';
 
 const Instagram = () => {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
+  const [galleryTitle, setGalleryTitle] = useState('');
+  const [gallerySubtitle, setGallerySubtitle] = useState('');
+  const [updatingSettings, setUpdatingSettings] = useState(false);
   
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -17,12 +21,34 @@ const Instagram = () => {
 
   useEffect(() => {
     fetchPosts();
+    fetchSettings();
   }, []);
 
   const fetchPosts = async () => {
     const res = await getInstagramGalleryServerSide();
     if (!res.isError && Array.isArray(res.data)) setPosts(res.data);
     setLoading(false);
+  };
+
+  const fetchSettings = async () => {
+    const res = await getSiteSettingsServerSide();
+    if (!res.isError && res.data) {
+      const data = res.data as ISite;
+      setGalleryTitle(data.galleryTitle || "COMMUNITY SNAPSHOTS");
+      setGallerySubtitle(data.gallerySubtitle || "Join the elite movement today");
+    }
+  };
+
+  const handleUpdateSettings = async () => {
+    setUpdatingSettings(true);
+    const res = await updateSiteSettingsServerSide({
+      galleryTitle,
+      gallerySubtitle
+    });
+    if (!res.isError) {
+      toast.success("Gallery settings updated");
+    }
+    setUpdatingSettings(false);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,6 +152,37 @@ const Instagram = () => {
           </div>
         </div>
       )}
+
+      <div className="mb-12 p-10 bg-white/5 border border-white/10 rounded-[2.5rem] space-y-8">
+        <h2 className="text-xl font-custom font-bold text-white uppercase tracking-widest">GALLERY HEADER CONFIG</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-2">MAIN TITLE</label>
+            <input
+              value={galleryTitle}
+              onChange={(e) => setGalleryTitle(e.target.value)}
+              className="w-full bg-black border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none"
+              placeholder="COMMUNITY SNAPSHOTS"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-2">SUBTITLE</label>
+            <input
+              value={gallerySubtitle}
+              onChange={(e) => setGallerySubtitle(e.target.value)}
+              className="w-full bg-black border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none"
+              placeholder="Join the elite movement today"
+            />
+          </div>
+        </div>
+        <button 
+          onClick={handleUpdateSettings} 
+          disabled={updatingSettings}
+          className="bg-white text-black px-10 py-4 rounded-full font-bold uppercase text-xs hover:bg-primary transition-all shadow-xl"
+        >
+          {updatingSettings ? "SAVING..." : "UPDATE HEADER"}
+        </button>
+      </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {posts.map((post) => (
