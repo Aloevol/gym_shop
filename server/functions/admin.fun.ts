@@ -23,7 +23,6 @@ const DEFAULT_NAV_LINKS: INavLink[] = [
   { name: "Home", href: "/", order: 0, isActive: true },
   { name: "Shop", href: "/shop", order: 1, isActive: true },
   { name: "Contact", href: "/contact", order: 2, isActive: true },
-  { name: "Athletes", href: "/athletes", order: 3, isActive: true }
 ];
 
 export async function createAdminServerSide(){

@@ -1,5 +1,5 @@
 "use client";
-import { Contact2, LayoutTemplate, Menu, MessageCircle, Settings2, ShieldCheck, ShoppingBag, User, Users } from "lucide-react";
+import { Contact2, LayoutTemplate, MessageCircle, Settings2, ShoppingBag, User } from "lucide-react";
 import { FcPrivacy } from "react-icons/fc";
 import { GrDashboard } from "react-icons/gr";
 import { PiFlagBanner } from "react-icons/pi";
@@ -41,20 +41,12 @@ export default function Sidebar({ activeTab, setActiveTab }: Props) {
             icon: () => createIconComponent(MessageCircle)
         },
         {
-            title: "Navbar",
-            icon: () => createIconComponent(Menu)
-        },
-        {
             title: "Features",
             icon: () => createIconComponent(LayoutTemplate)
         },
         {
             title: "Testimonials",
             icon: () => createIconComponent(MessageCircle)
-        },
-        {
-            title: "Athletes",
-            icon: () => createIconComponent(Users)
         },
         {
             title: "PrivacyPolicy",
@@ -79,28 +71,20 @@ export default function Sidebar({ activeTab, setActiveTab }: Props) {
     ], []);
 
     return (
-        <div className="w-[280px] md:w-[300px] h-full shrink-0 flex justify-center items-center relative bg-black border-r border-white/5">
-            <div className="w-[92%] h-[95%] bg-gradient-to-b from-white/8 to-white/[0.03] border border-white/10 rounded-[2.5rem] relative flex flex-col items-end pt-[32px] overflow-hidden shadow-2xl shadow-black/20">
-                <div className="w-full px-8 mb-8">
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Storefront Console</p>
-                    <div className="mt-4 rounded-2xl border border-primary/15 bg-primary/8 px-4 py-3">
-                        <div className="flex items-center gap-3">
-                            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary text-black">
-                                {createIconComponent(ShieldCheck, 18)}
-                            </span>
-                            <div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Public Site</p>
-                                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Only active storefront controls</p>
-                            </div>
-                        </div>
+        <div className="w-[288px] md:w-[308px] h-full shrink-0 px-3 py-4 bg-black border-r border-white/5">
+            <div className="h-full w-full bg-gradient-to-b from-white/8 to-white/[0.03] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/20">
+                <div className="flex h-full flex-col px-0 py-6">
+                    <div className="px-8 pb-5">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/25">
+                            Dashboard
+                        </p>
                     </div>
-                </div>
-                <div className="w-full overflow-y-auto custom-scrollbar pr-1">
+                    <div className="w-full flex-1 overflow-y-auto custom-scrollbar pr-1 pb-4 pl-3">
                     {tabs.map((Item) => (
                         <button
                             key={Item.title}
                             onClick={() => setActiveTab(Item.title)}
-                            className={`h-[52px] w-[92%] rounded-l-full flex justify-start items-center gap-4 pl-8 cursor-pointer duration-300 ease-in-out mb-1 ${
+                            className={`h-[54px] w-[92%] rounded-l-full flex justify-start items-center gap-4 pl-8 pr-4 cursor-pointer duration-300 ease-in-out mb-2 ${
                                 Item.title === activeTab 
                                     ? 'text-black bg-primary font-black shadow-lg shadow-primary/20' 
                                     : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -112,6 +96,7 @@ export default function Sidebar({ activeTab, setActiveTab }: Props) {
                             <span className="text-[11px] font-bold uppercase tracking-widest">{Item.title}</span>
                         </button>
                     ))}
+                    </div>
                 </div>
             </div>
         </div>

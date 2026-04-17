@@ -1,21 +1,16 @@
 "use client"
 
 // import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { CSSProperties } from "react";
 import TopBar from "@/components/layout/TopBar";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import {useEffect} from "react";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const mainFontVariables = {
+  "--font-geist-sans": "ui-sans-serif, system-ui, sans-serif",
+  "--font-geist-mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+} as CSSProperties;
 
 // export const metadata: Metadata = {
 //   title: "Gym Shop",
@@ -38,15 +33,15 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
         <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            className="antialiased"
+            style={mainFontVariables}
             suppressHydrationWarning
         >
             <TopBar />
             <Navbar />
-            <main className="w-full h-full pt-[55px]">{children}</main>
+            <main className="w-full h-full">{children}</main>
             <Footer />
         </body>
         </html>
     );
 }
-

@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { CSSProperties } from "react";
 import { Toaster } from 'sonner';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const adminFontVariables = {
+  "--font-geist-sans": "ui-sans-serif, system-ui, sans-serif",
+  "--font-geist-mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+} as CSSProperties;
 
 export const metadata: Metadata = {
   title: "Gym Shop Dashboard",
@@ -23,9 +18,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="antialiased"
+        style={adminFontVariables}
+        suppressHydrationWarning
       >
         <main className="bg-[#F27D31] w-full h-svh">
           {children}

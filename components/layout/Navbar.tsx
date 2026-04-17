@@ -9,42 +9,13 @@ import Image from "next/image";
 import { countCurrentCartLength } from "@/server/functions/cart.fun";
 import { getCookie } from "@/server/helper/jwt.helper";
 import { IUser } from "@/server/models/user/user.interfce";
-import { getNavLinksServerSide, getSiteSettingsServerSide } from "@/server/functions/admin.fun";
-import { DEFAULT_STOREFRONT_NAV_LINKS, filterStorefrontNavLinks } from "@/lib/storefront";
-
-interface NavLink {
-  _id?: string;
-  name: string;
-  href: string;
-  isActive?: boolean;
-}
+import { DEFAULT_STOREFRONT_NAV_LINKS } from "@/lib/storefront";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [cartCount, setCartCount] = useState<number>(0);
-  const [navLinks, setNavLinks] = useState<NavLink[]>([]);
-  const [siteSettings, setSiteSettings] = useState<any>(null);
   const pathname = usePathname();
-  const visibleNavLinks = navLinks.length > 0 ? navLinks : DEFAULT_STOREFRONT_NAV_LINKS;
-
-  const fetchSiteData = useCallback(async () => {
-    try {
-      const [navRes, settingsRes] = await Promise.all([
-        getNavLinksServerSide(),
-        getSiteSettingsServerSide()
-      ]);
-
-      if (!navRes.isError && navRes.data) {
-        setNavLinks(filterStorefrontNavLinks(navRes.data as NavLink[]));
-      }
-
-      if (!settingsRes.isError && settingsRes.data) {
-        setSiteSettings(settingsRes.data);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, []);
+  const visibleNavLinks = DEFAULT_STOREFRONT_NAV_LINKS;
 
   const updateCartCount = useCallback(async () => {
     const cookie = await getCookie("user");
@@ -64,22 +35,21 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    fetchSiteData();
     updateCartCount();
     window.addEventListener("cart-updated", updateCartCount);
     return () => window.removeEventListener("cart-updated", updateCartCount);
-  }, [updateCartCount, fetchSiteData]);
+  }, [updateCartCount]);
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full z-50 bg-black/80 backdrop-blur-md text-white transition-all duration-300">
+      <nav className="sticky top-0 w-full z-40 bg-black/95 backdrop-blur-md text-white border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/">
               <Image
-                src={siteSettings?.logoUrl || "/NavLogo.png"}
-                alt={siteSettings?.siteName || "Logo"}
+                src="/NavLogo.png"
+                alt="THRYVE"
                 width={120}
                 height={40}
                 priority
@@ -147,8 +117,8 @@ const Navbar = () => {
               <div className="flex items-center justify-between mb-12">
                 <Link href="/" onClick={() => setIsOpen(false)}>
                   <Image
-                    src={siteSettings?.logoUrl || "/NavLogo.png"}
-                    alt={siteSettings?.siteName || "Logo"}
+                    src="/NavLogo.png"
+                    alt="THRYVE"
                     width={100}
                     height={30}
                     className="h-6 w-auto object-contain"

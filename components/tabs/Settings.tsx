@@ -2,16 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { getSiteSettingsServerSide, updateSiteSettingsServerSide } from '@/server/functions/admin.fun';
 import { toast } from 'sonner';
-import { Save, Globe, Mail, Phone, MapPin, Camera, FileText } from 'lucide-react';
-import Image from 'next/image';
-import { uploadImageToCloudinary } from '@/server/helper/cloudinary.helper';
+import { Save, Globe, Mail, Phone, MapPin, FileText } from 'lucide-react';
 import type { ISite } from '@/server/models/site/site.interface';
+
+type EditableSiteField = 'siteName' | 'siteDescription' | 'contactEmail' | 'contactPhone' | 'contactAddress';
+type EditableSocialField = 'facebook' | 'instagram' | 'twitter';
 
 const Settings = () => {
   const [settings, setSettings] = useState<ISite | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [logoUploading, setLogoUploading] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -19,40 +19,27 @@ const Settings = () => {
 
   const fetchSettings = async () => {
     const res = await getSiteSettingsServerSide();
-    if (!res.isError) setSettings(res.data);
+    if (!res.isError && res.data) setSettings(res.data as ISite);
     setLoading(false);
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setSettings({ ...settings, [field]: value });
+  const handleInputChange = (field: EditableSiteField, value: string) => {
+    setSettings((prev) => (prev ? { ...prev, [field]: value } : prev));
   };
 
-  const handleSocialChange = (field: string, value: string) => {
-    setSettings({
-      ...settings,
-      socialLinks: { ...settings.socialLinks, [field]: value }
-    });
-  };
-
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setLogoUploading(true);
-    try {
-      const url = await uploadImageToCloudinary(file);
-      if (url) {
-        setSettings({ ...settings, logoUrl: url.url });
-        toast.success("Logo visual synced");
-      }
-    } catch {
-      toast.error("Upload failed");
-    } finally {
-      setLogoUploading(false);
-    }
+  const handleSocialChange = (field: EditableSocialField, value: string) => {
+    setSettings((prev) =>
+      prev
+        ? {
+            ...prev,
+            socialLinks: { ...(prev.socialLinks || {}), [field]: value }
+          }
+        : prev
+    );
   };
 
   const handleSave = async () => {
+    if (!settings) return;
     setSaving(true);
     const res = await updateSiteSettingsServerSide(settings);
     if (!res.isError) toast.success("Global performance settings committed");
@@ -78,34 +65,11 @@ const Settings = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Identity & Logo */}
+        {/* Identity */}
         <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10 space-y-8">
           <h3 className="text-sm font-custom font-bold text-primary uppercase tracking-widest border-l-4 border-primary pl-4">IDENTITY</h3>
           
           <div className="space-y-6">
-            <div className="flex flex-col gap-4 items-center">
-              <div className="w-full aspect-video bg-black rounded-[2rem] border border-white/10 relative flex items-center justify-center group overflow-hidden">
-                <Image 
-                  src={settings.logoUrl || "/NavLogo.png"} 
-                  alt="Logo" 
-                  width={200} 
-                  height={60} 
-                  className="object-contain p-4 group-hover:scale-110 transition-transform duration-700" 
-                />
-                {logoUploading && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                  </div>
-                )}
-              </div>
-              <div className="w-full relative">
-                <input type="file" onChange={handleLogoUpload} className="hidden" id="logo-input" />
-                <label htmlFor="logo-input" className="w-full py-4 border border-dashed border-white/10 rounded-full flex items-center justify-center gap-3 cursor-pointer hover:bg-white/5 transition-all text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-primary hover:border-primary">
-                  <Camera size={16} /> REPLACE LOGO ASSET
-                </label>
-              </div>
-            </div>
-
             <div className="space-y-2">
               <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-2">SITE NAME</label>
               <div className="relative">

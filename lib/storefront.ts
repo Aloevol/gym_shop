@@ -4,14 +4,13 @@ export interface StorefrontNavLink {
   isActive?: boolean;
 }
 
-export const ALLOWED_STOREFRONT_ROUTES = ["/", "/shop", "/contact", "/athletes", "/cart"] as const;
+export const ALLOWED_STOREFRONT_ROUTES = ["/", "/shop", "/contact", "/cart"] as const;
 export const ALLOWED_STOREFRONT_PREFIXES = ["/product/"] as const;
 
 export const DEFAULT_STOREFRONT_NAV_LINKS: StorefrontNavLink[] = [
   { name: "Home", href: "/" },
   { name: "Shop", href: "/shop" },
   { name: "Contact", href: "/contact" },
-  { name: "Athletes", href: "/athletes" },
 ];
 
 export function isAllowedStorefrontPath(path: string) {

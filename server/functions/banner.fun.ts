@@ -46,7 +46,7 @@ export async function getAllBannerMessagesServerSide() {
 }
 
 // Create new banner message
-export async function createBannerMessageServerSide(text: string, icon: string = "🔹") {
+export async function createBannerMessageServerSide(text: string, icon: string = "Radio") {
   try {
     await connectToDB();
 

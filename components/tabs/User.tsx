@@ -31,8 +31,6 @@ export default function ProfileTabs() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewImage, setPreviewImage] = useState<string>("");
 
-    console.log(selectedFile);
-
     // Form states
     const [formData, setFormData] = useState({
         name: "",
@@ -287,10 +285,10 @@ export default function ProfileTabs() {
         return (
             <div className="w-full h-[85vh] flex items-center justify-center">
                 <div className="text-center">
-                    <p className="text-red-500 text-lg mb-4">Unable to load user data</p>
+                    <p className="text-red-400 text-lg mb-4 uppercase tracking-widest">Unable to load user data</p>
                     <Button 
                         onClick={() => window.location.reload()}
-                        className="bg-[#125BAC] hover:bg-[#0d4793]"
+                        className="rounded-full bg-primary text-black hover:bg-white"
                     >
                         Retry
                     </Button>
@@ -300,34 +298,46 @@ export default function ProfileTabs() {
     }
 
     return (
-        <div className="w-full h-[85vh] px-6">
+        <div className="w-full h-[85vh] overflow-auto">
             {/* Header with Logout */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 {/* Tabs */}
-                <div className="flex gap-6 p-6">
+                <div>
+                    <h1 className="text-3xl font-custom font-bold text-white uppercase tracking-widest">
+                        User <span className="text-primary">Account</span>
+                    </h1>
+                    <p className="mt-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/25">
+                        Manage account details and password from a dark control panel
+                    </p>
+                    <div className="mt-6 inline-flex rounded-full border border-white/10 bg-black p-1">
                     <button
                         onClick={() => setTab("profile")}
-                        className={`text-xl font-semibold cursor-pointer transition-colors ${
-                            tab === "profile" ? "text-[#125BAC] underline" : "text-gray-600 hover:text-[#125BAC]"
+                        className={`rounded-full px-6 py-3 text-[11px] font-black uppercase tracking-[0.18em] transition-all ${
+                            tab === "profile"
+                                ? "bg-primary text-black shadow-lg shadow-primary/20"
+                                : "text-white/55 hover:text-white"
                         }`}
                     >
                         Edit Profile
                     </button>
                     <button
                         onClick={() => setTab("password")}
-                        className={`text-xl font-semibold cursor-pointer transition-colors ${
-                            tab === "password" ? "text-[#125BAC] underline" : "text-gray-600 hover:text-[#125BAC]"
+                        className={`rounded-full px-6 py-3 text-[11px] font-black uppercase tracking-[0.18em] transition-all ${
+                            tab === "password"
+                                ? "bg-primary text-black shadow-lg shadow-primary/20"
+                                : "text-white/55 hover:text-white"
                         }`}
                     >
                         Change Password
                     </button>
+                    </div>
                 </div>
 
                 {/* Logout Button */}
                 <Button
                     onClick={handleLogout}
                     variant="outline"
-                    className="flex items-center gap-2 text-red-600 border-red-600 hover:bg-red-50 whitespace-nowrap"
+                    className="flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white whitespace-nowrap"
                 >
                     <LogOut size={18} />
                     Logout
@@ -335,11 +345,11 @@ export default function ProfileTabs() {
             </div>
 
             {/* Content Card */}
-            <div className="max-w-[700px] mx-auto shadow-md p-6 rounded-sm bg-white">
+            <div className="max-w-[760px] rounded-[3rem] border border-white/10 bg-white/5 p-8 shadow-2xl">
                 {tab === "profile" && (
                     <form onSubmit={handleSaveProfile}>
                         {/* Profile Image */}
-                        <div className="w-[200px] h-[200px] mx-auto rounded-full bg-gray-200 relative overflow-hidden border-4 border-[#125BAC]">
+                        <div className="w-[200px] h-[200px] mx-auto rounded-full bg-black relative overflow-hidden border-4 border-primary/30 shadow-xl shadow-primary/10">
                             <Image 
                                 src={previewImage || user.image} 
                                 alt="profile" 
@@ -356,13 +366,13 @@ export default function ProfileTabs() {
                                 id="profile-image-input"
                             />
                             
-                            <div className="absolute w-[40px] h-[40px] bottom-6 right-6 bg-[#ffff]/70 text-white z-50 cursor-pointer rounded-full">
+                            <div className="absolute w-[44px] h-[44px] bottom-6 right-6 bg-primary text-black z-50 cursor-pointer rounded-full shadow-lg shadow-primary/20">
                                 <label 
                                     htmlFor="profile-image-input"
                                     className="w-full h-full relative flex items-center justify-center cursor-pointer"
                                 >
                                     {imageUploading ? (
-                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
                                     ) : (
                                         <Pen className="text-black" />
                                     )}
@@ -373,35 +383,35 @@ export default function ProfileTabs() {
                         {/* Form Fields */}
                         <div className="mt-6 flex flex-col gap-4 max-w-[400px] mx-auto">
                             <div className="flex flex-col gap-2">
-                                <Label htmlFor="name" className="font-medium">Full Name</Label>
+                                <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">Full Name</Label>
                                 <Input
                                     id="name"
                                     value={formData.name}
                                     onChange={(e) => handleInputChange("name", e.target.value)}
                                     required
-                                    className="w-full"
+                                    className="w-full rounded-full border-white/10 bg-black text-white"
                                 />
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <Label htmlFor="email" className="font-medium">Email</Label>
+                                <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">Email</Label>
                                 <Input
                                     id="email"
                                     value={formData.email}
                                     disabled
-                                    className="w-full bg-gray-100 cursor-not-allowed"
+                                    className="w-full rounded-full border-white/10 bg-white/5 text-white/40 cursor-not-allowed"
                                 />
-                                <p className="text-xs text-gray-500">Email cannot be changed</p>
+                                <p className="text-[10px] uppercase tracking-[0.14em] text-white/25">Email cannot be changed</p>
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <Label htmlFor="contact" className="font-medium">Contact Number</Label>
+                                <Label htmlFor="contact" className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">Contact Number</Label>
                                 <Input
                                     id="contact"
                                     value={formData.contact}
                                     onChange={(e) => handleInputChange("contact", e.target.value)}
                                     placeholder="+1234567890"
-                                    className="w-full"
+                                    className="w-full rounded-full border-white/10 bg-black text-white"
                                 />
                             </div>
 
@@ -409,7 +419,7 @@ export default function ProfileTabs() {
                                 <Button 
                                     type="submit"
                                     disabled={loading || imageUploading}
-                                    className="bg-[#125BAC] hover:bg-[#0d4793] flex items-center gap-2"
+                                    className="rounded-full bg-primary text-black hover:bg-white flex items-center gap-2"
                                 >
                                     <Save size={16} />
                                     {loading ? "Saving..." : "Save Changes"}
@@ -419,7 +429,7 @@ export default function ProfileTabs() {
                                     variant="outline"
                                     onClick={handleCancelEdit}
                                     disabled={loading}
-                                    className="flex items-center gap-2"
+                                    className="flex items-center gap-2 rounded-full border-white/10 bg-black text-white hover:bg-white hover:text-black"
                                 >
                                     <X size={16} />
                                     Cancel
@@ -433,7 +443,7 @@ export default function ProfileTabs() {
                     <form onSubmit={handlePasswordChange}>
                         <div className="flex flex-col gap-4 max-w-[400px] mx-auto">
                             <div className="flex flex-col gap-2">
-                                <Label htmlFor="currentPassword" className="font-medium">Current Password</Label>
+                                <Label htmlFor="currentPassword" className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">Current Password</Label>
                                 <div className="relative">
                                     <Input
                                         id="currentPassword"
@@ -441,12 +451,12 @@ export default function ProfileTabs() {
                                         value={currentPassword}
                                         onChange={(e) => setCurrentPassword(e.target.value)}
                                         required
-                                        className="w-full pr-10"
+                                        className="w-full pr-10 rounded-full border-white/10 bg-black text-white"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/35"
                                     >
                                         {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                     </button>
@@ -454,7 +464,7 @@ export default function ProfileTabs() {
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <Label htmlFor="newPassword" className="font-medium">New Password</Label>
+                                <Label htmlFor="newPassword" className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">New Password</Label>
                                 <div className="relative">
                                     <Input
                                         id="newPassword"
@@ -463,12 +473,12 @@ export default function ProfileTabs() {
                                         onChange={(e) => setNewPassword(e.target.value)}
                                         required
                                         minLength={6}
-                                        className="w-full pr-10"
+                                        className="w-full pr-10 rounded-full border-white/10 bg-black text-white"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowNewPassword(!showNewPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/35"
                                     >
                                         {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                     </button>
@@ -476,7 +486,7 @@ export default function ProfileTabs() {
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <Label htmlFor="confirmPassword" className="font-medium">Confirm Password</Label>
+                                <Label htmlFor="confirmPassword" className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">Confirm Password</Label>
                                 <div className="relative">
                                     <Input
                                         id="confirmPassword"
@@ -484,12 +494,12 @@ export default function ProfileTabs() {
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         required
-                                        className="w-full pr-10"
+                                        className="w-full pr-10 rounded-full border-white/10 bg-black text-white"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/35"
                                     >
                                         {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                     </button>
@@ -500,7 +510,7 @@ export default function ProfileTabs() {
                                 <Button 
                                     type="submit"
                                     disabled={loading}
-                                    className="bg-[#125BAC] hover:bg-[#0d4793] flex items-center gap-2"
+                                    className="rounded-full bg-primary text-black hover:bg-white flex items-center gap-2"
                                 >
                                     {loading ? "Changing..." : "Change Password"}
                                 </Button>
@@ -509,7 +519,7 @@ export default function ProfileTabs() {
                                     variant="outline"
                                     onClick={handleCancelPassword}
                                     disabled={loading}
-                                    className="flex items-center gap-2"
+                                    className="flex items-center gap-2 rounded-full border-white/10 bg-black text-white hover:bg-white hover:text-black"
                                 >
                                     <X size={16} />
                                     Cancel

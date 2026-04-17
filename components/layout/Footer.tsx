@@ -7,9 +7,10 @@ import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 import { MapPin, Mail, Phone } from "lucide-react";
 import { getNavLinksServerSide, getSiteSettingsServerSide } from "@/server/functions/admin.fun";
 import { DEFAULT_STOREFRONT_NAV_LINKS, filterStorefrontNavLinks } from "@/lib/storefront";
+import type { ISite } from "@/server/models/site/site.interface";
 
 const Footer = () => {
-  const [siteSettings, setSiteSettings] = React.useState<any>(null);
+  const [siteSettings, setSiteSettings] = React.useState<ISite | null>(null);
   const [navLinks, setNavLinks] = React.useState(DEFAULT_STOREFRONT_NAV_LINKS);
 
   React.useEffect(() => {
@@ -20,7 +21,7 @@ const Footer = () => {
       ]);
 
       if (!settingsRes.isError && settingsRes.data) {
-        setSiteSettings(settingsRes.data);
+        setSiteSettings(settingsRes.data as ISite);
       }
 
       if (!navRes.isError && navRes.data) {
@@ -40,7 +41,7 @@ const Footer = () => {
 
   return (
     <footer className="border-t border-white/5 bg-black px-4 py-14 text-white md:px-6">
-      <div className="mx-auto grid max-w-7xl gap-10 rounded-[2.5rem] border border-white/10 bg-white/[0.03] p-6 sm:p-8 lg:grid-cols-[1.2fr_0.8fr_1fr] lg:p-10">
+      <div className="mx-auto grid max-w-7xl gap-10 rounded-[2.5rem] border border-white/10 bg-white/[0.03] p-6 sm:p-8 lg:grid-cols-[1.15fr_0.8fr_1fr_0.9fr] lg:p-10">
         <div className="space-y-6">
           <Link href="/" className="inline-flex">
             <Image
@@ -121,6 +122,32 @@ const Footer = () => {
               </p>
             </div>
           </div>
+        </div>
+
+        <div className="space-y-4">
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-white/35">Social</p>
+          {socialLinks.length > 0 ? (
+            <div className="space-y-3">
+              {socialLinks.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-white/65 transition-colors hover:text-primary"
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black text-white transition-all hover:border-primary hover:bg-primary hover:text-black">
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm leading-6 text-white/35">
+              Add Facebook, Instagram, or X links from the dashboard Social Matrix to show them here.
+            </p>
+          )}
         </div>
       </div>
 

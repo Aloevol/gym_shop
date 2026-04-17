@@ -14,6 +14,7 @@ import {
 } from '@/server/functions/banner.fun';
 import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided, DroppableProvided } from '@hello-pangea/dnd';
 import { GripVertical, Trash2, Edit, Save, X } from 'lucide-react';
+import { BANNER_ICON_OPTIONS, getBannerIconOption } from '@/lib/banner-icons';
 
 interface BannerMessage {
   _id: string;
@@ -30,7 +31,7 @@ interface IBannerResponseData {
 function BannerManagement() {
   const [messages, setMessages] = useState<BannerMessage[]>([]);
   const [loading, setLoading] = useState(false);
-  const [newMessage, setNewMessage] = useState({ text: '', icon: '🔹' });
+  const [newMessage, setNewMessage] = useState({ text: '', icon: 'Radio' });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
 
@@ -66,7 +67,7 @@ function BannerManagement() {
         toast.error(response.message);
       } else {
         toast.success(response.message);
-        setNewMessage({ text: '', icon: '🔹' });
+        setNewMessage({ text: '', icon: 'Radio' });
         fetchMessages();
       }
     } catch {
@@ -152,8 +153,6 @@ function BannerManagement() {
     }
   };
 
-  const commonIcons = ['🔹', '🚚', '💸', '📦', '🔥', '🌍', '🥇', '⭐', '🎯', '💎'];
-
   return (
     <div className="w-full min-h-full">
       <div className="w-full bg-white/5 border border-white/10 rounded-[3rem] p-10 shadow-2xl">
@@ -178,15 +177,42 @@ function BannerManagement() {
             
             <div className="flex flex-col gap-2">
               <Label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">VISUAL INDICATOR</Label>
-              <select
-                value={newMessage.icon}
-                onChange={(e) => setNewMessage({ ...newMessage, icon: e.target.value })}
-                className="bg-black border-white/10 rounded-full px-6 py-[14px] text-white focus:border-primary transition-all outline-none appearance-none cursor-pointer"
-              >
-                {commonIcons.map(icon => (
-                  <option key={icon} value={icon} className="bg-black text-xl">{icon}</option>
-                ))}
-              </select>
+              <div className="rounded-[2rem] border border-white/10 bg-black p-4">
+                <div className="mb-3 flex items-center gap-3 rounded-full border border-primary/20 bg-primary/10 px-4 py-3">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-black text-primary">
+                    {(() => {
+                      const SelectedIcon = getBannerIconOption(newMessage.icon).Icon;
+                      return <SelectedIcon size={18} />;
+                    })()}
+                  </span>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+                      {getBannerIconOption(newMessage.icon).label}
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/35">
+                      {BANNER_ICON_OPTIONS.length}+ ticker indicators
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-5 gap-3 md:grid-cols-5 xl:grid-cols-5">
+                  {BANNER_ICON_OPTIONS.map(({ value, Icon, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setNewMessage({ ...newMessage, icon: value })}
+                      className={`flex h-12 w-full items-center justify-center rounded-2xl border transition-all ${
+                        newMessage.icon === value
+                          ? 'border-primary bg-primary text-black shadow-lg shadow-primary/20'
+                          : 'border-white/10 bg-white/[0.03] text-white/60 hover:border-primary/30 hover:text-primary'
+                      }`}
+                      title={label}
+                      aria-label={label}
+                    >
+                      <Icon size={18} />
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div className="flex items-end">
@@ -230,8 +256,11 @@ function BannerManagement() {
                             </div>
 
                             {/* Icon */}
-                            <div className="w-14 h-14 bg-white/5 text-3xl flex items-center justify-center rounded-2xl border border-white/10">
-                              {message.icon}
+                            <div className="w-14 h-14 bg-white/5 flex items-center justify-center rounded-2xl border border-white/10 text-primary">
+                              {(() => {
+                                const Icon = getBannerIconOption(message.icon).Icon;
+                                return <Icon size={22} />;
+                              })()}
                             </div>
 
                             {/* Message Text */}

@@ -78,6 +78,7 @@ export default function RevenueChart({
                 labels: {
                     usePointStyle: true,
                     padding: 15,
+                    color: "#ffffff",
                 }
             },
             tooltip: {
@@ -95,10 +96,12 @@ export default function RevenueChart({
         scales: {
             x: {
                 grid: { display: false },
+                ticks: { color: "#9ca3af" },
             },
             y: {
-                grid: { color: '#f3f4f6' },
+                grid: { color: 'rgba(255,255,255,0.08)' },
                 ticks: {
+                    color: "#9ca3af",
                     callback: function(value: string | number) {
                         if (typeof value === 'number') {
                             return `৳${(value / 1000).toFixed(0)}k`;
@@ -114,11 +117,11 @@ export default function RevenueChart({
     };
 
     return (
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+        <div className="bg-black p-6 rounded-[2rem] shadow-lg border border-white/10">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h3 className="text-xl font-bold text-gray-800">{title}</h3>
-                    <p className="text-gray-500 text-sm">Monthly Performance</p>
+                    <h3 className="text-xl font-bold text-white">{title}</h3>
+                    <p className="text-white/45 text-sm">Monthly Performance</p>
                 </div>
             </div>
 
@@ -129,14 +132,14 @@ export default function RevenueChart({
             {showStats && (
                 <div className="mt-4 grid grid-cols-2 gap-4">
                     <div>
-                        <p className="text-gray-600 text-sm">Total Revenue</p>
+                        <p className="text-white/45 text-sm">Total Revenue</p>
                         <p className="text-lg font-bold text-green-600">
                             ৳{(totalRevenue / 1000).toFixed(1)}k
                         </p>
                     </div>
                     <div>
-                        <p className="text-gray-600 text-sm">Average Monthly</p>
-                        <p className="text-lg font-semibold text-gray-800">
+                        <p className="text-white/45 text-sm">Average Monthly</p>
+                        <p className="text-lg font-semibold text-white">
                             ৳{(averageRevenue / 1000).toFixed(1)}k
                         </p>
                     </div>

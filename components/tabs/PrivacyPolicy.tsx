@@ -64,8 +64,15 @@ export default function PrivacyPolicy() {
     }
 
     return (
-        <div className="w-[96%] mx-auto mt-4 border h-[85vh] overflow-hidden rounded-md p-4 flex flex-col gap-4 bg-white relative">
-            <h1 className={"text-3xl text-[#123499] font-semibold"}>Privacy & Policy</h1>
+        <div className="w-[96%] mx-auto mt-4 h-[85vh] overflow-hidden rounded-[2.5rem] border border-white/10 bg-black p-6 md:p-8 flex flex-col gap-6 relative shadow-2xl">
+            <div>
+                <h1 className="text-3xl font-custom font-bold text-white uppercase tracking-widest">
+                    Privacy <span className="text-primary">&</span> Policy
+                </h1>
+                <p className="mt-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/30">
+                    Manage storefront legal content in a dark editor workspace
+                </p>
+            </div>
             {/* Editor */}
             <ReactQuill
                 theme="snow"
@@ -73,10 +80,82 @@ export default function PrivacyPolicy() {
                 onChange={handleChange}
                 modules={modules}
                 formats={formats}
-                className="w-full h-[88%] bg-white"
+                className="privacy-editor w-full h-[88%]"
                 placeholder="Write your terms and conditions here..."
             />
-            <Button className={"w-[80px] h-[40px] absolute bottom-10 right-10 cursor-pointer"} onClick={()=> updateContent()}>Update</Button>
+            <Button
+                className="absolute bottom-8 right-8 h-[44px] rounded-full bg-primary px-6 text-black hover:bg-white cursor-pointer"
+                onClick={()=> updateContent()}
+            >
+                Update
+            </Button>
+
+            <style jsx global>{`
+                .privacy-editor .ql-toolbar {
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-bottom: none;
+                    background: rgba(255, 255, 255, 0.04);
+                    border-radius: 1.25rem 1.25rem 0 0;
+                }
+
+                .privacy-editor .ql-container {
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    background: #050505;
+                    color: #ffffff;
+                    border-radius: 0 0 1.25rem 1.25rem;
+                    font-size: 14px;
+                }
+
+                .privacy-editor .ql-editor {
+                    min-height: 420px;
+                    color: #ffffff;
+                }
+
+                .privacy-editor .ql-editor.ql-blank::before {
+                    color: rgba(255, 255, 255, 0.28);
+                    font-style: normal;
+                }
+
+                .privacy-editor .ql-stroke {
+                    stroke: rgba(255, 255, 255, 0.8);
+                }
+
+                .privacy-editor .ql-fill {
+                    fill: rgba(255, 255, 255, 0.8);
+                }
+
+                .privacy-editor .ql-picker,
+                .privacy-editor .ql-picker-label,
+                .privacy-editor .ql-picker-item,
+                .privacy-editor .ql-toolbar button {
+                    color: #ffffff;
+                }
+
+                .privacy-editor .ql-toolbar button:hover,
+                .privacy-editor .ql-toolbar button.ql-active,
+                .privacy-editor .ql-toolbar .ql-picker-label:hover,
+                .privacy-editor .ql-toolbar .ql-picker-label.ql-active {
+                    color: #f59e0b;
+                }
+
+                .privacy-editor .ql-toolbar button:hover .ql-stroke,
+                .privacy-editor .ql-toolbar button.ql-active .ql-stroke,
+                .privacy-editor .ql-toolbar .ql-picker-label:hover .ql-stroke,
+                .privacy-editor .ql-toolbar .ql-picker-label.ql-active .ql-stroke {
+                    stroke: #f59e0b;
+                }
+
+                .privacy-editor .ql-toolbar button:hover .ql-fill,
+                .privacy-editor .ql-toolbar button.ql-active .ql-fill {
+                    fill: #f59e0b;
+                }
+
+                .privacy-editor .ql-picker-options {
+                    background: #0b0b0b;
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    color: #ffffff;
+                }
+            `}</style>
         </div>
     );
 }

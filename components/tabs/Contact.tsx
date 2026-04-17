@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -12,6 +11,7 @@ import {
 } from '@/server/functions/contact.fun';
 import { IContactMessage } from '@/server/models/contact/contact.interface';
 import { toast } from 'sonner';
+import { Mail, MessageSquareText, Trash2, CheckCheck } from 'lucide-react';
 
 function Contact() {
     const [contacts, setContacts] = useState<IContactMessage[]>([]);
@@ -65,41 +65,61 @@ function Contact() {
     };
 
     const getStatusBadge = (status: string, isRead: boolean) => {
-        const variants = {
-            pending: "destructive",
-            replied: "default",
-            resolved: "secondary"
-        } as const;
-
         return (
-            <Badge variant={variants[status as keyof typeof variants]}>
+            <Badge
+                className={`border text-[10px] font-black uppercase tracking-[0.18em] ${
+                    status === "resolved"
+                        ? "border-green-500/20 bg-green-500/10 text-green-400"
+                        : status === "replied"
+                            ? "border-primary/20 bg-primary/10 text-primary"
+                            : "border-red-500/20 bg-red-500/10 text-red-400"
+                }`}
+            >
                 {status} {!isRead && "•"}
             </Badge>
         );
     };
 
     if (loading) {
-        return <div className="w-full h-[88vh] p-6">Loading...</div>;
+        return (
+            <div className="w-full h-[88vh] rounded-[3rem] border border-white/10 bg-white/5 p-10 animate-pulse" />
+        );
     }
 
     return (
-        <div className='w-full h-[88vh] p-6 overflow-auto'>
-            <Card className="w-full">
-                <CardHeader>
-                    <CardTitle>Contact & Support Messages</CardTitle>
-                </CardHeader>
-                <CardContent>
+        <div className='w-full h-[88vh] overflow-auto'>
+            <div className="w-full rounded-[3rem] border border-white/10 bg-white/5 p-6 md:p-8 shadow-2xl">
+                <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <h1 className="text-3xl font-custom font-bold text-white uppercase tracking-widest">
+                            Contact <span className="text-primary">&</span> Support Messages
+                        </h1>
+                        <p className="mt-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/25">
+                            Review inbound customer questions in a dark operations queue
+                        </p>
+                    </div>
+                    <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black px-5 py-3">
+                        <MessageSquareText size={16} className="text-primary" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white">
+                            {contacts.length} Total Messages
+                        </span>
+                    </div>
+                </div>
+
+                <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-black">
                     <Table>
-                        <TableCaption>List of all people who contacted you.</TableCaption>
+                        <TableCaption className="py-4 text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">
+                            List of all people who contacted you.
+                        </TableCaption>
                         <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Subject</TableHead>
-                                <TableHead>Message</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Actions</TableHead>
+                            <TableRow className="border-white/10 hover:bg-transparent">
+                                <TableHead className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">Name</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">Email</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">Subject</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">Message</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">Status</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">Date</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -107,18 +127,25 @@ function Contact() {
                                 contacts.map((item) => (
                                     <TableRow
                                         key={item?._id?.toString()}
-                                        className={!item.isRead ? "bg-blue-50 font-medium" : ""}
+                                        className={`border-white/5 ${
+                                            !item.isRead ? "bg-primary/5" : "bg-transparent"
+                                        }`}
                                     >
-                                        <TableCell className="font-medium">{item.name}</TableCell>
-                                        <TableCell>{item.email}</TableCell>
-                                        <TableCell>{item.subject}</TableCell>
-                                        <TableCell className="max-w-[250px] truncate" title={item.message}>
+                                        <TableCell className="font-medium text-white">{item.name}</TableCell>
+                                        <TableCell className="text-white/65">
+                                            <span className="inline-flex items-center gap-2">
+                                                <Mail size={14} className="text-primary" />
+                                                {item.email}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="text-white/75">{item.subject}</TableCell>
+                                        <TableCell className="max-w-[250px] truncate text-white/55" title={item.message}>
                                             {item.message}
                                         </TableCell>
                                         <TableCell>
                                             {getStatusBadge(item.status, item.isRead)}
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell className="text-white/45">
                                             {new Date(item.createdAt).toLocaleDateString()}
                                         </TableCell>
                                         <TableCell>
@@ -126,16 +153,19 @@ function Contact() {
                                                 {!item.isRead && (
                                                     <Button
                                                         size="sm"
+                                                        className="rounded-full bg-primary text-black hover:bg-white"
                                                         onClick={() => handleMarkAsRead(item?._id?.toString() as string)}
                                                     >
+                                                        <CheckCheck size={14} className="mr-2" />
                                                         Mark Read
                                                     </Button>
                                                 )}
                                                 <Button
                                                     size="sm"
-                                                    variant="destructive"
+                                                    className="rounded-full border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white"
                                                     onClick={() => handleDelete(item?._id?.toString() as string)}
                                                 >
+                                                    <Trash2 size={14} className="mr-2" />
                                                     Delete
                                                 </Button>
                                             </div>
@@ -144,15 +174,15 @@ function Contact() {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="text-center">
+                                    <TableCell colSpan={7} className="py-16 text-center text-[10px] font-black uppercase tracking-[0.2em] text-white/25">
                                         No messages yet
                                     </TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
                     </Table>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
     );
 }

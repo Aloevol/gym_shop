@@ -36,6 +36,7 @@ export interface IInstagramPost {
 }
 
 export interface IAthlete {
+  _id?: string;
   name: string;
   role: string;
   image: string;
@@ -49,6 +50,7 @@ export interface IAthlete {
 }
 
 export interface ISite {
+  _id?: string;
   // Global Identity
   siteName: string;
   siteDescription?: string;
