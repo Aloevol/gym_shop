@@ -352,14 +352,13 @@ function CartPage() {
                                                 <p className="text-[10px] font-black text-primary uppercase">{selectedDeliveryArea?.name}</p>
                                                 <p className="text-[9px] text-white/40 uppercase">{selectedDeliveryArea?.deliveryTime}</p>
                                             </div>
-                                            <p className="text-white font-black">{summary.shipping === 0 ? "FREE" : `৳ ${summary.shipping}`}</p>
+                                            <p className="text-white font-black">৳ {summary.shipping.toLocaleString()}</p>
                                         </div>
                                     )}
                                 </div>
                                 <div className="space-y-4 pt-6 border-t border-white/5">
                                     <div className="flex justify-between text-[10px] font-bold text-white/40 uppercase"><span>Subtotal</span><span className="text-white">৳ {summary.subtotal.toLocaleString()}</span></div>
-                                    <div className="flex justify-between text-[10px] font-bold text-white/40 uppercase"><span>Shipping</span><span className="text-white">{summary.shipping === 0 ? "FREE" : `৳ ${summary.shipping.toLocaleString()}`}</span></div>
-                                    <div className="flex justify-between text-[10px] font-bold text-white/40 uppercase"><span>Tax</span><span className="text-white">৳ {(summary.total - summary.subtotal - summary.shipping).toLocaleString()}</span></div>
+                                    <div className="flex justify-between text-[10px] font-bold text-white/40 uppercase"><span>Shipping</span><span className="text-white">৳ {summary.shipping.toLocaleString()}</span></div>
                                     <div className="flex justify-between text-2xl font-black text-primary uppercase pt-4 border-t border-white/5"><span>Total</span><span>৳ {summary.total.toLocaleString()}</span></div>
                                 </div>
                                 <button onClick={handleCheckout} disabled={!selectedDistrict} className="mt-10 w-full bg-primary text-black font-custom font-bold py-5 rounded-full hover:bg-white transition-all uppercase text-sm disabled:opacity-20">Proceed Checkout</button>
@@ -383,8 +382,9 @@ function CartPage() {
                     provider: "Redx"
                 }}
                 orderSummary={{
-                    ...summary,
-                    tax: summary.total - summary.subtotal - summary.shipping
+                    subtotal: summary.subtotal,
+                    shipping: summary.shipping,
+                    total: summary.total
                 }}
             />
         </section>
