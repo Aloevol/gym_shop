@@ -247,7 +247,10 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate, onPaymentStatusUpda
                                 ))}
                                 <div className="border-t border-white/5 pt-6 space-y-3">
                                     <div className="flex justify-between text-[10px] font-bold text-white/20 uppercase tracking-widest"><span>SUBTOTAL</span><span className="text-white text-xs">৳ {order.subtotal.toLocaleString()}</span></div>
-                                    <div className="flex justify-between text-[10px] font-bold text-white/20 uppercase tracking-widest"><span>LOGISTICS FEE</span><span className="text-white text-xs">৳ {order.shippingFee.toLocaleString()}</span></div>
+                                    {order.couponDiscount > 0 && (
+                                        <div className="flex justify-between text-[10px] font-bold text-green-500 uppercase tracking-widest"><span>DISCOUNT</span><span className="text-green-500 text-xs">-৳ {order.couponDiscount.toLocaleString()}</span></div>
+                                    )}
+                                    <div className="flex justify-between text-[10px] font-bold text-white/20 uppercase tracking-widest"><span>SHIPPING FEE</span><span className="text-white text-xs">৳ {order.shippingFee.toLocaleString()}</span></div>
                                     <div className="flex justify-between text-2xl font-black text-primary uppercase tracking-tighter pt-4 border-t border-white/5"><span>TOTAL</span><span>৳ {order.total.toLocaleString()}</span></div>
                                 </div>
                             </div>

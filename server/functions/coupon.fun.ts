@@ -166,12 +166,34 @@ export async function validateCouponServerSide(code: string, subtotal: number): 
     try {
         await connectToDB();
 
-        const coupon = await CouponModel.findValidCoupon(code);
+        const coupon = await CouponModel.findOne({ code: code.toUpperCase() });
 
         if (!coupon) {
             return {
                 isError: true,
                 message: "Invalid or expired coupon code"
+            };
+        }
+
+        if (!coupon.isActive) {
+            return {
+                isError: true,
+                message: "Coupon is inactive"
+            };
+        }
+
+        const now = new Date();
+        if (coupon.expiresAt && coupon.expiresAt < now) {
+            return {
+                isError: true,
+                message: "Coupon has expired"
+            };
+        }
+
+        if (coupon.usageLimit && coupon.usageLimit > 0 && coupon.usedCount >= coupon.usageLimit) {
+            return {
+                isError: true,
+                message: "Coupon usage limit reached"
             };
         }
 
@@ -204,6 +226,7 @@ export async function validateCouponServerSide(code: string, subtotal: number): 
             discountValue: coupon.discountValue
         };
     } catch (error) {
+        console.error("Coupon validation error:", error);
         return {
             isError: true,
             message: "Failed to validate coupon"

@@ -70,7 +70,7 @@ export default function OrderModal({
     country: "Bangladesh",
   });
   const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; discountType?: string; discountValue?: number } | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState("");
 
@@ -120,8 +120,14 @@ export default function OrderModal({
         setCouponError(result.message);
         setAppliedCoupon(null);
       } else {
-        setAppliedCoupon({ code: couponCode.toUpperCase(), discount: result.discount || 0 });
-        toast.success(result.message);
+        setAppliedCoupon({ 
+          code: couponCode.toUpperCase(), 
+          discount: result.discount || 0,
+          discountType: result.discountType,
+          discountValue: result.discountValue
+        });
+        const typeLabel = result.discountType === 'percentage' ? `${result.discountValue}%` : `৳${result.discountValue}`;
+        toast.success(`${result.message} (${typeLabel})`);
       }
     } catch (error) {
       setCouponError("Failed to validate coupon");
@@ -339,26 +345,34 @@ export default function OrderModal({
                 <div className="space-y-4">
                   <h3 className="text-sm font-custom font-bold uppercase tracking-widest text-primary">COUPON</h3>
                   {!appliedCoupon ? (
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
-                        <input
-                          type="text"
-                          value={couponCode}
-                          onChange={(e) => setCouponCode(e.target.value)}
-                          placeholder="ENTER COUPON CODE"
-                          className="w-full rounded-full border border-white/10 bg-black pl-12 pr-6 py-4 text-xs font-bold uppercase tracking-widest text-white outline-none focus:border-primary"
-                          disabled={loading}
-                        />
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                          <input
+                            type="text"
+                            value={couponCode}
+                            onChange={(e) => setCouponCode(e.target.value)}
+                            placeholder="ENTER COUPON CODE"
+                            className="w-full rounded-full border border-white/10 bg-black pl-12 pr-6 py-4 text-xs font-bold uppercase tracking-widest text-white outline-none focus:border-primary"
+                            disabled={loading}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleApplyCoupon}
+                          disabled={couponLoading || !couponCode.trim()}
+                          className="px-6 rounded-full bg-primary text-black font-bold uppercase text-xs tracking-widest hover:bg-white transition-all disabled:opacity-50"
+                        >
+                          {couponLoading ? "..." : "APPLY"}
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={handleApplyCoupon}
-                        disabled={couponLoading || !couponCode.trim()}
-                        className="px-6 rounded-full bg-primary text-black font-bold uppercase text-xs tracking-widest hover:bg-white transition-all disabled:opacity-50"
-                      >
-                        {couponLoading ? "..." : "APPLY"}
-                      </button>
+                      {couponError && (
+                        <div className="flex items-center gap-2 text-red-500 text-[10px] font-bold uppercase tracking-widest">
+                          <AlertCircle size={14} />
+                          <span>{couponError}</span>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="flex items-center justify-between rounded-2xl border border-primary/20 bg-primary/10 p-4">
@@ -368,7 +382,9 @@ export default function OrderModal({
                         </div>
                         <div>
                           <p className="text-xs font-black uppercase tracking-widest text-primary">{appliedCoupon.code}</p>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-white">-৳ {appliedCoupon.discount.toLocaleString()}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-white">
+                            {appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}%` : `৳${appliedCoupon.discountValue}`} OFF -৳ {appliedCoupon.discount.toLocaleString()}
+                          </p>
                         </div>
                       </div>
                       <button
@@ -466,15 +482,7 @@ export default function OrderModal({
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-sm font-custom font-bold uppercase tracking-widest text-primary">PAYMENT</h3>
-                  <div className="rounded-[2rem] border border-primary/20 bg-primary/5 p-6">
-                    <p className="text-xs font-black uppercase tracking-widest text-white">Cash on Delivery</p>
-                    <p className="mt-2 text-[10px] uppercase tracking-wider text-white/40">
-                      Online payment removed. You will pay after delivery is confirmed.
-                    </p>
-                  </div>
-                </div>
+                
               </div>
             </div>
 

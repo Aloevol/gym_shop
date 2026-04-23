@@ -6,6 +6,7 @@ import "@/server/models/user/user.model";
 import { revalidatePath } from "next/cache";
 import connectToDB from "@/server/db";
 import {OrderModel} from "@/server/models/order/order.model";
+import {ProductModel} from "@/server/models/product/product.model";
 import {CartModel} from "@/server/models/cart/cart.model";
 import mongoose from "mongoose";
 import { calculateOrderTotals, getDeliveryAreaForDistrict, normalizeDistrictName } from "@/lib/delivery";
@@ -106,6 +107,16 @@ export async function createOrder(orderData: CreateOrderData) {
 
         // Create order
         const order = await OrderModel.create(orderDataToSave);
+
+        // Reduce product stock for each item
+        for (const item of orderData.items) {
+            if (item.product) {
+                await ProductModel.findByIdAndUpdate(
+                    item.product,
+                    { $inc: { stock: -item.quantity } }
+                );
+            }
+        }
 
         // Convert to plain object for response
         const plainOrder = order.toObject();

@@ -64,7 +64,7 @@ couponSchema.statics.findValidCoupon = async function(code: string): Promise<ICo
     
     if (coupon.expiresAt && coupon.expiresAt < now) return null;
     
-    if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) return null;
+    if (coupon.usageLimit && coupon.usageLimit > 0 && coupon.usedCount >= coupon.usageLimit) return null;
     
     return coupon;
 };
