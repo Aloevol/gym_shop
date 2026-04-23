@@ -31,7 +31,6 @@ interface OrderModalProps {
   orderSummary?: {
     subtotal: number;
     shipping: number;
-    tax?: number;
     total: number;
   };
 }
@@ -88,7 +87,6 @@ export default function OrderModal({
   const summary = {
     subtotal: orderSummary?.subtotal ?? derivedSummary.subtotal,
     shipping: orderSummary?.shipping ?? derivedSummary.shipping,
-    tax: orderSummary?.tax ?? derivedSummary.tax,
     total: orderSummary?.total ?? derivedSummary.total,
   };
 
@@ -274,13 +272,7 @@ export default function OrderModal({
                     </div>
                     <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-white/40">
                       <span>Shipping</span>
-                      <span className="text-white">
-                        {summary.shipping === 0 ? "FREE" : `৳ ${summary.shipping.toLocaleString()}`}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-white/40">
-                      <span>Tax</span>
-                      <span className="text-white">৳ {summary.tax.toLocaleString()}</span>
+                      <span className="text-white">৳ {summary.shipping.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between border-t border-white/5 pt-4 text-2xl font-black uppercase tracking-tighter text-primary">
                       <span>Total</span>
@@ -365,7 +357,7 @@ export default function OrderModal({
                           <p className="text-primary">{deliveryArea.name}</p>
                           <p className="mt-1 text-white">{normalizedDistrict}</p>
                           <p className="mt-1 text-white/40">
-                            {summary.shipping === 0 ? "Free shipping unlocked" : `Delivery charge ৳ ${summary.shipping}`}
+                            Delivery charge ৳ {summary.shipping}
                           </p>
                         </div>
                       </div>

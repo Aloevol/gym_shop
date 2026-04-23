@@ -24,7 +24,6 @@ export interface InvoiceData {
     summary: {
         subtotal: number;
         shipping: number;
-        tax: number;
         total: number;
     };
     payment: {
@@ -160,18 +159,16 @@ export class PDFInvoiceGenerator {
         pdf.setFont('helvetica', 'bold');
         pdf.text('Subtotal:', pageWidth - margin - 60, summaryStart);
         pdf.text('Shipping:', pageWidth - margin - 60, summaryStart + 8);
-        pdf.text('Tax:', pageWidth - margin - 60, summaryStart + 16);
-        pdf.text('Total:', pageWidth - margin - 60, summaryStart + 26);
+        pdf.text('Total:', pageWidth - margin - 60, summaryStart + 20);
 
         pdf.setFont('helvetica', 'normal');
         pdf.text(`৳ ${invoiceData.summary.subtotal.toLocaleString()}`, pageWidth - margin - 25, summaryStart);
         pdf.text(`৳ ${invoiceData.summary.shipping.toLocaleString()}`, pageWidth - margin - 25, summaryStart + 8);
-        pdf.text(`৳ ${invoiceData.summary.tax.toLocaleString()}`, pageWidth - margin - 25, summaryStart + 16);
 
         // Total with highlight
         pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(247, 125, 49);
-        pdf.text(`৳ ${invoiceData.summary.total.toLocaleString()}`, pageWidth - margin - 25, summaryStart + 26);
+        pdf.text(`৳ ${invoiceData.summary.total.toLocaleString()}`, pageWidth - margin - 25, summaryStart + 20);
         pdf.setTextColor(0, 0, 0);
 
         yPosition = summaryStart + 50;

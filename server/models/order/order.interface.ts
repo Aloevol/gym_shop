@@ -29,7 +29,6 @@ export interface IOrder extends Document {
     shippingAddress: IShippingAddress;
     subtotal: number;
     shippingFee: number;
-    tax: number;
     total: number;
     status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
     paymentStatus: "pending" | "paid" | "failed" | "refunded";

@@ -91,7 +91,7 @@ export default function AdminOrdersPage() {
                 items: order.items.map(item => ({
                     title: item.title, quantity: item.quantity, price: item.price, type: item.type, total: item.price * item.quantity
                 })),
-                summary: { subtotal: order.subtotal, shipping: order.shippingFee, tax: order.tax, total: order.total },
+                summary: { subtotal: order.subtotal, shipping: order.shippingFee, total: order.total },
                 payment: { method: order.paymentMethod, status: order.paymentStatus, transactionId: (order as any)._id },
                 shipping: { method: "Performance Delivery", cost: order.shippingFee, estimatedDelivery: '3-5 business days' }
             };

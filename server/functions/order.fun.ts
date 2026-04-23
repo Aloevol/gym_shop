@@ -81,7 +81,6 @@ export async function createOrder(orderData: CreateOrderData) {
             },
             subtotal: totals.subtotal,
             shippingFee: totals.shipping,
-            tax: totals.tax,
             total: totals.total,
             status: "pending",
             paymentStatus: orderData.paymentStatus || "pending",

@@ -5,50 +5,46 @@ export interface DeliveryArea {
   districts: string[];
 }
 
-export const FREE_SHIPPING_THRESHOLD = 2000;
-export const ORDER_TAX_RATE = 0.05;
+export const DHAKA_DISTRICTS = ["Dhaka", "Gazipur", "Narayanganj", "Manikganj", "Munshiganj", "Narsingdi", "Savar", "Tangail"];
 
 export const DELIVERY_AREAS: DeliveryArea[] = [
   {
     name: "Dhaka Metropolitan",
     price: 60,
     deliveryTime: "1-2 days",
-    districts: ["Dhaka", "Gazipur", "Narayanganj", "Manikganj", "Munshiganj", "Narsingdi", "Savar", "Tangail"],
+    districts: DHAKA_DISTRICTS,
   },
   {
-    name: "Major City Express",
-    price: 100,
-    deliveryTime: "2-3 days",
-    districts: ["Chattogram", "Cox's Bazar", "Cumilla", "Feni", "Brahmanbaria", "Rajshahi", "Khulna", "Sylhet"],
-  },
-  {
-    name: "Remote Area Delivery",
-    price: 150,
-    deliveryTime: "4-6 days",
-    districts: ["Bandarban", "Bhola", "Khagrachari", "Kurigram", "Rangamati", "Sunamganj"],
-  },
-  {
-    name: "Standard District Delivery",
+    name: "Outside Dhaka",
     price: 120,
-    deliveryTime: "3-4 days",
+    deliveryTime: "3-5 days",
     districts: [
+      "Chattogram",
+      "Cox's Bazar",
+      "Cumilla",
+      "Feni",
+      "Brahmanbaria",
+      "Rajshahi",
+      "Khulna",
+      "Sylhet",
+      "Barishal",
+      "Bogura",
+      "Dinajpur",
+      "Jashore",
+      "Mymensingh",
+      "Rangpur",
       "Bagerhat",
       "Bandarban",
       "Barguna",
-      "Barishal",
       "Bhola",
-      "Bogura",
       "Chandpur",
       "Chapainawabganj",
       "Chuadanga",
-      "Cumilla",
-      "Dinajpur",
       "Faridpur",
       "Gaibandha",
       "Gopalganj",
       "Habiganj",
       "Jamalpur",
-      "Jashore",
       "Jhalokathi",
       "Jhenaidah",
       "Joypurhat",
@@ -60,7 +56,6 @@ export const DELIVERY_AREAS: DeliveryArea[] = [
       "Magura",
       "Meherpur",
       "Moulvibazar",
-      "Mymensingh",
       "Naogaon",
       "Narail",
       "Natore",
@@ -72,12 +67,16 @@ export const DELIVERY_AREAS: DeliveryArea[] = [
       "Patuakhali",
       "Pirojpur",
       "Rajbari",
-      "Rangpur",
       "Satkhira",
       "Shariatpur",
       "Sherpur",
       "Sirajganj",
       "Thakurgaon",
+      "Bandarban",
+      "Khagrachari",
+      "Kurigram",
+      "Rangamati",
+      "Sunamganj",
     ],
   },
 ];
@@ -97,7 +96,7 @@ export function normalizeDistrictName(district: string) {
 
 export function getDeliveryAreaForDistrict(district: string) {
   const normalizedDistrict = normalizeDistrictName(district);
-  return DELIVERY_AREAS.find((area) => area.districts.includes(normalizedDistrict)) || DELIVERY_AREAS[0];
+  return DELIVERY_AREAS.find((area) => area.districts.includes(normalizedDistrict)) || DELIVERY_AREAS[1];
 }
 
 export function getAllDistricts() {
@@ -106,21 +105,19 @@ export function getAllDistricts() {
 
 export function calculateShippingFee(subtotal: number, district: string) {
   if (!district) return 0;
-  if (subtotal >= FREE_SHIPPING_THRESHOLD) return 0;
   return getDeliveryAreaForDistrict(district).price;
 }
 
 export function calculateTax(subtotal: number) {
-  return subtotal * ORDER_TAX_RATE;
+  return 0;
 }
 
 export function calculateOrderTotals(subtotal: number, district: string) {
   const shipping = calculateShippingFee(subtotal, district);
-  const tax = calculateTax(subtotal);
   return {
     subtotal,
     shipping,
-    tax,
-    total: subtotal + shipping + tax,
+    tax: 0,
+    total: subtotal + shipping,
   };
 }

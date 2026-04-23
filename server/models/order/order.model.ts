@@ -51,12 +51,6 @@ const orderSchema = new Schema<IOrder>({
         default: 0,
         min: 0
     },
-    tax: {
-        type: Number,
-        required: true,
-        default: 0,
-        min: 0
-    },
     total: {
         type: Number,
         required: true,
