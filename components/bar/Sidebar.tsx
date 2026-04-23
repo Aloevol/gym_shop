@@ -1,5 +1,5 @@
 "use client";
-import { Contact2, Instagram, LayoutTemplate, MessageCircle, Settings2, ShoppingBag, User, X } from "lucide-react";
+import { Contact2, Instagram, LayoutTemplate, MessageCircle, Settings2, ShoppingBag, User, X, Tag } from "lucide-react";
 import { FcPrivacy } from "react-icons/fc";
 import { GrDashboard } from "react-icons/gr";
 import { PiFlagBanner } from "react-icons/pi";
@@ -29,6 +29,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }: Pr
         { title: "Overview", icon: () => createIconComponent(GrDashboard) },
         { title: "Hero", icon: () => createIconComponent(PiFlagBanner) },
         { title: "Products", icon: () => createIconComponent(ShoppingBag) },
+        { title: "Coupons", icon: () => createIconComponent(Tag) },
         { title: "Banner Message", icon: () => createIconComponent(MessageCircle) },
         { title: "Features", icon: () => createIconComponent(LayoutTemplate) },
         { title: "Testimonials", icon: () => createIconComponent(MessageCircle) },

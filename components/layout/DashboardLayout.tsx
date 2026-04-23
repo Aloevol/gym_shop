@@ -19,11 +19,13 @@ const Testimonials = lazy(() => import("../tabs/Testimonials"));
 const InstagramTab = lazy(() => import("../tabs/Instagram"));
 
 const Settings = lazy(() => import("../tabs/Settings"));
+const Coupons = lazy(() => import("../tabs/Coupons"));
 
 const VALID_TABS = [
     "Overview",
     "Hero",
     "Products",
+    "Coupons",
     "Banner Message",
     "Features",
     "Testimonials",
@@ -77,6 +79,7 @@ export default function DashboardLayout() {
             case "Order Management": return <OrderManagement />;
             case "PrivacyPolicy": return <PrivacyPolicy />;
             case "Settings": return <Settings />;
+            case "Coupons": return <Coupons />;
             default: return <h1>Not Found</h1>;
         }
     };

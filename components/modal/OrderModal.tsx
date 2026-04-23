@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { CheckCircle, MapPin, Truck, X } from "lucide-react";
+import { CheckCircle, MapPin, Truck, X, Tag, Check, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 import { createOrder } from "@/server/functions/order.fun";
 import { calculateOrderTotals, getAllDistricts, getDeliveryAreaForDistrict, normalizeDistrictName } from "@/lib/delivery";
+import { validateCouponServerSide, applyCouponByCode } from "@/server/functions/coupon.fun";
 
 interface OrderModalProps {
   isOpen: boolean;
@@ -68,10 +69,17 @@ export default function OrderModal({
     postalCode: "",
     country: "Bangladesh",
   });
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
 
   useEffect(() => {
     if (isOpen) {
       setSelectedDistrict(shippingInfo?.district || "");
+      setCouponCode("");
+      setAppliedCoupon(null);
+      setCouponError("");
     }
   }, [isOpen, shippingInfo?.district]);
 
@@ -84,13 +92,48 @@ export default function OrderModal({
   const deliveryArea = normalizedDistrict ? getDeliveryAreaForDistrict(normalizedDistrict) : null;
   const deliveryProvider = shippingInfo?.provider || DELIVERY_PROVIDER;
   const derivedSummary = calculateOrderTotals(subtotalFromItems, normalizedDistrict);
+  
+  const discountAmount = appliedCoupon?.discount || 0;
+  
   const summary = {
-    subtotal: orderSummary?.subtotal ?? derivedSummary.subtotal,
-    shipping: orderSummary?.shipping ?? derivedSummary.shipping,
-    total: orderSummary?.total ?? derivedSummary.total,
+    subtotal: derivedSummary.subtotal,
+    shipping: derivedSummary.shipping,
+    total: derivedSummary.total - discountAmount,
+    discount: discountAmount,
   };
 
   if (!isOpen) return null;
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+    
+    setCouponLoading(true);
+    setCouponError("");
+    
+    try {
+      const result = await validateCouponServerSide(couponCode.trim(), subtotalFromItems);
+      
+      if (result.isError) {
+        setCouponError(result.message);
+        setAppliedCoupon(null);
+      } else {
+        setAppliedCoupon({ code: couponCode.toUpperCase(), discount: result.discount || 0 });
+        toast.success(result.message);
+      }
+    } catch (error) {
+      setCouponError("Failed to validate coupon");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -168,11 +211,17 @@ export default function OrderModal({
         paymentMethod: "cashOnDelivery",
         paymentStatus: "pending",
         notes: `Checkout via ${deliveryProvider} | ${area.name} | ETA ${area.deliveryTime}`,
+        couponCode: appliedCoupon?.code,
+        couponDiscount: appliedCoupon?.discount,
       });
 
       if (!result.success) {
         toast.error(result.error || "Failed to create order");
         return;
+      }
+
+      if (appliedCoupon?.code) {
+        await applyCouponByCode(appliedCoupon.code);
       }
 
       toast.success("Order placed successfully");
@@ -274,11 +323,63 @@ export default function OrderModal({
                       <span>Shipping</span>
                       <span className="text-white">৳ {summary.shipping.toLocaleString()}</span>
                     </div>
+                    {appliedCoupon && (
+                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-green-500">
+                        <span>Discount</span>
+                        <span>-৳ {summary.discount?.toLocaleString()}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between border-t border-white/5 pt-4 text-2xl font-black uppercase tracking-tighter text-primary">
                       <span>Total</span>
                       <span>৳ {summary.total.toLocaleString()}</span>
                     </div>
                   </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-sm font-custom font-bold uppercase tracking-widest text-primary">COUPON</h3>
+                  {!appliedCoupon ? (
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                        <input
+                          type="text"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value)}
+                          placeholder="ENTER COUPON CODE"
+                          className="w-full rounded-full border border-white/10 bg-black pl-12 pr-6 py-4 text-xs font-bold uppercase tracking-widest text-white outline-none focus:border-primary"
+                          disabled={loading}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        disabled={couponLoading || !couponCode.trim()}
+                        className="px-6 rounded-full bg-primary text-black font-bold uppercase text-xs tracking-widest hover:bg-white transition-all disabled:opacity-50"
+                      >
+                        {couponLoading ? "..." : "APPLY"}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between rounded-2xl border border-primary/20 bg-primary/10 p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20">
+                          <Check size={18} className="text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-widest text-primary">{appliedCoupon.code}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-white">-৳ {appliedCoupon.discount.toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveCoupon}
+                        className="text-white/40 hover:text-red-500 text-xs font-bold uppercase tracking-widest"
+                      >
+                        REMOVE
+                      </button>
+                    </div>
+)}
                 </div>
               </div>
 

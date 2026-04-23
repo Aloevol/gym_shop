@@ -30,6 +30,8 @@ export interface IOrder extends Document {
     subtotal: number;
     shippingFee: number;
     total: number;
+    couponCode?: string;
+    couponDiscount?: number;
     status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
     paymentStatus: "pending" | "paid" | "failed" | "refunded";
     paymentMethod: "card" | "cashOnDelivery" | "bankTransfer";

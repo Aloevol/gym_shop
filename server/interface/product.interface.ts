@@ -15,6 +15,9 @@ export interface ICreateProductInput {
     tags?: string[];
     specifications?: Record<string, string>;
     rating?: number;
+    couponEnabled?: boolean;
+    couponDiscount?: number;
+    couponDiscountType?: "percentage" | "fixed";
 }
 
 export interface IUpdateProductInput {
@@ -31,4 +34,7 @@ export interface IUpdateProductInput {
     tags?: string[];
     specifications?: Record<string, string>;
     rating?: number;
+    couponEnabled?: boolean;
+    couponDiscount?: number;
+    couponDiscountType?: "percentage" | "fixed";
 }

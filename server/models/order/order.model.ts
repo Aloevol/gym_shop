@@ -56,6 +56,8 @@ const orderSchema = new Schema<IOrder>({
         required: true,
         min: 0
     },
+    couponCode: { type: String, trim: true },
+    couponDiscount: { type: Number, min: 0, default: 0 },
     status: {
         type: String,
         required: true,

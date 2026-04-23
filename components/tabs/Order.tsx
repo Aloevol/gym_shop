@@ -151,6 +151,9 @@ export default function AdminOrdersPage() {
                                         <div>
                                             <p className="text-white font-black uppercase tracking-widest text-sm mb-1">ORDER #{order.orderNumber}</p>
                                             <p className="text-white/40 text-[10px] uppercase font-bold tracking-wider">{new Date(order.createdAt).toLocaleString()}</p>
+                                            {order.couponCode && (
+                                                <p className="text-green-500 text-[10px] font-bold uppercase tracking-widest mt-1">COUPON: {order.couponCode} (-৳{order.couponDiscount})</p>
+                                            )}
                                         </div>
                                     </div>
 
@@ -166,14 +169,6 @@ export default function AdminOrdersPage() {
                                             className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border focus:outline-none appearance-none cursor-pointer ${statusSteps.find(s => s.value === order.status)?.color || ""}`}
                                         >
                                             {statusSteps.map(step => <option key={step.value} value={step.value} className="bg-black">{step.label}</option>)}
-                                        </select>
-
-                                        <select
-                                            value={order.paymentStatus}
-                                            onChange={(e) => handlePaymentStatusUpdate((order as any)._id, e.target.value)}
-                                            className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border focus:outline-none appearance-none cursor-pointer ${paymentStatusOptions.find(s => s.value === order.paymentStatus)?.color || ""}`}
-                                        >
-                                            {paymentStatusOptions.map(opt => <option key={opt.value} value={opt.value} className="bg-black">{opt.label}</option>)}
                                         </select>
 
                                         <div className="flex gap-2">

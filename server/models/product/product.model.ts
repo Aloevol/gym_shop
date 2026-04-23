@@ -77,6 +77,20 @@ const productSchema = new Schema<IProduct>({
         type: Map,
         of: String,
         default: {}
+    },
+    couponEnabled: {
+        type: Boolean,
+        default: false
+    },
+    couponDiscount: {
+        type: Number,
+        min: 0,
+        default: 0
+    },
+    couponDiscountType: {
+        type: String,
+        enum: ["percentage", "fixed"],
+        default: "percentage"
     }
 }, {
     timestamps: true

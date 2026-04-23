@@ -35,6 +35,8 @@ interface CreateOrderData {
     };
     paymentMethod: "card" | "cashOnDelivery" | "bankTransfer";
     notes?: string;
+    couponCode?: string;
+    couponDiscount?: number;
 }
 
 export async function createOrder(orderData: CreateOrderData) {
@@ -81,7 +83,9 @@ export async function createOrder(orderData: CreateOrderData) {
             },
             subtotal: totals.subtotal,
             shippingFee: totals.shipping,
-            total: totals.total,
+            total: totals.total - (orderData.couponDiscount || 0),
+            couponCode: orderData.couponCode,
+            couponDiscount: orderData.couponDiscount || 0,
             status: "pending",
             paymentStatus: orderData.paymentStatus || "pending",
             paymentMethod: orderData.paymentMethod,

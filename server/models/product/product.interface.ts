@@ -15,6 +15,9 @@ export interface IProduct {
     isFeatured: boolean;
     tags: string[];
     specifications: Record<string, string>;
+    couponEnabled: boolean;
+    couponDiscount: number;
+    couponDiscountType: "percentage" | "fixed";
     createdAt: Date;
     updatedAt: Date;
 }
