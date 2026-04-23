@@ -10,7 +10,7 @@ export const DHAKA_DISTRICTS = ["Dhaka", "Gazipur", "Narayanganj", "Manikganj", 
 export const DELIVERY_AREAS: DeliveryArea[] = [
   {
     name: "Dhaka Metropolitan",
-    price: 60,
+    price: 80,
     deliveryTime: "1-2 days",
     districts: DHAKA_DISTRICTS,
   },
