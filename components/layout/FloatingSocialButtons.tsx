@@ -5,6 +5,7 @@ import { getSiteSettingsServerSide } from '@/server/functions/admin.fun';
 import { ISite } from '@/server/models/site/site.interface';
 import { MessageCircle } from 'lucide-react';
 import { FaFacebookF } from 'react-icons/fa';
+import { toast } from 'sonner';
 
 const FloatingSocialButtons = () => {
   const [socialLinks, setSocialLinks] = useState<{ facebook?: string; whatsapp?: string }>({});
@@ -24,6 +25,18 @@ const FloatingSocialButtons = () => {
     fetchSettings();
   }, []);
 
+  const handleWhatsAppClick = () => {
+    if (!socialLinks.whatsapp) {
+      toast.error("WhatsApp link not configured. Please add it in dashboard settings.");
+    }
+  };
+
+  const handleFacebookClick = () => {
+    if (!socialLinks.facebook) {
+      toast.error("Facebook link not configured. Please add it in dashboard settings.");
+    }
+  };
+
   return (
     <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-3">
       <div 
@@ -31,13 +44,16 @@ const FloatingSocialButtons = () => {
         onMouseEnter={() => setHoveredBtn('whatsapp')}
         onMouseLeave={() => setHoveredBtn(null)}
       >
-        <button
-          onClick={() => socialLinks.whatsapp && window.open(socialLinks.whatsapp, '_blank')}
-          className="bg-[#25D366] text-white w-12 h-12 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center"
+        <a
+          href={socialLinks.whatsapp || '#'}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={!socialLinks.whatsapp ? handleWhatsAppClick : undefined}
+          className={`bg-[#25D366] text-white w-12 h-12 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center ${!socialLinks.whatsapp ? 'pointer-events-auto opacity-50' : ''}`}
           aria-label="Contact on WhatsApp"
         >
           <MessageCircle size={28} fill="currentColor" className="text-white" />
-        </button>
+        </a>
         {hoveredBtn === 'whatsapp' && socialLinks.whatsapp && (
           <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-[#25D366] text-white px-3 py-2 rounded-full text-xs font-bold uppercase tracking-widest whitespace-nowrap shadow-xl">
             WhatsApp
@@ -49,13 +65,16 @@ const FloatingSocialButtons = () => {
         onMouseEnter={() => setHoveredBtn('facebook')}
         onMouseLeave={() => setHoveredBtn(null)}
       >
-        <button
-          onClick={() => socialLinks.facebook && window.open(socialLinks.facebook, '_blank')}
-          className="bg-[#1877F2] text-white w-12 h-12 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center"
+        <a
+          href={socialLinks.facebook || '#'}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={!socialLinks.facebook ? handleFacebookClick : undefined}
+          className={`bg-[#1877F2] text-white w-12 h-12 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center ${!socialLinks.facebook ? 'pointer-events-auto opacity-50' : ''}`}
           aria-label="Facebook"
         >
           <FaFacebookF size={28} />
-        </button>
+        </a>
         {hoveredBtn === 'facebook' && socialLinks.facebook && (
           <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-[#1877F2] text-white px-3 py-2 rounded-full text-xs font-bold uppercase tracking-widest whitespace-nowrap shadow-xl">
             Facebook
