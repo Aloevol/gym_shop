@@ -27,9 +27,6 @@ interface FormData {
     specifications: Record<string, string>;
     isActive: boolean;
     isFeatured: boolean;
-    couponEnabled: boolean;
-    couponDiscount: string;
-    couponDiscountType: "percentage" | "fixed";
 }
 
 const convertToPlainObject = (doc: any): any => {
@@ -68,7 +65,7 @@ export default function ProductManagement() {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const [formData, setFormData] = useState<FormData>({
-        title: "", description: "", price: "", originalPrice: "", images: [], category: "", brand: "", stock: "", tags: [""], rating: 0, specifications: {}, isActive: true, isFeatured: false, couponEnabled: false, couponDiscount: "", couponDiscountType: "percentage"
+        title: "", description: "", price: "", originalPrice: "", images: [], category: "", brand: "", stock: "", tags: [""], rating: 0, specifications: {}, isActive: true, isFeatured: false
     });
 
     const loadProducts = useCallback(async (page: number, initialLoad: boolean = false) => {
@@ -102,7 +99,7 @@ export default function ProductManagement() {
 
     const handleAddNew = () => {
         setEditingProduct(null);
-        setFormData({ title: "", description: "", price: "", originalPrice: "", images: [], category: "", rating: 0, brand: "", stock: "", tags: [""], specifications: {}, isActive: true, isFeatured: false, couponEnabled: false, couponDiscount: "", couponDiscountType: "percentage" });
+        setFormData({ title: "", description: "", price: "", originalPrice: "", images: [], category: "", rating: 0, brand: "", stock: "", tags: [""], specifications: {}, isActive: true, isFeatured: false });
         setPreviewImages([]);
         setSelectedFiles([]);
         setIsModalOpen(true);
@@ -112,8 +109,7 @@ export default function ProductManagement() {
         setEditingProduct(product);
         setFormData({
             title: product.title, description: product.description, price: product.price.toString(), originalPrice: product.originalPrice?.toString() || "", images: product.images,
-            rating: product.rating || 0, category: product.category, brand: product.brand, stock: product.stock.toString(), tags: product.tags, specifications: product.specifications || {}, isActive: product.isActive, isFeatured: product.isFeatured,
-            couponEnabled: (product as any).couponEnabled || false, couponDiscount: (product as any).couponDiscount?.toString() || "", couponDiscountType: (product as any).couponDiscountType || "percentage"
+            rating: product.rating || 0, category: product.category, brand: product.brand, stock: product.stock.toString(), tags: product.tags, specifications: product.specifications || {}, isActive: product.isActive, isFeatured: product.isFeatured
         });
         setPreviewImages(product.images);
         setSelectedFiles([]);
@@ -161,8 +157,7 @@ export default function ProductManagement() {
             price: parseFloat(formData.price), 
             originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : undefined, 
             stock: parseInt(formData.stock), 
-            images: finalImages,
-            couponDiscount: formData.couponDiscount ? parseFloat(formData.couponDiscount) : undefined
+            images: finalImages
         };
 
             const response = editingProduct ? await updateProductServerSide(editingProduct._id.toString(), productData) : await createProductServerSide(productData);
@@ -210,7 +205,6 @@ export default function ProductManagement() {
                             <div className="absolute top-6 left-6 flex flex-col gap-2 z-10">
                                 {!product.isActive && <span className="bg-red-500 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest">OFFLINE</span>}
                                 {product.isFeatured && <span className="bg-primary text-black text-[8px] font-black px-3 py-1 rounded-full flex items-center gap-1 uppercase tracking-widest shadow-lg"><Star size={10} fill="currentColor" />ELITE</span>}
-                                {(product as any).couponEnabled && <span className="bg-green-500 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">{(product as any).couponDiscount}{(product as any).couponDiscountType === "percentage" ? "%" : "৳"} OFF</span>}
                             </div>
                             <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 flex gap-2 z-10 translate-y-2 group-hover:translate-y-0">
                                 <button onClick={() => handleEdit(product)} className="h-10 w-10 bg-white/10 border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-white hover:text-black transition-all"><Edit size={16} /></button>
@@ -244,6 +238,8 @@ export default function ProductManagement() {
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                                 <div className="space-y-8">
                                     <div className="space-y-2"><label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">TITLE *</label><input type="text" required value={formData.title} onChange={(e) => handleInputChange("title", e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none transition-all uppercase font-bold text-sm" /></div>
+                                    <div className="space-y-2"><label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">CATEGORY *</label><input type="text" required value={formData.category} onChange={(e) => handleInputChange("category", e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none transition-all uppercase font-bold text-sm" placeholder="e.g., SUPPLEMENTS" /></div>
+                                    <div className="space-y-2"><label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">BRAND *</label><input type="text" required value={formData.brand} onChange={(e) => handleInputChange("brand", e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none transition-all uppercase font-bold text-sm" placeholder="e.g., OPTIMUM NUTRITION" /></div>
                                     <div className="space-y-2"><label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">DESCRIPTION</label><textarea value={formData.description} onChange={(e) => handleInputChange("description", e.target.value)} rows={4} className="w-full bg-white/5 border border-white/10 rounded-[2rem] px-6 py-4 text-white focus:border-primary outline-none resize-none transition-all text-sm" /></div>
                                     <div className="grid grid-cols-2 gap-6">
                                         <div className="space-y-2"><label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">PRICE *</label><input type="number" required value={formData.price} onChange={(e) => handleInputChange("price", e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none font-black" /></div>
