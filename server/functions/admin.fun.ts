@@ -1086,15 +1086,14 @@ export async function updateSiteSettingsServerSide(settings: Partial<ISite>): Pr
     
     // Save social links object directly to ensure all sub-fields (like whatsapp) are included
     if (settings.socialLinks) {
-      updateData.socialLinks = {
-        facebook: settings.socialLinks.facebook || "",
-        instagram: settings.socialLinks.instagram || "",
-        twitter: settings.socialLinks.twitter || "",
-        whatsapp: settings.socialLinks.whatsapp || ""
-      };
+      updateData["socialLinks.facebook"] = settings.socialLinks.facebook || "";
+      updateData["socialLinks.instagram"] = settings.socialLinks.instagram || "";
+      updateData["socialLinks.twitter"] = settings.socialLinks.twitter || "";
+      updateData["socialLinks.whatsapp"] = settings.socialLinks.whatsapp || "";
     }
 
     // Use updateOne on the collection directly to bypass any cached schema issues in Mongoose
+    console.log("Updating with data:", JSON.stringify(updateData));
     await SiteModle.collection.updateOne({}, { $set: updateData }, { upsert: true });
     
     // Fetch the updated document as a plain object
