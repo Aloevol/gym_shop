@@ -152,13 +152,13 @@ export default function ProductManagement() {
                 setImageUploading(false);
             }
 
-            const productData = { 
-            ...formData, 
-            price: parseFloat(formData.price), 
-            originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : undefined, 
-            stock: parseInt(formData.stock), 
-            images: finalImages
-        };
+            const productData = {
+                ...formData,
+                price: parseFloat(formData.price),
+                originalPrice: formData.originalPrice !== "" ? parseFloat(formData.originalPrice) : undefined,
+                stock: parseInt(formData.stock),
+                images: finalImages
+            };
 
             const response = editingProduct ? await updateProductServerSide(editingProduct._id.toString(), productData) : await createProductServerSide(productData);
 
@@ -166,8 +166,13 @@ export default function ProductManagement() {
                 toast.success(`Product ${editingProduct ? 'updated' : 'created'}`);
                 setIsModalOpen(false);
                 loadProducts(1, true);
+            } else {
+                toast.error(response.message || "Failed to save product");
             }
-        } catch (error) { console.error(error); } finally { setFormLoading(false); }
+        } catch (error: any) {
+            console.error(error);
+            toast.error(error.message || "An unexpected error occurred");
+        } finally { setFormLoading(false); }
     };
 
     const handleInputChange = (field: keyof FormData, value: any) => setFormData(prev => ({ ...prev, [field]: value }));
@@ -240,7 +245,7 @@ export default function ProductManagement() {
                                     <div className="space-y-2"><label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">TITLE *</label><input type="text" required value={formData.title} onChange={(e) => handleInputChange("title", e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none transition-all uppercase font-bold text-sm" /></div>
                                     <div className="space-y-2"><label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">CATEGORY *</label><input type="text" required value={formData.category} onChange={(e) => handleInputChange("category", e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none transition-all uppercase font-bold text-sm" placeholder="e.g., SUPPLEMENTS" /></div>
                                     <div className="space-y-2"><label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">BRAND *</label><input type="text" required value={formData.brand} onChange={(e) => handleInputChange("brand", e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none transition-all uppercase font-bold text-sm" placeholder="e.g., OPTIMUM NUTRITION" /></div>
-                                    <div className="space-y-2"><label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">DESCRIPTION</label><textarea value={formData.description} onChange={(e) => handleInputChange("description", e.target.value)} rows={4} className="w-full bg-white/5 border border-white/10 rounded-[2rem] px-6 py-4 text-white focus:border-primary outline-none resize-none transition-all text-sm" /></div>
+                                    <div className="space-y-2"><label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">DESCRIPTION *</label><textarea required value={formData.description} onChange={(e) => handleInputChange("description", e.target.value)} rows={4} className="w-full bg-white/5 border border-white/10 rounded-[2rem] px-6 py-4 text-white focus:border-primary outline-none resize-none transition-all text-sm" /></div>
                                     <div className="grid grid-cols-2 gap-6">
                                         <div className="space-y-2"><label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">PRICE *</label><input type="number" required value={formData.price} onChange={(e) => handleInputChange("price", e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none font-black" /></div>
                                         <div className="space-y-2"><label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">STOCK *</label><input type="number" required value={formData.stock} onChange={(e) => handleInputChange("stock", e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:border-primary outline-none font-black" /></div>
